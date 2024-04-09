@@ -1,11 +1,12 @@
 <header class="p-3 bg-dark text-white fixed-top"
-        style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
+  style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
         <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
         <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a>
+        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a
+            class="nav-link px-2 text-white head-text">Пользователи</a>
         </li>
         <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
       </ul>
@@ -16,25 +17,25 @@
 <!-- Сама конференция админка / обычная -->
 
 
-<section id="conference" >
+<section id="conference">
   <div class="container">
 
     <div class="main">
       <form [formGroup]="formCreateConference">
-        <div class="row d-flex align-items-center konf-pref">
+        <div class="row d-flex align-items-center konf-pref rounded-3" style="padding: 0px;">
           <div class="d-inline-flex align-items-center col-8">
             <div class="conf-name-adress text-black">
-              Конференции / {{this.currentConference != null ? "Изменение \"" + this.currentConference.title +"\"" : "Создание"}}
+              Конференции / {{this.currentConference != null ? "Изменение \"" + this.currentConference.title +"\"" :
+              "Создание"}}
             </div>
           </div>
           <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isSuperAdmin()" style="height: 17px;">
             Администратор
             <div class="conf-name-adress text-black" style="width: 100%;">
               <div class="form-floating mb-3">
-                <select class="form-select rounded-1" style="height: 47px; padding: 15px; margin-top: 15px;"
-                        formControlName="adminName" (change)="updateAdmin($event)">
-
-                  <option [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
+                <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
+                  formControlName="adminName" (change)="updateAdmin($event)">
+                  <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
                   <option *ngFor="let user of admins">{{ user.fullName }}</option>
                 </select>
               </div>
@@ -42,71 +43,83 @@
           </div>
         </div>
 
+        <div class="rounded-3 row konf-information" style="padding-right: 5px;">
+          <div class="row" style="margin-bottom: 20px; margin-top: -15px;">
+            <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;">
+              <label class="main-text" for="floatingInput">Название конференции <span
+                  style="color: red;">*</span></label>
+              <input type="text" class="bg-white form-control section-text text-black" formControlName="confName"
+                id="floatingInput">
+            </div>
+            <div class="col-2 conf-title text-black" style="padding: 0px;">
+              <label class="main-text" for="floatingInput">Статус <span style="color: red;">*</span></label>
+              <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px;" formControlName="confStatis" >
+                <option selected [ngValue]="undefined" style="font-size: 16px; color: black;">Выберите</option>
+                <option *ngFor="let status of statusList">{{ status }}</option>
+              </select>
+            </div>
+            <div class="col-4" style="padding-left: 0px;">
+              <label class="second-text" for="floatingInput">Организация <span style="color: red;">*</span></label>
+              <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                id="floatingInput">
+            </div>
+            <div class="col-4 text-center">
+              <label class="second-text" for="floatingInput">Дата начала <span style="color: red;">*</span></label>
+              <input type="date" class="bg-white form-control section-text text-black" formControlName="date_start"
+                id="floatingInput">
+            </div>
+            <div class="col-4 text-end" style="padding-right: 0px;">
+              <label class="second-text" for="floatingInput">Дата завершения <span style="color: red;">*</span></label>
+              <input type="date" class="bg-white form-control section-text text-black" formControlName="date_end"
+                id="floatingInput">
+            </div>
 
-        <div class="row konf-information">
-          <div class="row" style="margin-bottom: 20px;">
-            <div class="col-12 conf-title text-black">
-              <label for="floatingInput">Название конференции <span style="color: red;">*</span></label>
-              <input type="text" class="form-control rounded-4" formControlName="confName" id="floatingInput">
+            <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;">
+              <label class="second-text" for="floatingInput">Описание <span style="color: red;">*</span></label>
+              <textarea style="min-height: 250px;" rows="10" type="text"
+                class="bg-white form-control section-text text-black" formControlName="description"
+                id="floatingInput"></textarea>
             </div>
-            <div class="col-4 conf-info-text text-black">
-              <label for="floatingInput">Организация <span style="color: red;">*</span></label>
-              <input type="text" class="form-control rounded-4" formControlName="organization" id="floatingInput">
-            </div>
-            <div class="col-4 conf-info-text text-black text-center">
-              <label for="floatingInput">Дата начала <span style="color: red;">*</span></label>
-              <input type="datetime-local" class="form-control rounded-4" formControlName="date_start" id="floatingInput">
-            </div>
-            <div class="col-4 conf-info-text text-black text-end">
-              <label for="floatingInput">Дата завершения <span style="color: red;">*</span></label>
-              <input type="datetime-local" class="form-control rounded-4" formControlName="date_end" id="floatingInput">
-            </div>
-            <div class="row align-items-center" style="margin-bottom: 20px;">
-              <div class="col-12 conf-desc">
-                <div class="conf-info-text text-black" style="margin: 0px;">
-                  <label for="floatingInput">Описание <span style="color: red;">*</span></label>
-                  <textarea rows="10" type="text" class="form-control rounded-4" formControlName="description" id="floatingInput"></textarea>
-                </div>
-              </div>
-            </div>
-
           </div>
 
-          <div class="row" style="margin-bottom: 20px;">
+          <div class="row" style="margin-bottom: 5px;">
             <div class="row conf-info-section-item">
-              <div class="col-5 conf-info-section" style="padding-right: 5px;">
-                <div class="conf-section-title text-center text-white">Секция</div>
+              <div class="col-6 conf-info-section" style="padding-right: 5px;">
+                <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Секция</div>
               </div>
-              <div class="col-5 conf-info-section" style="padding-left: 5px;">
-                <div class="conf-section-title text-center text-white">Руководитель</div>
-              </div>
-              <div class="col-1 conf-info-section" style="padding-left: 5px;">
-                <div class="conf-section-title text-center text-white" (click)="addRowForSection()">+</div>
+              <div class="col-6 conf-info-section" style="padding-left: 5px;">
+                <div style="padding: 10px" class="conf-section-title form-control  text-center text-white">Руководитель
+                </div>
               </div>
             </div>
 
             <div class="row conf-info-section-item" *ngFor="let section of this.sections">
-              <div class="col-5 conf-info-section" style="padding-right: 5px;">
-                <div class="section-text text-center text-black">
-                  <input type="text" class="form-control rounded-4" [value]="section.title" (change)="updateSections($event, 'org', section)">
-                </div>
+              <div class="col-6 conf-info-section" style="padding-right: 5px;">
+                <input type="text" class="bg-white form-control section-text text-center text-black"
+                  [value]="section.title" (change)="updateSections($event, 'org', section)">
               </div>
-              <div class="col-5 conf-info-section" style="padding-left: 5px;">
-                <div class="section-text text-center text-black">
-                  <input type="text" class="form-control rounded-4" [value]="section.leaderName" (change)="updateSections($event, 'user', section)">
-                </div>
+              <div class="col-6 conf-info-section" style="padding-left: 5px;">
+                <input type="text" class="bg-white section-text form-control text-center text-black"
+                  [value]="section.leaderName" (change)="updateSections($event, 'user', section)">
               </div>
+            </div>
+            <div class="conf-info-section">
+              <div style="padding: 10px; cursor: pointer;"
+                class="conf-section-title form-control text-center text-white" (click)="addRowForSection()">Добавить
+                секцию</div>
             </div>
           </div>
 
 
-          <div class="row align-items-center" style="margin-bottom: 20px;">
+          <div class="row align-items-center" style="margin-bottom: 10px;">
             <div class="col-4 conf-info-text text-black">
 
             </div>
             <div class="col-4 conf-info-text text-black text-center">
-              <button type="button" class="btn btn-pref text-white" *ngIf="this.currentConferenceId == null" (click)="createConference()">Сохранить</button>
-              <button type="button" class="btn btn-pref text-white" *ngIf="this.currentConferenceId != null" (click)="updateConference()">Изменить</button>
+              <button type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId == null"
+                (click)="createConference()">Сохранить</button>
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId != null"
+                (click)="updateConference()">Сохранить изменения</button>
             </div>
             <div class="col-4 conf-info-text text-black text-end">
 

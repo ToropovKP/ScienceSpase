@@ -29,6 +29,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   formCreateConference!: FormGroup;
   loggedUser!: LoginResponse;
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
+  statusList: string[] = ['Открыта', 'Временно приостановлена', 'Закрыта'];
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,

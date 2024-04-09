@@ -40,6 +40,25 @@
   cursor: pointer;
 }
 
+.second-text {
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  color: black;
+  margin-left: 15px;
+}
+
+.main-text {
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  color: black;
+  margin-left: 15px;
+}
+
+
 .conf-section-title {
   padding: 13px;
   height: 47px;

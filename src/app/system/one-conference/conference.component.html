@@ -19,21 +19,21 @@
   <div class="container">
 
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
           <div class="conf-name-adress text-black">
             Конференции / {{this.currentConference.title}}
           </div>
         </div>
-        <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isAdminAbsolute()" style="height: 17px;">
+        <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isAdminAbsolute()" style="height: 17px; font-size: 20px;">
           {{this.currentConferenceAdmin.fullName != null ? "Администратор: "+ this.currentConferenceAdmin.fullName : ''}}
         </div>
       </div>
 
 
 
-      <div class="row konf-information">
-        <div class="row" style="margin-bottom: 20px;">
+      <div class="row konf-information rounded-3">
+        
           <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
           <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
           <div class="col-4 conf-info-text text-black text-center">Дата начала: {{this.currentConference.startDate}}</div>
@@ -41,36 +41,39 @@
           <div class="col-4 conf-info-text text-black ">Статус: {{ this.statusMap.get(this.currentConference.status) }}</div>
           <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isAdminConference()">Количество участников: {{this.countUsers}}</span></div>
           <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isAdminConference()" (click)="checkUsers()">Перейти к списку участников</a></div>
-        </div>
-        <div class="row" style="margin-bottom: 20px;">
-          <div class="row conf-info-section-item">
+        
+          <div class="row conf-info-section-item" style="margin-top: 10px;">
             <div class="col-6 conf-info-section" style="padding-right: 5px;">
-              <div class="conf-section-title text-center text-white">Секция</div>
+              <div class="conf-section-title text-center text-white rounded-3">Секция</div>
             </div>
             <div class="col-6 conf-info-section" style="padding-left: 5px;">
-              <div class="conf-section-title text-center text-white">Руководитель</div>
+              <div class="conf-section-title text-center text-white rounded-3">Руководитель</div>
             </div>
-          </div>
+          
 
           <div class="row conf-info-section-item" *ngFor="let section of this.sections">
             <div class="col-6 conf-info-section" style="padding-right: 5px;">
-              <div class="section-text text-center text-black">{{section.title}}</div>
+              <div class="section-text text-center text-black rounded-3">{{section.title}}</div>
             </div>
             <div class="col-6 conf-info-section" style="padding-left: 5px;">
-              <div class="section-text text-center text-black">{{section.leaderName}}</div>
+              <div class="section-text text-center text-black rounded-3">{{section.leaderName}}</div>
             </div>
           </div>
         </div>
-        <div class="row align-items-center" style="margin-bottom: 20px;">
-          <div class="col-12 conf-desc">
-            <div class="conf-info-text text-black" style="margin: 0px;">Описание: {{this.currentConference.description}}</div>
+        
+          <div class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
+            <div class="conf-info-text text-black rounded-3" style="margin: 0px;">Описание: {{this.currentConference.description}}</div>
           </div>
-        </div>
+        
 
-        <div *ngIf="this.addingJob">
+        <div *ngIf="this.addingJob" style="margin-top: 20px; padding: 0px;">
           <!-- Загрузка через проводник и перетаскиванием -->
           <form >
-            <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)">
+            <div class="input-group">
+              <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+              <!-- <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Добавить</button> -->
+            </div>
+            <!-- <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)"> -->
           </form>
 
           <!-- Загрузка перетаскиванием на область -->
@@ -81,14 +84,14 @@
 <!--          </ul>-->
         </div>
 
-        <div class="row align-items-center" style="margin-bottom: 20px;">
+        <div class="row align-items-center" style="margin-bottom: 20px; margin-top: 10px;">
           <div class="col-4 conf-info-text text-black">
 
           </div>
           <div class="col-4 conf-info-text text-black text-center">
-            <button type="button" class="btn btn-pref text-white" (click)="editConference()" *ngIf="isAdminConference()">Изменить</button>
-            <button type="button" class="btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
-            <button type="button" class="btn btn-pref text-white" (click)="saveFiles()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isAdminConference()">Изменить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="saveFiles()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-end">
 
