@@ -17,12 +17,12 @@
   <div class="container">
 
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-10">
           <div class="pref-search-text text-black">
             Поиск пользователя
           </div>
-          <input class="input-search" type="text">
+          <input class="input-search rounded-3" type="text">
           <a href="#" class="pref-options">
             <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.7778 4.44434L28.5555 4.44434" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>
@@ -39,7 +39,7 @@
                       stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </a>
-          <button type="button" class="btn btn-pref text-white">Применить</button>
+          <button type="button" class="btn btn-pref text-white rounded-3">Применить</button>
         </div>
 
       </div>
@@ -49,22 +49,22 @@
         
         <div class="row conf-info-section-item">
           <div class="col-3 conf-info-section">
-            <div class="conf-section-title text-center text-white">Фамилия И.О.</div>
+            <div class="conf-section-title text-center text-white rounded-3">Фамилия И.О.</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white">Телефон</div>
+            <div class="conf-section-title text-center text-white rounded-3">Телефон</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white">Почта</div>
+            <div class="conf-section-title text-center text-white rounded-3">Почта</div>
           </div>
           <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white">Статус</div>
+            <div class="conf-section-title text-center text-white rounded-3">Статус</div>
           </div>
           <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white">Роль</div>
+            <div class="conf-section-title text-center text-white rounded-3">Роль</div>
           </div>
           <div class="col-3 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white">Изменить</div>
+            <div class="conf-section-title text-center text-white rounded-3">Изменить</div>
           </div>
         </div>
 
@@ -76,41 +76,41 @@
 
         <div class="row conf-info-section-item" *ngFor="let user of this.users">
           <div class="col-3 conf-info-section">
-            <div class="users-list-text text-center text-black">{{ user.fullName }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.fullName }}</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ user.phone }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.phone }}</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ user.email }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.email }}</div>
           </div>
           <!--<div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ user.orcId }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.orcId }}</div>
           </div>
           <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ user.rincId }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.rincId }}</div>
           </div>-->
           <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ this.userStatusMap.get(user.status) }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ this.userStatusMap.get(user.status) }}</div>
           </div>
           <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black">{{ this.userRoleMap.get(user.role) }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ this.userRoleMap.get(user.role) }}</div>
           </div>
           <div class="col-3 conf-info-section" style="padding-left:5px;">
             
               <div class="col-12" style="padding: 0px;">
-                <div class="users-list-text-btn text-center text-black" *ngIf="user.role == 'MEMBER'" (click)="changeRole(user, 'ADMIN')">
+                <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0; background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.role == 'MEMBER'" (click)="changeRole(user, 'ADMIN')">
                   <a>Назначить администратором</a>
                 </div>
-                <div class="users-list-text-btn text-center text-black" *ngIf="user.role == 'ADMIN'" (click)="changeRole(user, 'MEMBER')">
+                <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0; background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.role == 'ADMIN'" (click)="changeRole(user, 'MEMBER')">
                   <a>Назначить участником</a>
                 </div>
               </div>
               <div class="col-12" style="padding: 0px;">
-                <div class="users-list-text-btn text-center text-black" *ngIf="user.status == 'ACTIVE'" (click)="changeStatus(user, 'BANNED')">
+                <div style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.status == 'ACTIVE'" (click)="changeStatus(user, 'BANNED')">
                   <a>Заблокировать</a>
                 </div>
-                <div class="users-list-text-btn text-center text-black" *ngIf="user.status == 'BANNED'" (click)="changeStatus(user, 'ACTIVE')">
+                <div style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.status == 'BANNED'" (click)="changeStatus(user, 'ACTIVE')">
                   <a>Разблокировать</a>
                 </div>
               </div>

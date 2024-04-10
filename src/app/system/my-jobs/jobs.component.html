@@ -16,12 +16,12 @@
   <div class="container">
 
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-10">
           <div class="pref-search-text text-black">
             Поиск конференции
           </div>
-          <input class="input-search" type="text">
+          <input class="input-search rounded-3" type="text">
           <a href="#" class="pref-options">
             <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.7778 4.44434L28.5555 4.44434" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>
@@ -38,27 +38,27 @@
                       stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </a>
-          <button type="button" class="btn btn-pref text-white">Применить</button>
+          <button type="button" class="btn btn-pref text-white rounded-3">Применить</button>
         </div>
 
       </div>
 
 
-      <div class="row konf-list">
-        <div class="col-md-3 konf-item-outer" *ngFor="let job of this.jobs">
+      <div class="row konf-list rounded-3">
+        <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let job of this.jobs">
 
-          <div class="konf-item">
+          <div class="konf-item rounded-3">
             <div class="img-info-conf">
-              <img src="../../../assets/pictures/conf-images/demo-img.png" alt="">
+              <img style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;" src="../../../assets/pictures/conf-images/demo-img.png" alt="">
             </div>
              <div class="general-info-conf">
-              <div class="konf-name">{{ job.title }}</div>
+              <div class="konf-name rounded-3">{{ job.title }}</div>
               <div class="konf-organization text-black">Конференция: {{ job.conferenceId }}</div>
             </div>
-            <div class="second-info-conf">
+            <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
               <div class="konf-description text-black">Описание: {{ job.description }}</div>
               <div class="row justify-content-end">
-                <button type="button" class="btn btn-konf text-white px-1" >Открыть</button>
+                <button type="button" class="btn btn-konf text-white px-1 rounded-3" >Открыть</button>
               </div>
             </div>
 

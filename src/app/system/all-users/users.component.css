@@ -141,7 +141,7 @@
 .conf-info-section {
   font-size: 20px !important;
   font-weight: 400 !important;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 0px;
 
 }
@@ -176,6 +176,10 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
   white-space: nowrap;
+}
+
+.users-list-text-btn:hover {
+  opacity: 0.8;
 }
 
 .users-list-text::-webkit-scrollbar {

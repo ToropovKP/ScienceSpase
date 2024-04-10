@@ -16,12 +16,12 @@
   <div class="container">
 
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-10">
           <div class="pref-search-text text-black">
             Поиск конференции
           </div>
-          <input class="input-search" type="text">
+          <input class="input-search rounded-3" type="text">
           <a href="#" class="pref-options">
             <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.7778 4.44434L28.5555 4.44434" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>
@@ -38,11 +38,11 @@
                       stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </a>
-          <button type="button" class="btn btn-pref text-white">Применить</button>
+          <button type="button" class="btn btn-pref text-white rounded-3">Применить</button>
         </div>
 
         <div class="d-inline-flex align-items-center justify-content-end col-2">
-          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white" (click)="toPage('conferences/create')">+
+          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+
           </button>
 <!--          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white" data-bs-toggle="modal"-->
 <!--                  data-bs-target="#windowAddConf">+-->
@@ -113,25 +113,24 @@
 
 
 
-      <div class="row konf-list">
+      <div class="row konf-list rounded-3">
 
-        <div class="col-md-3 konf-item-outer" *ngFor="let conf of this.conferences">
+        <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let conf of this.conferences">
 
-          <div class="konf-item">
-            <div class="img-info-conf">
-              <img src="../../../assets/pictures/conf-images/demo-img.png" alt="">
+          <div class="konf-item rounded-3">
+            <div class="img-info-conf rounded-3">
+              <img style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;" src="../../../assets/pictures/conf-images/demo-img.png" alt="">
             </div>
             <div class="general-info-conf">
-              <div class="konf-name">{{ conf.title }}</div>
+              <div class="konf-name rounded-3">{{ conf.title }}</div>
               <div class="konf-organization text-black">{{ conf.organization }}</div>
             </div>
-            <div class="second-info-conf">
+            <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
               <div class="konf-description text-black">Описание: {{ conf.description }}</div>
               <div class="konf-status text-black">Статус: {{ this.statusMap.get(conf.status) }}</div>
-              <div class="konf-timeDate text-black">Дата начала: {{ conf.startDate }}</div>
-              <div class="konf-timeDate text-black">Дата конца: {{ conf.endDate }}</div>
+              <div class="konf-timeDate text-black align-text-center">{{ conf.startDate }} - {{ conf.endDate }}</div>
               <div class="row justify-content-end">
-                <button type="button" class="btn btn-konf text-white px-1" (click)="openConf(conf.id)">Открыть</button>
+                <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openConf(conf.id)">Открыть</button>
               </div>
             </div>
 
