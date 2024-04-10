@@ -68,9 +68,69 @@
 
         <div *ngIf="this.addingJob" style="margin-top: 20px; padding: 0px;">
           <!-- Загрузка через проводник и перетаскиванием -->
-          <form >
+          <form>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text strong text-black" for="floatingInput">Название <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Соавторы</label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Email <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">Телефон <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Организация <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">Ученая степень</label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">Ученое звание</label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">ORCID <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">РИНЦ ID <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Секция <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+            </div>
             <div class="input-group">
-              <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+              <input class="bg-white form-control section-text text-black" type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
               <!-- <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Добавить</button> -->
             </div>
             <!-- <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)"> -->
