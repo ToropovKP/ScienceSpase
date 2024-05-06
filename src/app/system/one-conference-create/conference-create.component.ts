@@ -26,6 +26,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   admins!: User[];
   currentAdmin!: User | undefined;
 
+  currentStatus: String = 'ON_HOLD';
+
   formCreateConference!: FormGroup;
   loggedUser!: LoginResponse;
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
@@ -58,6 +60,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.formCreateConference = this.formBuilder.group({
       adminName: new FormControl('',),
       confName: new FormControl('', [Validators.required, Validators.minLength(4)]),
+      confStatus: new FormControl('', [Validators.required]),
       organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
       description: new FormControl('', []),
       date_start: new FormControl('', [Validators.required]),
@@ -88,6 +91,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
               this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
               this.formCreateConference.controls['description'].setValue(this.currentConference.description)
+              this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
+              this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
+              this.formCreateConference.controls['confStatus'].setValue(this.statusMap.get(this.currentConference.status))
               this.sections = this.currentConference.sections.sort((a, b) => a.id > b.id ? 1 : 0)
               this.sections.forEach((e) => this.sectionsMap.set(e.title, e))
             });
@@ -100,6 +106,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
             this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
             this.formCreateConference.controls['description'].setValue(this.currentConference.description)
+            this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
+            this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
+            this.formCreateConference.controls['confStatus'].setValue(this.statusMap.get(this.currentConference.status))
             this.sections = this.currentConference.sections.sort((a, b) => a.id > b.id ? 1 : 0)
             this.sections.forEach((e) => this.sectionsMap.set(e.title, e))
           });
@@ -114,15 +123,14 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.sections.forEach((e) => {
       sectionsDto.push(new SectionDto(e))
     })
-    let dateStart: string = this.formCreateConference.value.date_start.replace('T', ' ') + ':00';
-    let dateEnd: string = this.formCreateConference.value.date_end.replace('T', ' ') + ':00';
+
     let request = {
       "title": this.formCreateConference.value.confName,
       "organization": this.formCreateConference.value.organization,
       "description": this.formCreateConference.value.description,
-      "startDate": dateStart,
-      "endDate": dateEnd,
-      "status": 'ON_HOLD',
+      "startDate": this.formCreateConference.value.date_start,
+      "endDate": this.formCreateConference.value.date_end,
+      "status": this.currentStatus,
       "sections": sectionsDto
     };
 
@@ -140,16 +148,14 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.sections.forEach((e) => {
       sectionsDto.push(new SectionDto(e))
     })
-    let dateStart: string = this.formCreateConference.value.date_start.replace('T', ' ') + ':00';
-    let dateEnd: string = this.formCreateConference.value.date_end.replace('T', ' ') + ':00';
     let request = {
       "id": this.currentConferenceId,
       "title": this.formCreateConference.value.confName,
       "organization": this.formCreateConference.value.organization,
       "description": this.formCreateConference.value.description,
-      "startDate": dateStart,
-      "endDate": dateEnd,
-      "status": 'ON_HOLD',
+      "startDate": this.formCreateConference.value.date_start,
+      "endDate": this.formCreateConference.value.date_end,
+      "status": this.currentStatus,
       "sections": sectionsDto
     };
 
@@ -191,6 +197,12 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   updateAdmin(event: Event) {
     let adminName: string = (event.target as HTMLOptionElement).value;
     this.currentAdmin = this.admins.find((e) => e.fullName === adminName);
+  }
+
+  updateStatus(event: Event) {
+    let statusName: string = (event.target as HTMLOptionElement).value;
+    let status = this.statusMap.get(statusName);
+    this.currentStatus = status != null ? status : 'ON_HOLD';
   }
 
   addRowForSection() {

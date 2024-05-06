@@ -16,6 +16,7 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
 import {UsersComponent} from "./system/all-users/users.component";
 import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
+import {OneJobComponent} from "./system/one-my-job/one-job.component";
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import {ConferenceCreateComponent} from "./system/one-conference-create/conferen
     UsersComponent,
     HeaderComponent,
     JobsComponent,
+    OneJobComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {LoginResponse} from "../shared/model/login.response";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConstants} from "../../app.module";
@@ -17,6 +17,7 @@ import {HttpService} from "../shared/services/http.service";
 export class ConferenceComponent implements OnInit, AfterViewInit {
 
   sections: Section[] = []
+  currentSection!: Section | undefined;
 
   currentConference: Conference = new Conference();
   currentConferenceId!: string;
@@ -26,6 +27,9 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   formAddJob!: FormGroup;
   loggedUser!: LoginResponse;
+  currentUser!: User;
+  currentUserJobId!: string;
+
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
   addingJob: boolean = false;
@@ -54,6 +58,20 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       this.router.navigate(['']);
     }
 
+    this.formAddJob = this.formBuilder.group({
+      title: new FormControl('', [Validators.required]),
+      coauthors: new FormControl('',),
+      description: new FormControl('', [Validators.required]),
+      phone: new FormControl('',),
+      organization: new FormControl('', [Validators.required]),
+      academicDegree: new FormControl('',),
+      academicTitle: new FormControl('',),
+      orcId: new FormControl('', [Validators.required]),
+      rincId: new FormControl('',),
+      section: new FormControl('', [Validators.required]),
+      files: new FormControl('', [Validators.required]),
+    })
+
     this.loadAllData()
   }
 
@@ -62,6 +80,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       this.currentConferenceId = e;
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
+        console.log(this.currentConference)
         this.currentConference = data;
         if (this.isSuperAdmin()) {
           this.httpService.getAdmins().then((data) => {
@@ -81,8 +100,32 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         this.httpService.getSections(this.currentConferenceId).then((data) => {
           this.sections = data
         })
+
+        this.updateUserInfo()
+
       });
     });
+  }
+
+  updateUserInfo() {
+    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+      this.currentUser = data
+      this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
+      this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
+      this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
+      this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
+      this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
+      this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
+
+      this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
+        data.forEach((job) => {
+          if (String(job.conferenceId) == this.currentConferenceId) {
+            this.currentUserJobId = String(job.id)
+            return
+          }
+        })
+      })
+    })
   }
 
   isAdminAbsolute(): boolean {
@@ -112,6 +155,11 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   addJob() {
     this.addingJob = true;
+    this.updateUserInfo()
+  }
+
+  openJob() {
+    this.toPage(`/my-jobs/${this.currentUserJobId}`)
   }
 
   files: File[] = [];
@@ -119,10 +167,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   onSelectedFiles(event: Event) {
     this.files = []
     let files = (event.target as HTMLInputElement).files;
-    const formData: FormData = new FormData();
-    // this.files.forEach((file) => {
-    //   formData.append("file", file);
-    // })
 
     if (files != null) {
       for (let i = 0; i < files.length; i++) {
@@ -136,14 +180,53 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     console.log(this.files.reduce((prev, cur, ind) => `${prev} ${cur.name}`, ''))
   }
 
-  saveFiles() {
+  createJob() {
     const formData: FormData = new FormData();
     this.files.forEach((file) => {
       formData.append("files", file);
     })
 
-    this.httpService.uploadFiles(formData);
-    this.addingJob = false;
+    this.httpService.uploadFiles(formData).then((data) => {
+      if (data[0].size != null) {
+        let fileNames = data.map((e) => e.fileName);
+        let requestUser = {
+          "id": this.currentUser.id,
+          "phone": this.formAddJob.value.phone,
+          "academicDegree": this.formAddJob.value.academicDegree,
+          "academicTitle": this.formAddJob.value.academicTitle,
+          "orcId": this.formAddJob.value.orcId,
+          "rincId": this.formAddJob.value.rincId,
+          "organization": this.formAddJob.value.organization,
+        }
+
+        let request = {
+          "title": this.formAddJob.value.title,
+          "coAuthors": this.formAddJob.value.coauthors,
+          "description": this.formAddJob.value.description,
+          "userName": this.currentUser.fullName,
+          "userId": this.currentUser.id,
+          "sectionId": this.currentSection?.id,
+          "sectionTitle": this.currentSection?.title,
+          "conferenceId": this.currentConference?.id,
+          "conferenceTitle": this.currentConference?.title,
+          "fileName": fileNames
+        };
+
+        this.httpService.updateUserInfo(requestUser).then((data) => {
+        });
+        this.httpService.createJob(request).then((data) => {
+          this.currentUserJobId = String(data.id)
+          this.toPage(`/conference/${this.currentConference.id}`)
+        });
+        this.addingJob = false;
+        this.formAddJob.reset()
+      }
+    });
+  }
+
+  updateSection(event: Event) {
+    let sectionName: string = (event.target as HTMLOptionElement).value;
+    this.currentSection = this.sections.find((e) => e.title === sectionName);
   }
 
   toPage(link: string) {

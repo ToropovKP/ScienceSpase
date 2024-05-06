@@ -33,7 +33,7 @@
 
 
       <div class="row konf-information rounded-3">
-        
+
           <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
           <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
           <div class="col-4 conf-info-text text-black text-center">Дата начала: {{this.currentConference.startDate}}</div>
@@ -41,7 +41,7 @@
           <div class="col-4 conf-info-text text-black ">Статус: {{ this.statusMap.get(this.currentConference.status) }}</div>
           <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isAdminConference()">Количество участников: {{this.countUsers}}</span></div>
           <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isAdminConference()" (click)="checkUsers()">Перейти к списку участников</a></div>
-        
+
           <div class="row conf-info-section-item" style="margin-top: 10px;">
             <div class="col-6 conf-info-section" style="padding-right: 5px;">
               <div class="conf-section-title text-center text-white rounded-3">Секция</div>
@@ -49,7 +49,7 @@
             <div class="col-6 conf-info-section" style="padding-left: 5px;">
               <div class="conf-section-title text-center text-white rounded-3">Руководитель</div>
             </div>
-          
+
 
           <div class="row conf-info-section-item" *ngFor="let section of this.sections">
             <div class="col-6 conf-info-section" style="padding-right: 5px;">
@@ -60,37 +60,49 @@
             </div>
           </div>
         </div>
-        
-          <div class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
+
+          <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
             <div class="conf-info-text text-black rounded-3" style="margin: 0px;">Описание: {{this.currentConference.description}}</div>
           </div>
-        
+
 
         <div *ngIf="this.addingJob" style="margin-top: 20px; padding: 0px;">
           <!-- Загрузка через проводник и перетаскиванием -->
-          <form>
+          <form [formGroup]="formAddJob">
             <div class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Название <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="title"
                   id="floatingInput">
               </div>
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Соавторы</label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="coauthors"
                   id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text strong text-black" for="floatingInput">Описание <span style="color: red;">*</span></label>
+                <textarea type="text" class="bg-white form-control section-area text-black" formControlName="description"
+                          id="floatingInput"></textarea>
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
-                <label class="second-text text-black" for="floatingInput">Email <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                <label class="second-text text-black" for="floatingInput">Телефон <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="phone"
                   id="floatingInput">
               </div>
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">ORCID <span style="color: red;">*</span></label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="orcId"
+                       id="floatingInput">
+              </div>
               <div class="col-4" style="padding-left: 0px;">
-                <label class="second-text text-black" for="floatingInput">Телефон <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
-                  id="floatingInput">
+                <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="rincId"
+                       id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
@@ -101,47 +113,31 @@
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученая степень</label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученое звание</label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
-                  id="floatingInput">
-              </div>
-            </div>
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
-                <label class="second-text text-black" for="floatingInput">ORCID <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
-                  id="floatingInput">
-              </div>
-              <div class="col-4" style="padding-left: 0px;">
-                <label class="second-text text-black" for="floatingInput">РИНЦ ID <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                <input type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
                   id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Секция <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
-                  id="floatingInput">
+                <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
+                        formControlName="section" (change)="updateSection($event)">
+                  <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
+                  <option *ngFor="let section of sections">{{ section.title }}</option>
+                </select>
               </div>
             </div>
             <div class="input-group">
-              <input class="bg-white form-control section-text text-black" type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
-              <!-- <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Добавить</button> -->
+              <input formControlName="files" class="bg-white form-control section-text text-black" type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
             </div>
             <!-- <input type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)"> -->
           </form>
 
-          <!-- Загрузка перетаскиванием на область -->
-<!--          <ul oi-file="options">-->
-<!--            <li ng-repeat="item in items">-->
-<!--              <img ng-src="{{item.thumb}}">-->
-<!--            </li>-->
-<!--          </ul>-->
         </div>
 
         <div class="row align-items-center" style="margin-bottom: 20px; margin-top: 10px;">
@@ -150,8 +146,9 @@
           </div>
           <div class="col-4 conf-info-text text-black text-center">
             <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isAdminConference()">Изменить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="saveFiles()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="openJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId != null">Перейти к ответу</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId == null && !this.addingJob">Добавить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="createJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-end">
 

@@ -93,12 +93,16 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
     return this.loggedUser.role == 'SUPER_ADMIN';
   }
 
-  downloadOneJob(job: Job) {
-    this.httpService.downloadFile(job.fileName).then(response => this.processDownloadFile(response));
+  openJob(id: string) {
+    this.toPage(`/my-jobs/${id}`)
   }
 
-  downloadJobs() {
-    this.httpService.downloadFiles(this.currentConferenceId).then(response => this.processDownloadFile(response));
+  downloadFilesJob(job: Job) {
+    this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response));
+  }
+
+  downloadFilesConference() {
+    this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response));
   }
 
   processDownloadFile(response: HttpResponse<any>) {
@@ -116,4 +120,5 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
     this.router.navigate([link]);
   }
 
+  protected readonly String = String;
 }

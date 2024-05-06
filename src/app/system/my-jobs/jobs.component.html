@@ -53,12 +53,12 @@
             </div>
              <div class="general-info-conf">
               <div class="konf-name rounded-3">{{ job.title }}</div>
-              <div class="konf-organization text-black">Конференция: {{ job.conferenceId }}</div>
+              <div class="konf-organization text-black">Конференция: {{ job.conferenceTitle }}</div>
             </div>
             <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
               <div class="konf-description text-black">Описание: {{ job.description }}</div>
               <div class="row justify-content-end">
-                <button type="button" class="btn btn-konf text-white px-1 rounded-3" >Открыть</button>
+                <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openJob(String(job.id))">Открыть</button>
               </div>
             </div>
 

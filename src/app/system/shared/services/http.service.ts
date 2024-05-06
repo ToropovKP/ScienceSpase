@@ -6,6 +6,7 @@ import {AppConstants} from "../../../app.module";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Job} from "../model/job";
+import {UploadResponse} from "../model/upload.response";
 
 @Injectable({providedIn: 'root'})
 export class HttpService {
@@ -39,6 +40,14 @@ export class HttpService {
     return await firstValueFrom(this.http.get<User>(`${this.baseUrl}/api/v1/member/getUser?email=${email}`, this.httpOptions));
   }
 
+  async updateUserInfo(request: object): Promise<User> {
+    return await firstValueFrom(this.http.put<User>(`${this.baseUrl}/api/v1/member/profile/update`, JSON.stringify(request), this.httpOptions));
+  }
+
+  async createJob(request: object): Promise<Job> {
+    return await firstValueFrom(this.http.post<Job>(`${this.baseUrl}/api/v1/member/jobs`, JSON.stringify(request), this.httpOptions));
+  }
+
   async changeUserRole(id: string, role: string): Promise<boolean> {
     return await firstValueFrom(this.http.post<boolean>(`${this.baseUrl}/api/v1/admin/user/appointrole?userId=${id}&role=${role}`, this.httpOptions));
   }
@@ -57,6 +66,10 @@ export class HttpService {
 
   async getUserJobs(id: string): Promise<Job[]> {
     return await firstValueFrom(this.http.get<Job[]>(`${this.baseUrl}/api/v1/member/jobs/${id}`, this.httpOptions));
+  }
+
+  async getUserOneJob(id: string): Promise<Job> {
+    return await firstValueFrom(this.http.get<Job>(`${this.baseUrl}/api/v1/member/job/${id}`, this.httpOptions));
   }
 
   async getConferences(): Promise<Conference[]> {
@@ -87,12 +100,12 @@ export class HttpService {
     return await firstValueFrom(this.http.post<void>(`${this.baseUrl}/api/v1/admin/conference/${id}/disappointadmin`, this.httpOptions));
   }
 
-  async uploadFile(formData: FormData): Promise<any> {
-    return await firstValueFrom(this.http.post<any>(`${this.baseUrl}/api/v1/files/uploadFile`, formData));
+  async uploadFile(formData: FormData): Promise<UploadResponse> {
+    return await firstValueFrom(this.http.post<UploadResponse>(`${this.baseUrl}/api/v1/files/uploadFile`, formData));
   }
 
-  async uploadFiles(formData: FormData): Promise<any> {
-    return await firstValueFrom(this.http.post<any>(`${this.baseUrl}/api/v1/files/uploadMultipleFiles`, formData));
+  async uploadFiles(formData: FormData): Promise<UploadResponse[]> {
+    return await firstValueFrom(this.http.post<UploadResponse[]>(`${this.baseUrl}/api/v1/files/uploadMultipleFiles`, formData));
   }
 
   async downloadFile(fileName: string): Promise<any> {
@@ -102,8 +115,15 @@ export class HttpService {
     }));
   }
 
-  async downloadFiles(id: string): Promise<any> {
-    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles/${id}`, {
+  async downloadFilesJob(id: string): Promise<any> {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles/job/${id}`, {
+      observe: 'response',
+      responseType: 'blob'
+    }));
+  }
+
+  async downloadFilesConference(id: string): Promise<any> {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles/conference/${id}`, {
       observe: 'response',
       responseType: 'blob'
     }));

@@ -40,7 +40,7 @@
             Статус: {{ this.statusMap.get(this.currentConference.status) }}
           </div>
           <div class="col-4 conf-info-text text-black text-center"><span>Количество участников: {{ this.countUsers }}</span></div>
-          <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a (click)="downloadJobs()">Скачать
+          <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a (click)="downloadFilesConference()">Скачать
             все работы</a></div>
         </div>
 
@@ -77,7 +77,7 @@
               <div class="jobs-list-text text-center text-black">{{ job.dateTime }}</div>
             </div>
             <div class="col-1 conf-info-section" style="padding-left: 5px;">
-              <div class="jobs-list-text text-center text-black">
+              <div class="jobs-list-text text-center text-black download-pointer" (click)="openJob(String(job.id))">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13.5002 13.5L19.0003 19" stroke="black" stroke-width="1.5" stroke-linecap="round"
                         stroke-linejoin="round"/>
@@ -86,7 +86,7 @@
               </div>
             </div>
             <div class="col-1 conf-info-section" style="padding-left: 5px;">
-              <div class="jobs-list-text text-center text-black download-pointer" (click)="downloadOneJob(job)">
+              <div class="jobs-list-text text-center text-black download-pointer" (click)="downloadFilesJob(job)">
                 <svg width="14" height="20" viewBox="0 0 14 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M7 14L6.29289 14.7071L7 15.4142L7.70711 14.7071L7 14ZM8 1C8 0.447715 7.55229 2.86409e-07 7 2.62268e-07C6.44772 2.38127e-07 6 0.447715 6 1L8 1ZM0.292893 8.70711L6.29289 14.7071L7.70711 13.2929L1.70711 7.29289L0.292893 8.70711ZM7.70711 14.7071L13.7071 8.70711L12.2929 7.29289L6.29289 13.2929L7.70711 14.7071ZM8 14L8 1L6 1L6 14L8 14Z"
