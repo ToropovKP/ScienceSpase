@@ -33,11 +33,28 @@
             Администратор
             <div class="conf-name-adress text-black" style="width: 100%;">
               <div class="form-floating mb-3">
-                <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
+               
+                <div style="padding: 10px; margin-top: 15px;" class="dropdown">
+                  <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  Изменить
+                  </button>
+                  <ul style="width: calc(100% - 20px); padding-left: 10px;" class="dropdown-menu" 
+                  formControlName="adminName" (change)="updateAdmin($event)" aria-labelledby="dropdownMenuButton">
+                      <li *ngFor="let user of admins">
+                              <div class="form-check align-items-center" style="width: 100%;">
+                                  <input class="form-check-input" type="checkbox" id="{{ user.id}}" />
+                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="{{ user.id}}">{{ user.fullName }}</label>
+                              </div>
+                      </li>
+                  </ul>
+                </div>
+
+                <!-- <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
                   formControlName="adminName" (change)="updateAdmin($event)">
                   <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
                   <option *ngFor="let user of admins">{{ user.fullName }}</option>
-                </select>
+                </select> -->
               </div>
             </div>
           </div>
@@ -99,14 +116,32 @@
                 <input type="text" class="bg-white form-control section-text text-center text-black"
                   [value]="section.title" (change)="updateSections($event, 'org', section)">
               </div>
-              <div class="col-6 conf-info-section" style="padding-left: 5px;">
+              <div class="col-6 conf-info-section">
+                <div style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
+                  <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  Изменить
+                  </button>
+                  <ul style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" 
+                  formControlName="adminName" (change)="updateAdmin($event)" aria-labelledby="dropdownMenuButton">
+                      <li *ngFor="let user of admins">
+                              <div class="form-check align-items-center" style="width: 100%;">
+                                  <input class="form-check-input" type="checkbox" id="confAdm{{section.id}}{{user.id}}"  [value]="section.leaderName" (change)="updateSections($event, 'user', section)"/>
+                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="confAdm{{section.id}}{{user.id}}">{{user.fullName }}</label>
+                              </div>
+                      </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- <div class="col-6 conf-info-section" style="padding-left: 5px;">
                 <input type="text" class="bg-white section-text form-control text-center text-black"
                   [value]="section.leaderName" (change)="updateSections($event, 'user', section)">
-              </div>
+              </div> -->
             </div>
             <div class="conf-info-section">
               <div style="padding: 10px; cursor: pointer;"
-                class="conf-section-title form-control text-center text-white" (click)="addRowForSection()">Добавить
+                class="conf-section-title form-control text-center text-white bg-dark" (click)="addRowForSection()">Добавить
                 секцию</div>
             </div>
           </div>

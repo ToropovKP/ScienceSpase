@@ -1,0 +1,112 @@
+<header class="p-3 bg-dark text-white fixed-top"
+  style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
+        <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
+        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
+        <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<!-- Сама конференция админка / обычная -->
+
+
+<section id="conference">
+  <div class="container">
+
+    <div class="main">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
+        <div class="d-inline-flex align-items-center col-8">
+          <div class="conf-name-adress text-black">
+            Мои статьи / {{this.currentJob.conferenceTitle}} / {{this.currentJob.title}}
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="row konf-information rounded-3">
+
+        <div style="margin-top: 20px; padding: 0px;">
+          <!-- Загрузка через проводник и перетаскиванием -->
+          <form [formGroup]="formAddJob">
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text strong text-black" for="floatingInput">ФИО</label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="title"
+                  id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+                <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput">Телефон</label>
+                  <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="phone"
+                    id="floatingInput">
+                </div>
+                <div class="col-8" style="padding-left: 0px;">
+                  <label class="second-text text-black" for="floatingInput">Организация</label>
+                  <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="rincId"
+                         id="floatingInput">
+                </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Пароль </label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="phone"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Идентификатор ORCID </label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="orcId"
+                       id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="rincId"
+                       id="floatingInput">
+              </div>
+            </div>
+            <div class="row" style="margin-left: 0px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                <label class="second-text text-black" for="floatingInput">Telegram </label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">Ученая степень</label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
+                  id="floatingInput">
+              </div>
+              <div class="col-4" style="padding-left: 0px;">
+                <label class="second-text text-black" for="floatingInput">Ученое звание</label>
+                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
+                  id="floatingInput">
+              </div>
+            </div>
+          </form>
+
+        </div>
+
+        <div class="row" style="margin-bottom: 20px; margin-top: 10px; margin-left: 0px; padding: 0px;">
+          <div class="col-4 conf-info-text text-black">
+            <button style="margin: 0px; width: 100%;" type="button" class="form-control rounded-3 btn btn-pref text-white">Удалить</button>
+          </div>
+          <div class="col-4 conf-info-text text-black text-center">
+            <button style="margin: 0px; width: 100%;" type="button" class="form-control rounded-3 btn btn-pref text-white">Изменить</button>
+            <button style="margin: 0px; width: 100%;" type="button" *ngIf="false" class="form-control rounded-3 btn btn-pref text-white">Отменить</button>
+          </div>
+          <div class="col-4 conf-info-text text-black text-end">
+            <button style="margin: 0px; width: 100%;" type="button" class="form-control rounded-3 btn btn-pref text-white">Сохранить</button>
+          </div>
+        </div>
+
+
+        <!--<div class="konf-description text-black">Описание: {{conf.description}}</div>-->
+      </div>
+    </div>
+  </div>
+</section>

@@ -17,6 +17,7 @@ import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.
 import {UsersComponent} from "./system/all-users/users.component";
 import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
 import {OneJobComponent} from "./system/one-my-job/one-job.component";
+import { ProfileComponent } from './system/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import {OneJobComponent} from "./system/one-my-job/one-job.component";
     HeaderComponent,
     JobsComponent,
     OneJobComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
