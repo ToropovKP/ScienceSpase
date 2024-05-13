@@ -7,6 +7,10 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Job} from "../model/job";
 import {UploadResponse} from "../model/upload.response";
+import {UserBase} from "../model/user.base";
+import {UserBaseDto} from "../dto/user.base.dto";
+import {LoginResponse} from "../model/login.response";
+import {Commentary} from "../model/commentary";
 
 @Injectable({providedIn: 'root'})
 export class HttpService {
@@ -28,8 +32,20 @@ export class HttpService {
   constructor(private http: HttpClient) {
   }
 
-  async getAdmins(): Promise<User[]> {
-    return await firstValueFrom(this.http.get<User[]>(`${this.baseUrl}/api/v1/admin/user/getAdmins`, this.httpOptions));
+  async login(request: object): Promise<LoginResponse> {
+    return await firstValueFrom(this.http.post<LoginResponse>(`${this.baseUrl}/api/v1/auth/login`, JSON.stringify(request), this.httpOptions));
+  }
+
+  async registration(request: object): Promise<User> {
+    return await firstValueFrom(this.http.post<User>(`${this.baseUrl}/api/v1/auth/registration`, JSON.stringify(request), this.httpOptions));
+  }
+
+  async getAdmins(): Promise<UserBase[]> {
+    return await firstValueFrom(this.http.get<UserBase[]>(`${this.baseUrl}/api/v1/admin/user/getAdmins`, this.httpOptions));
+  }
+
+  async getAdminsByConference(conferenceId: string): Promise<UserBase[]> {
+    return await firstValueFrom(this.http.get<UserBase[]>(`${this.baseUrl}/api/v1/admin/conference/${conferenceId}/getAdmins`, this.httpOptions));
   }
 
   async getUsers(): Promise<User[]> {
@@ -38,6 +54,10 @@ export class HttpService {
 
   async getUserInfo(email: string): Promise<User> {
     return await firstValueFrom(this.http.get<User>(`${this.baseUrl}/api/v1/member/getUser?email=${email}`, this.httpOptions));
+  }
+
+  async getUserInfoById(id: string): Promise<User> {
+    return await firstValueFrom(this.http.get<User>(`${this.baseUrl}/api/v1/member/getUserById?userId=${id}`, this.httpOptions));
   }
 
   async updateUserInfo(request: object): Promise<User> {
@@ -68,6 +88,14 @@ export class HttpService {
     return await firstValueFrom(this.http.get<Job[]>(`${this.baseUrl}/api/v1/member/jobs/${id}`, this.httpOptions));
   }
 
+  async getJobComments(id: string): Promise<Commentary[]> {
+    return await firstValueFrom(this.http.get<Commentary[]>(`${this.baseUrl}/api/v1/member/comments/${id}`, this.httpOptions));
+  }
+
+  async createComment(request: object): Promise<Commentary> {
+    return await firstValueFrom(this.http.post<Commentary>(`${this.baseUrl}/api/v1/member/comments/create`, JSON.stringify(request), this.httpOptions));
+  }
+
   async getUserOneJob(id: string): Promise<Job> {
     return await firstValueFrom(this.http.get<Job>(`${this.baseUrl}/api/v1/member/job/${id}`, this.httpOptions));
   }
@@ -92,12 +120,8 @@ export class HttpService {
     return await firstValueFrom(this.http.put<Conference>(`${this.baseUrl}/api/v1/admin/conference/${id}/update`, JSON.stringify(request), this.httpOptions));
   }
 
-  async appointAdminToConference(id: string, adminId: string): Promise<void> {
-    return await firstValueFrom(this.http.post<void>(`${this.baseUrl}/api/v1/admin/conference/${id}/appointadmin?userId=${adminId}`, this.httpOptions));
-  }
-
-  async disAppointAdminFromConference(id: string): Promise<void> {
-    return await firstValueFrom(this.http.post<void>(`${this.baseUrl}/api/v1/admin/conference/${id}/disappointadmin`, this.httpOptions));
+  async appointAdminsToConference(id: string, admins: UserBaseDto[]): Promise<void> {
+    return await firstValueFrom(this.http.post<void>(`${this.baseUrl}/api/v1/admin/conference/${id}/appointadmin`, JSON.stringify(admins), this.httpOptions));
   }
 
   async uploadFile(formData: FormData): Promise<UploadResponse> {

@@ -1,15 +1,22 @@
 import {Section} from "../model/section";
+import {UserBaseDto} from "./user.base.dto";
 
 export class SectionDto {
   private id!: bigint;
   private title!: string;
-  private leaderName!: string;
+  private leaders!: UserBaseDto[];
   private conferenceId!: bigint;
 
   constructor(section: Section) {
     this.id = section.id
     this.title = section.title
-    this.leaderName = section.leaderName
+
+    let leadersDto: UserBaseDto[] = []
+    section.leaders.forEach((e) => {
+      leadersDto.push(new UserBaseDto().createFromUserBase(e))
+    })
+
+    this.leaders = leadersDto
     this.conferenceId = section.conferenceId
   }
 
@@ -29,12 +36,12 @@ export class SectionDto {
     this.title = value;
   }
 
-  getLeaderName(): string {
-    return this.leaderName;
+  getLeaders(): UserBaseDto[] {
+    return this.leaders;
   }
 
-  setLeaderName(value: string) {
-    this.leaderName = value;
+  setLeaders(value: UserBaseDto[]) {
+    this.leaders = value;
   }
 
   getConferenceId(): bigint {

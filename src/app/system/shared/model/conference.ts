@@ -1,4 +1,5 @@
 import {Section} from "./section";
+import {UserBase} from "./user.base";
 
 export class Conference {
 
@@ -8,7 +9,7 @@ export class Conference {
   private _description!: string;
   private _sections!: Section[];
   private _status!: string;
-  private _adminId!: bigint;
+  private _admins!: UserBase[];
   private _startDate!: string;
   private _endDate!: string;
 
@@ -63,12 +64,12 @@ export class Conference {
     this._status = value;
   }
 
-  get adminId(): bigint {
-    return this._adminId;
+  get admins(): UserBase[] {
+    return this._admins;
   }
 
-  set adminId(value: bigint) {
-    this._adminId = value;
+  set admins(value: UserBase[]) {
+    this._admins = value;
   }
 
   get startDate(): string {

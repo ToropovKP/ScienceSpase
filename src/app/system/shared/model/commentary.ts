@@ -1,8 +1,9 @@
+import {UserBase} from "./user.base";
 
 export class Commentary {
     private _id!: bigint;
     private _jobId!: bigint;
-    private _userId!: bigint;
+    private _user!: UserBase;
     private _message!: string;
     private _dateTime!: string;
 
@@ -12,7 +13,7 @@ export class Commentary {
       get id(): bigint {
         return this._id;
       }
-    
+
       set id(value: bigint) {
         this._id = value;
       }
@@ -20,31 +21,31 @@ export class Commentary {
       get jobId(): bigint {
         return this._jobId;
       }
-    
+
       set jobId(value: bigint) {
         this._jobId = value;
       }
 
-      get userId(): bigint {
-        return this._userId;
+      get user(): UserBase {
+        return this._user;
       }
-    
-      set userId(value: bigint) {
-        this._userId = value;
+
+      set user(value: UserBase) {
+        this._user = value;
       }
 
       get message(): string {
         return this._message;
       }
-    
+
       set message(value: string) {
         this._message = value;
       }
-    
+
       get dateTime(): string {
         return this._dateTime;
       }
-    
+
       set dateTime(value: string) {
         this._dateTime = value;
       }

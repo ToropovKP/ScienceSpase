@@ -127,7 +127,7 @@ export class AppComponent {
     let obj: User | null = json != null ? JSON.parse(json) : null;
 
     if (obj != null) {
-      this.formRecord.controls['fullName'].setValue(obj.fullName);
+      this.formRecord.controls['fullName'].setValue(obj.firstName);
       this.formRecord.controls['phone'].setValue(obj.phone);
       this.loggedUserInfo = obj;
       return true;

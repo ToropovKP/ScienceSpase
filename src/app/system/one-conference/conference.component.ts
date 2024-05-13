@@ -8,6 +8,7 @@ import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
+import {UserBase} from "../shared/model/user.base";
 
 @Component({
   selector: 'app-one-conference',
@@ -21,9 +22,8 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   currentConference: Conference = new Conference();
   currentConferenceId!: string;
-  currentConferenceAdmin: User = new User();
   countUsers: number = 0;
-  admins!: User[];
+  currentAdmins!: UserBase[];
 
   formAddJob!: FormGroup;
   loggedUser!: LoginResponse;
@@ -82,15 +82,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         console.log(this.currentConference)
         this.currentConference = data;
-        if (this.isSuperAdmin()) {
-          this.httpService.getAdmins().then((data) => {
-            this.admins = data;
-            let optionalAdmin = this.admins.find((e) => this.currentConference.adminId == e.id)
-            if (optionalAdmin != undefined) {
-              this.currentConferenceAdmin = optionalAdmin
-            }
-          })
-        }
+        this.currentAdmins = this.currentConference.admins;
 
         if (this.isAdminAbsolute()) {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
@@ -98,7 +90,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           });
         }
         this.httpService.getSections(this.currentConferenceId).then((data) => {
-          this.sections = data
+          this.sections = data.sort((a, b) => Number(a.id) - Number(b.id))
         })
 
         this.updateUserInfo()
@@ -135,10 +127,8 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   isAdminConference(): boolean {
     let user_info: string | null = sessionStorage.getItem("user_info");
     let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
-    if (this.loggedUser.role == 'ADMIN' && currentUser.id == this.currentConference.adminId) {
-      this.currentConferenceAdmin = currentUser;
-    }
-    return (this.loggedUser.role == 'ADMIN' && currentUser.id == this.currentConference.adminId) || this.loggedUser.role == 'SUPER_ADMIN';
+    let find = this.currentAdmins.filter((admin) => admin.id == currentUser.id).length;
+    return (this.loggedUser.role == 'ADMIN' && find > 0) || this.loggedUser.role == 'SUPER_ADMIN';
   }
 
   isSuperAdmin(): boolean {
@@ -203,7 +193,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           "title": this.formAddJob.value.title,
           "coAuthors": this.formAddJob.value.coauthors,
           "description": this.formAddJob.value.description,
-          "userName": this.currentUser.fullName,
+          "userName": this.currentUser.firstName,
           "userId": this.currentUser.id,
           "sectionId": this.currentSection?.id,
           "sectionTitle": this.currentSection?.title,

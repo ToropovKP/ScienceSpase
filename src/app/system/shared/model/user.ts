@@ -1,24 +1,19 @@
-import { Conference } from "./conference";
-import { Job } from "./job";
-import { Section } from "./section";
-
 export class User {
 
-    private _id!: bigint;
-    private _fullName!: string;
-    private _phone!: string;
-    private _email!: string;
-    private _organization!: string;
-    private _academicDegree!: string;
-    private _academicTitle!: string;
-    private _orcId!: string;
-    private _rincId!: string;
-    private _conferences!: Conference[];
-    private _sections!: Section[];
-    private _jobs!: Job[];
-    private _profilePicture!: string;
-    private _role!: string;
-    private _status!: string;
+  private _id!: bigint;
+  private _firstName!: string;
+  private _lastName!: string;
+  private _middleName!: string;
+  private _phone!: string;
+  private _email!: string;
+  private _telegramUserName!: string;
+  private _organization!: string;
+  private _academicDegree!: string;
+  private _academicTitle!: string;
+  private _orcId!: string;
+  private _rincId!: string;
+  private _role!: string;
+  private _status!: string;
 
   constructor() {
   }
@@ -29,38 +24,6 @@ export class User {
 
   set status(value: string) {
     this._status = value;
-  }
-
-  get profilePicture(): string {
-    return this._profilePicture;
-  }
-
-  set profilePicture(value: string) {
-    this._profilePicture = value;
-  }
-
-  get jobs(): Job[] {
-    return this._jobs;
-  }
-
-  set jobs(value: Job[]) {
-    this._jobs = value;
-  }
-
-  get sections(): Section[] {
-    return this._sections;
-  }
-
-  set sections(value: Section[]) {
-    this._sections = value;
-  }
-
-  get conferences(): Conference[] {
-    return this._conferences;
-  }
-
-  set conferences(value: Conference[]) {
-    this._conferences = value;
   }
 
   get rincId(): string {
@@ -111,12 +74,28 @@ export class User {
     this._id = value;
   }
 
-  get fullName(): string {
-    return this._fullName;
+  get firstName(): string {
+    return this._firstName;
   }
 
-  set fullName(value: string) {
-    this._fullName = value;
+  set firstName(value: string) {
+    this._firstName = value;
+  }
+
+  get lastName(): string {
+    return this._lastName;
+  }
+
+  set lastName(value: string) {
+    this._lastName = value;
+  }
+
+  get middleName(): string {
+    return this._middleName;
+  }
+
+  set middleName(value: string) {
+    this._middleName = value;
   }
 
   get phone(): string {
@@ -133,6 +112,14 @@ export class User {
 
   set email(value: string) {
     this._email = value;
+  }
+
+  get telegramUserName(): string {
+    return this._telegramUserName;
+  }
+
+  set telegramUserName(value: string) {
+    this._telegramUserName = value;
   }
 
   get role(): string {

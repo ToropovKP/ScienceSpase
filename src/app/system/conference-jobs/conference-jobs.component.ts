@@ -85,8 +85,8 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   isAdminConference(): boolean {
     let user_info: string | null = sessionStorage.getItem("user_info");
     let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
-
-    return (this.loggedUser.role == 'ADMIN' && currentUser.id == this.currentConference.adminId) || this.loggedUser.role == 'SUPER_ADMIN';
+    let find = this.currentConference.admins.find((admin) => admin.id == currentUser.id);
+    return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
   }
 
   isSuperAdmin(): boolean {

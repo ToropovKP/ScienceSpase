@@ -7,6 +7,8 @@ import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
 import {HttpResponse} from "@angular/common/http";
+import {Commentary} from "../shared/model/commentary";
+import {UserBaseDto} from "../shared/dto/user.base.dto";
 
 @Component({
   selector: 'app-one-conference',
@@ -17,8 +19,11 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
   currentJobId!: string;
   currentJob: Job = new Job();
+  jobUser!: User;
+  currentComments!: Commentary[];
 
   formAddJob!: FormGroup;
+  formComment!: FormGroup;
   loggedUser!: LoginResponse;
   currentUser!: User;
 
@@ -33,6 +38,8 @@ export class OneJobComponent implements OnInit, AfterViewInit {
     let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
     if (obj) {
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
     return obj != null;
   }
@@ -59,6 +66,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
       section: new FormControl('',),
     })
 
+    this.formComment = this.formBuilder.group({
+      message: new FormControl('',),
+    })
+
     this.loadAllData()
   }
 
@@ -68,24 +79,27 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
       this.httpService.getUserOneJob(this.currentJobId).then((data) => {
         this.currentJob = data
-        console.log(data)
         this.updateUserInfo()
+
+        this.httpService.getJobComments(this.currentJobId).then((data) => {
+          this.currentComments = data
+        })
       })
     });
   }
 
   updateUserInfo() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
-      this.currentUser = data
+    this.httpService.getUserInfoById(String(this.currentJob.userId)).then((data) => {
+      this.jobUser = data
       this.formAddJob.controls['title'].setValue(this.currentJob.title)
       this.formAddJob.controls['coauthors'].setValue(this.currentJob.coAuthors)
       this.formAddJob.controls['description'].setValue(this.currentJob.description)
-      this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
-      this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
-      this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
-      this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
-      this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
-      this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
+      this.formAddJob.controls['phone'].setValue(this.jobUser.phone)
+      this.formAddJob.controls['organization'].setValue(this.jobUser.organization)
+      this.formAddJob.controls['academicDegree'].setValue(this.jobUser.academicDegree)
+      this.formAddJob.controls['academicTitle'].setValue(this.jobUser.academicTitle)
+      this.formAddJob.controls['orcId'].setValue(this.jobUser.orcId)
+      this.formAddJob.controls['rincId'].setValue(this.jobUser.rincId)
       this.formAddJob.controls['section'].setValue(this.currentJob.sectionTitle)
     })
   }
@@ -121,6 +135,19 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
   deleteJob() {
     // this.toPage(`/conference/${this.currentConferenceId}/edit`);
+  }
+
+  createComment() {
+    let request = {
+      "jobId": this.currentJobId,
+      "message": this.formComment.value.message,
+      "user": new UserBaseDto().createFromUser(this.currentUser)
+    }
+
+    this.httpService.createComment(request).then((data) => {
+      this.currentComments.push(data)
+    })
+    this.formComment.reset()
   }
 
   toPage(link: string) {

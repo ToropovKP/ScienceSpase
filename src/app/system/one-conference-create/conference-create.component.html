@@ -1,21 +1,4 @@
-<header class="p-3 bg-dark text-white fixed-top"
-  style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
-  <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a
-            class="nav-link px-2 text-white head-text">Пользователи</a>
-        </li>
-        <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
-      </ul>
-    </div>
-  </div>
-</header>
-
 <!-- Сама конференция админка / обычная -->
-
 
 <section id="conference">
   <div class="container">
@@ -33,18 +16,17 @@
             Администратор
             <div class="conf-name-adress text-black" style="width: 100%;">
               <div class="form-floating mb-3">
-               
+
                 <div style="padding: 10px; margin-top: 15px;" class="dropdown">
                   <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   Изменить
                   </button>
-                  <ul style="width: calc(100% - 20px); padding-left: 10px;" class="dropdown-menu" 
-                  formControlName="adminName" (change)="updateAdmin($event)" aria-labelledby="dropdownMenuButton">
+                  <ul style="width: calc(100% - 20px); padding-left: 10px;" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                       <li *ngFor="let user of admins">
                               <div class="form-check align-items-center" style="width: 100%;">
-                                  <input class="form-check-input" type="checkbox" id="{{ user.id}}" />
-                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="{{ user.id}}">{{ user.fullName }}</label>
+                                  <input formControlName="admin{{user.id}}" (change)="updateAdmin()" class="form-check-input" type="checkbox" id="{{ user.id }}" />
+                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="{{ user.id }}">{{ user.firstName + " " + user.lastName }}</label>
                               </div>
                       </li>
                   </ul>
@@ -111,26 +93,33 @@
               </div>
             </div>
 
-            <div class="row conf-info-section-item" *ngFor="let section of this.sections">
+            <div class="row conf-info-section-item" [formGroup]="formSections" *ngFor="let section of this.sections">
               <div class="col-6 conf-info-section" style="padding-right: 5px;">
-                <input type="text" class="bg-white form-control section-text text-center text-black"
-                  [value]="section.title" (change)="updateSections($event, 'org', section)">
+                <input [attr.disabled]="!isSuperAdmin() && !isMasterAdminConference() ? true : null" type="text" class="bg-white form-control section-text text-center text-black"
+                  [value]="section.title" (change)="updateSections($event, 'org', section, null)">
               </div>
               <div class="col-6 conf-info-section">
-                <div style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
+                <div *ngIf="isSuperAdmin() || isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
                   <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   Изменить
                   </button>
-                  <ul style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" 
-                  formControlName="adminName" (change)="updateAdmin($event)" aria-labelledby="dropdownMenuButton">
-                      <li *ngFor="let user of admins">
-                              <div class="form-check align-items-center" style="width: 100%;">
-                                  <input class="form-check-input" type="checkbox" id="confAdm{{section.id}}{{user.id}}"  [value]="section.leaderName" (change)="updateSections($event, 'user', section)"/>
-                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="confAdm{{section.id}}{{user.id}}">{{user.fullName }}</label>
-                              </div>
+                  <ul style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <li *ngFor="let user of this.currentAdmins">
+                          <div class="form-check align-items-center" style="width: 100%;">
+                              <input *ngIf="isMasterAdminConference() ? this.currentUser.id != user.id : null" formControlName="sec{{section.title}}{{user.id}}" (change)="updateSections($event, 'user', section, user)" class="form-check-input" type="checkbox" id="confAdm{{section.title}}{{user.id}}"/>
+                              <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="confAdm{{section.title}}{{user.id}}">{{ user.firstName + " " + user.lastName }}</label>
+                          </div>
                       </li>
                   </ul>
+                </div>
+                <div *ngIf="!isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;">
+                  <input [attr.disabled]="isSuperAdmin() || isMasterAdminConference()" type="text" class="bg-white form-control section-text text-center text-black"
+                         [value]="section.leaders.length != 0
+                ? (section.leaders[0].firstName + ' ' + section.leaders[0].lastName + ' ' + (section.leaders.length > 1
+                  ? 'и еще ' + (section.leaders.length - 1)
+                  : ''))
+                  : 'Не назначен'" [readonly]="true">
                 </div>
               </div>
 
@@ -139,7 +128,7 @@
                   [value]="section.leaderName" (change)="updateSections($event, 'user', section)">
               </div> -->
             </div>
-            <div class="conf-info-section">
+            <div *ngIf="isSuperAdmin() || isMasterAdminConference()" class="conf-info-section">
               <div style="padding: 10px; cursor: pointer;"
                 class="conf-section-title form-control text-center text-white bg-dark" (click)="addRowForSection()">Добавить
                 секцию</div>

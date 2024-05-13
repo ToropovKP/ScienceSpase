@@ -15,12 +15,13 @@ import {HttpResponse} from "@angular/common/http";
 })
 export class ProfileComponent implements OnInit, AfterViewInit {
 
-  currentJobId!: string;
-  currentJob: Job = new Job();
-
-  formAddJob!: FormGroup;
+  formProfile!: FormGroup;
   loggedUser!: LoginResponse;
   currentUser!: User;
+  profileUser!: User;
+  profileUserId!: string;
+
+  editProfile: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -33,6 +34,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
     if (obj) {
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
     return obj != null;
   }
@@ -46,17 +49,18 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       this.router.navigate(['']);
     }
 
-    this.formAddJob = this.formBuilder.group({
-      title: new FormControl('',),
-      coauthors: new FormControl('',),
-      description: new FormControl('',),
+    this.formProfile = this.formBuilder.group({
+      firstName: new FormControl('',),
+      lastName: new FormControl('',),
+      middleName: new FormControl('',),
       phone: new FormControl('',),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('',),
       rincId: new FormControl('',),
-      section: new FormControl('',),
+      telegram: new FormControl('',),
+      password: new FormControl('',),
     })
 
     this.loadAllData()
@@ -64,35 +68,28 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
   loadAllData() {
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
-      this.currentJobId = e;
-
-      this.httpService.getUserOneJob(this.currentJobId).then((data) => {
-        this.currentJob = data
-        console.log(data)
+      this.profileUserId = e;
+      this.httpService.getUserInfoById(this.profileUserId).then((data) => {
+        this.profileUser = data
         this.updateUserInfo()
-      })
+      });
     });
   }
 
   updateUserInfo() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
-      this.currentUser = data
-      this.formAddJob.controls['title'].setValue(this.currentJob.title)
-      this.formAddJob.controls['coauthors'].setValue(this.currentJob.coAuthors)
-      this.formAddJob.controls['description'].setValue(this.currentJob.description)
-      this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
-      this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
-      this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
-      this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
-      this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
-      this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
-      this.formAddJob.controls['section'].setValue(this.currentJob.sectionTitle)
-    })
+    this.formProfile.controls['firstName'].setValue(this.profileUser.firstName)
+    this.formProfile.controls['lastName'].setValue(this.profileUser.lastName)
+    this.formProfile.controls['middleName'].setValue(this.profileUser.middleName)
+    this.formProfile.controls['phone'].setValue(this.profileUser.phone)
+    this.formProfile.controls['organization'].setValue(this.profileUser.organization)
+    this.formProfile.controls['academicDegree'].setValue(this.profileUser.academicDegree)
+    this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
+    this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
+    this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
+    this.formProfile.controls['telegram'].setValue(this.profileUser.telegramUserName)
+    this.formProfile.controls['password'].setValue("***************")
   }
 
-  isUserJob(): boolean {
-    return this.currentJob.userId == this.currentUser.id
-  }
 
   isAdminAbsolute(): boolean {
     return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
@@ -102,25 +99,56 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     return this.loggedUser.role == 'SUPER_ADMIN';
   }
 
-  downloadFile(fileName: string) {
-    this.httpService.downloadFile(fileName).then(response => {
-      this.processDownloadFile(response)
-    });
+  allowToChange(): boolean {
+    return this.showButtonsToChange() && !this.editProfile;
   }
 
-  processDownloadFile(response: HttpResponse<any>) {
-    let fileName = response.headers.get('content-disposition')?.split(';')[1].split('=')[1];
-    let blob: Blob = response.body as Blob;
-    let a = document.createElement('a');
-    if (fileName) {
-      a.download = fileName;
-      a.href = window.URL.createObjectURL(blob);
-      a.click();
+  showButtonsToChange(): boolean {
+    return String(this.currentUser.id) == this.profileUserId;
+  }
+
+  changeProfile() {
+    this.editProfile = true;
+  }
+
+  cancelProfile() {
+    this.editProfile = false;
+    this.formProfile.reset()
+    this.updateUserInfo()
+  }
+
+  saveProfile() {
+    let requestUser = {
+      "id": this.profileUser.id,
+      "firstName": this.formProfile.value.firstName,
+      "lastName": this.formProfile.value.lastName,
+      "middleName": this.formProfile.value.middleName,
+      "phone": this.formProfile.value.phone,
+      "organization": this.formProfile.value.organization,
+      "academicDegree": this.formProfile.value.academicDegree,
+      "academicTitle": this.formProfile.value.academicTitle,
+      "orcId": this.formProfile.value.orcId,
+      "rincId": this.formProfile.value.rincId,
+      "telegramUserName": this.formProfile.value.telegram,
     }
-  }
 
-  deleteJob() {
-    // this.toPage(`/conference/${this.currentConferenceId}/edit`);
+    this.profileUser.firstName = this.formProfile.value.firstName
+    this.profileUser.lastName = this.formProfile.value.lastName
+    this.profileUser.middleName = this.formProfile.value.middleName
+    this.profileUser.phone = this.formProfile.value.phone
+    this.profileUser.organization = this.formProfile.value.organization
+    this.profileUser.academicDegree = this.formProfile.value.academicDegree
+    this.profileUser.academicTitle = this.formProfile.value.academicTitle
+    this.profileUser.orcId = this.formProfile.value.orcId
+    this.profileUser.rincId = this.formProfile.value.rincId
+    this.profileUser.telegramUserName = this.formProfile.value.telegram
+
+    console.log(this.profileUser)
+    this.httpService.updateUserInfo(requestUser).then((data) => {
+    });
+    this.editProfile = false;
+    this.formProfile.reset()
+    this.updateUserInfo()
   }
 
   toPage(link: string) {

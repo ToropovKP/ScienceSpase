@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LoginResponse} from "../model/login.response";
-import {AppConstants} from "../../../app.module";
 import {User} from "../model/user";
+import {HttpService} from "../services/http.service";
 
 @Component({
   selector: 'app-header',
@@ -16,30 +15,23 @@ export class HeaderComponent implements OnInit {
   formRegistration!: FormGroup;
   currentUser!: User;
 
+  loggedUser!: LoginResponse | null;
+  loggedStatus: boolean = false;
+
   public showRegStatus!: User;
-
-  private baseUrl = AppConstants.baseURL;
-
-  httpOptions = {
-    headers: new HttpHeaders(
-      {
-        'Content-Type': 'application/json',
-        // @ts-ignore
-        //'Authorization': sessionStorage.getItem('user') != null ? JSON.parse(sessionStorage.getItem('user')).token : ''
-      }
-    )
-  }
 
   constructor(private router: Router,
               private formBuilder: FormBuilder,
-              private http: HttpClient
+              private httpService: HttpService
   ) {
 
   }
 
   ngOnInit() {
     this.formRegistration = this.formBuilder.group({
-      fullName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+      firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+      lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+      middleName: new FormControl('', []),
       phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
       email: new FormControl('', [Validators.required, Validators.email]),
       organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
@@ -61,18 +53,23 @@ export class HeaderComponent implements OnInit {
   login(): void {
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
-    this.http.post<LoginResponse>(`${this.baseUrl}/api/v1/auth/login`, JSON.stringify(request), this.httpOptions).subscribe((data: LoginResponse) => {
+    this.httpService.login(request).then((data) => {
       this.router.navigate(["/conferences"]);
       sessionStorage.setItem("user", JSON.stringify(data));
       this.loggedUser = data;
+      this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+        this.currentUser = data;
+        sessionStorage.setItem("user_info", JSON.stringify(data));
+      });
     });
     this.loginForm.reset();
   }
 
-
   registration(): void {
     let request = {
-      "fullName": this.formRegistration.value.fullName,
+      "firstName": this.formRegistration.value.firstName,
+      "lastName": this.formRegistration.value.lastName,
+      "middleName": this.formRegistration.value.middleName,
       "phone": '7' + this.formRegistration.value.phone,
       "email": this.formRegistration.value.email,
       "organization": this.formRegistration.value.organization,
@@ -80,13 +77,10 @@ export class HeaderComponent implements OnInit {
       "academicTitle": this.formRegistration.value.academicTitle,
       "password": this.formRegistration.value.password
     };
-    this.http.post<User>(`${this.baseUrl}/api/v1/auth/registration`, JSON.stringify(request), this.httpOptions).subscribe((data: User) => {
+    this.httpService.registration(request).then((data) => {
       this.showRegStatus = data;
     })
   }
-
-  loggedUser!: LoginResponse | null;
-  loggedStatus: boolean = false;
 
   checkLogin() {
     let json: string | null = sessionStorage.getItem("user");
@@ -95,6 +89,8 @@ export class HeaderComponent implements OnInit {
     if (obj != null) {
       this.loggedStatus = true;
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
       return true;
     } else {
       this.loggedStatus = false;
@@ -103,17 +99,15 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  /*personal() {
-    if (this.loggedUser != null) {
-      if (this.loggedUser.role == "MEMBER") {
-        this.router.navigate(["/all-conferences"]);
-      } else if (this.loggedUser.role == "ADMIN") {
-        this.router.navigate(["/all-conferences"]);
-      }
-    }
-  }*/
+  isSuperAdmin(): boolean {
+    return this.loggedUser != null && this.loggedUser.role == 'SUPER_ADMIN';
+  }
 
   logout() {
     sessionStorage.clear();
+  }
+
+  toPage(link: string) {
+    this.router.navigate([link]);
   }
 }

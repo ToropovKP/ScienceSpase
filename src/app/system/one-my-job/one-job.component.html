@@ -1,19 +1,4 @@
-<header class="p-3 bg-dark text-white fixed-top"
-  style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
-  <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
-        <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
-      </ul>
-    </div>
-  </div>
-</header>
-
 <!-- Сама конференция админка / обычная -->
-
 
 <section id="conference">
   <div class="container">
@@ -107,48 +92,71 @@
                 <div class="container py-3">
 
                   <div class="d-flex justify-content-center">
-                    
 
-                      <div class="card col-12">
+
+                      <div class="card col-12" >
                         <div class="card-header d-flex justify-content-between align-items-center p-3"
                           style="border-top: 4px solid #8C99B9;">
                           <h5 class="mb-0">Чат</h5>
                         </div>
-                        <div class="card-body"  data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px; overflow: auto;">
 
-                          <div class="d-flex justify-content-start">
-                            <p class="mb-1">Админ,</p><pre> </pre>
-                            <p class="mb-1 text-muted">23 Jan 5:37 pm</p>
-                          </div>
-                          <div class="d-flex flex-row justify-content-start">
-                            <div>
-                              <p class="p-2 me-3 mb-3 rounded-3" style="background-color: #f5f6f7;">Dolorum quasi voluptates quas
-                                amet in
-                                repellendus perspiciatis fugiat</p>
+                        <div class="card-body" data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px; overflow: auto;">
+
+                          <div *ngFor="let comment of this.currentComments">
+                            <div *ngIf="comment.user.id != this.currentUser.id; then ifThen; else ifElse">
+<!--                              comment.user.id != this.jobUser.id-->
                             </div>
-                          </div>
-
-                          <div class="d-flex justify-content-end">
-                            <p class="mb-1 text-muted">23 Jan 6:10 pm,</p><pre> </pre>
-                            <p class="mb-1">Пользак</p>
-                          </div>
-                          <div class="d-flex flex-row justify-content-end mb-4 pt-1">
-                            <div>
-                              
-
-                                <p class="p-2 ms-3 mb-3 text-white rounded-3" style="background-color: #8C99B9;">
-                                  Lorem ipsum dolor
+                            <ng-template #ifThen>
+                              <div class="d-flex justify-content-start">
+                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }},</p><pre> </pre>
+                                <p class="mb-1 text-muted">{{ comment.dateTime }}</p>
+                              </div>
+                              <div class="d-flex flex-row justify-content-start">
+                                <div>
+                                  <p class="p-2 me-3 mb-3 rounded-3" style="background-color: #f5f6f7;">
+                                    {{ comment.message }}
                                   </p>
-                            </div>
+                                </div>
+                              </div>
+                            </ng-template>
+
+                            <ng-template #ifElse>
+                              <div class="d-flex justify-content-end">
+                                <p class="mb-1 text-muted">{{ comment.dateTime }},</p><pre> </pre>
+                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }}</p>
+                              </div>
+                              <div class="d-flex flex-row justify-content-end mb-4 pt-1">
+                                <div>
+                                  <p class="p-2 ms-3 mb-3 text-white rounded-3" style="background-color: #8C99B9;">
+                                    {{ comment.message }}
+                                  </p>
+                                </div>
+                              </div>
+                            </ng-template>
                           </div>
-                          
+
+
+<!--                          <div class="d-flex justify-content-end">-->
+<!--                            <p class="mb-1 text-muted">23 Jan 6:10 pm,</p><pre> </pre>-->
+<!--                            <p class="mb-1">Пользак</p>-->
+<!--                          </div>-->
+<!--                          <div class="d-flex flex-row justify-content-end mb-4 pt-1">-->
+<!--                            <div>-->
+
+
+<!--                                <p class="p-2 ms-3 mb-3 text-white rounded-3" style="background-color: #8C99B9;">-->
+<!--                                  Lorem ipsum dolor-->
+<!--                                  </p>-->
+<!--                            </div>-->
+<!--                          </div>-->
+
 
                         </div>
-                        <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+                        <div [formGroup]="formComment" class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
                           <div class="input-group mb-0">
                             <input type="text" class="form-control" placeholder="Type message"
-                              aria-label="Recipient's username" aria-describedby="button-addon2" />
-                            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
+                              aria-label="Recipient's username" aria-describedby="button-addon2" formControlName="message" />
+                            <button (click)="createComment()" data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
                               Отправить
                             </button>
                           </div>

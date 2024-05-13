@@ -6,9 +6,9 @@
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="#" class="nav-link px-2 text-white head-text">Главная</a></li>
-        <li><a href="#" class="nav-link px-2 text-white head-text">Новости</a></li>
-        <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
+        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
+        <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
+        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
       </ul>
 
       <div class="text-end" *ngIf="!checkLogin()">
@@ -18,13 +18,12 @@
       </div>
 
       <div class="dropdown text-end" *ngIf="checkLogin()">
-        <a href="#" class="dropdown-toggle d-block text-white text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="mdo" width="55" height="55" class="rounded-circle">
+        <a href="#" type="button" class="dropdown-toggle d-block text-white text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+          {{this.currentUser.firstName + ' ' + this.currentUser.lastName}}
         </a>
 
         <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser">
-          <li><a class="dropdown-item" href="#">Профиль</a></li>
-          <li><a class="dropdown-item" href="#">Личный кабинет</a></li>
+          <li><a class="dropdown-item" (click)="toPage('profile/' + this.currentUser.id)">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#" (click)="logout()">Выход</a></li>
         </ul>
@@ -73,8 +72,18 @@
         <form [formGroup]="formRegistration" (keyup.enter)="pressBtn('button__code')">
 
           <div class="form-floating mb-3">
-            <input type="fullName" class="form-control rounded-3" formControlName="fullName">
-            <label for="floatingInput">ФИО <span style="color: red;">*</span></label>
+            <input type="fullName" class="form-control rounded-3" formControlName="lastName">
+            <label for="floatingInput">Фамилия <span style="color: red;">*</span></label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input type="fullName" class="form-control rounded-3" formControlName="firstName">
+            <label for="floatingInput">Имя <span style="color: red;">*</span></label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input type="fullName" class="form-control rounded-3" formControlName="middleName">
+            <label for="floatingInput">Отчество <span style="color: red;">*</span></label>
           </div>
 
           <div class="form-floating mb-3">
@@ -86,7 +95,7 @@
             <input type="email" class="form-control rounded-3" formControlName="email">
             <label for="floatingInput">Email <span style="color: red;">*</span></label>
           </div>
- 
+
           <div class="form-floating mb-3">
             <input type="organization" class="form-control rounded-3" formControlName="organization">
             <label for="floatingInput">Аффилиация (организация) <span style="color: red;">*</span></label>
@@ -111,10 +120,10 @@
             <label for="floatingInput">Подтверждение пароля <span style="color: red;">*</span></label>
           </div>
 
-        
+
           <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" data-bs-target="#RegStatus" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid" data-bs-dismiss="modal">Регистрация</button>
           <small class="text-muted"><span style="color: red;">*</span> Нажимая зарегистрироваться, вы соглашаетесь с <a href="">правилами</a></small>
-          
+
         </form>
       </div>
     </div>

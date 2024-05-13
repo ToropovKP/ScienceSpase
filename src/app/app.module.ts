@@ -38,7 +38,7 @@ import { ProfileComponent } from './system/profile/profile.component';
     BrowserModule,
     AppRoutingModule,
     CommonModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule.withConfig({callSetDisabledState: 'whenDisabledForLegacyCode'}),
     FormsModule,
     HttpClientModule,
     NgxMaskModule.forRoot(),
@@ -51,6 +51,10 @@ export class AppModule {
 }
 
 export class AppConstants {
+
+  // public static get formatDate(date: string) {
+  //
+  // }
 
   public static get baseURL(): string {
     return "http://localhost:8080";

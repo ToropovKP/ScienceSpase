@@ -1,17 +1,3 @@
-<header class="p-3 bg-dark text-white fixed-top"
-        style="margin-top: 87px;background-color: #33486E!important; z-index: 9;">
-  <div class="container" *ngIf="checkLogin()">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('my-jobs')"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
-        <li><a href="#" class="nav-link px-2 text-white head-text">Контакты</a></li>
-      </ul>
-    </div>
-  </div>
-</header>
-
 <section id="home">
   <div class="container">
     <div class="row">
