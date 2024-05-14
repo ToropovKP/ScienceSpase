@@ -21,13 +21,13 @@
 
           <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
           <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
-          <div class="col-4 conf-info-text text-black text-center">Дата начала: {{this.currentConference.startDate}}</div>
-          <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{this.currentConference.endDate}}</div>
-          <div class="col-4 conf-info-text text-black ">Статус: {{ this.statusMap.get(this.currentConference.status) }}</div>
+          <div class="col-4 conf-info-text text-black text-center">Дата начала: {{AppConstants.formatDate(this.currentConference.startDate)}}</div>
+          <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{AppConstants.formatDate(this.currentConference.endDate)}}</div>
+        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(this.currentConference.status) }}</span></div>
           <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isAdminConference()">Количество участников: {{this.countUsers}}</span></div>
           <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isAdminConference()" (click)="checkUsers()">Перейти к списку участников</a></div>
 
-          <div class="row conf-info-section-item" style="margin-top: 10px;">
+          <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length != 0">
             <div class="col-6 conf-info-section" style="padding-right: 5px;">
               <div class="conf-section-title text-center text-white rounded-3">Секция</div>
             </div>
@@ -36,20 +36,20 @@
             </div>
 
 
-          <div class="row conf-info-section-item" *ngFor="let section of this.sections">
-            <div class="col-6 conf-info-section" style="padding-right: 5px;">
-              <div class="section-text text-center text-black rounded-3">{{section.title}}</div>
-            </div>
-            <div class="col-6 conf-info-section" style="padding-left: 5px;">
-              <div class="section-text text-center text-black rounded-3">
-                {{section.leaders.length != 0
-                ? (section.leaders[0].firstName + " " + section.leaders[0].lastName + " " + (section.leaders.length > 1
-                  ? "и еще " + (section.leaders.length - 1)
-                  : ""))
-                : "Не назначен"}}</div>
+            <div class="row conf-info-section-item" *ngFor="let section of this.sections">
+              <div class="col-6 conf-info-section" style="padding-right: 5px;">
+                <div class="section-text text-center text-black rounded-3">{{section.title}}</div>
+              </div>
+              <div class="col-6 conf-info-section" style="padding-left: 5px;">
+                <div class="section-text text-center text-black rounded-3">
+                  {{section.leaders.length != 0
+                  ? (section.leaders[0].firstName + " " + section.leaders[0].lastName + " " + (section.leaders.length > 1
+                    ? "и еще " + (section.leaders.length - 1)
+                    : ""))
+                  : "Не назначен"}}</div>
+              </div>
             </div>
           </div>
-        </div>
 
           <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
             <div class="conf-info-text text-black rounded-3" style="margin: 0px;">Описание: {{this.currentConference.description}}</div>
@@ -60,7 +60,7 @@
           <!-- Загрузка через проводник и перетаскиванием -->
           <form [formGroup]="formAddJob">
             <div class="row" style="margin-left: 0px;">
-              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('title')?.invalid && formAddJob.get('title')?.touched}">
                 <label class="second-text strong text-black" for="floatingInput">Название <span style="color: red;">*</span></label>
                 <input type="text" class="bg-white form-control section-text text-black" formControlName="title"
                   id="floatingInput">
@@ -72,19 +72,19 @@
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
-              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('description')?.invalid && formAddJob.get('description')?.touched}">
                 <label class="second-text strong text-black" for="floatingInput">Описание <span style="color: red;">*</span></label>
                 <textarea type="text" class="bg-white form-control section-area text-black" formControlName="description"
                           id="floatingInput"></textarea>
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
                 <label class="second-text text-black" for="floatingInput">Телефон <span style="color: red;">*</span></label>
                 <input type="text" class="bg-white form-control section-text text-black" formControlName="phone"
                   id="floatingInput">
               </div>
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
                 <label class="second-text text-black" for="floatingInput">ORCID <span style="color: red;">*</span></label>
                 <input type="text" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
@@ -96,7 +96,7 @@
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('organization')?.invalid && formAddJob.get('organization')?.touched}">
                 <label class="second-text text-black" for="floatingInput">Организация <span style="color: red;">*</span></label>
                 <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
                   id="floatingInput">
@@ -138,7 +138,7 @@
             <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isAdminConference()">Изменить</button>
             <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="openJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId != null">Перейти к ответу</button>
             <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId == null && !this.addingJob">Добавить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="createJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" [disabled]="formAddJob.invalid" (click)="createJob()" *ngIf="!isAdminConference() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-end">
 

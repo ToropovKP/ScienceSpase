@@ -3,6 +3,7 @@ export class LoginResponse {
   private _email : string = "";
   private _role : string = "";
   private _token : string = "";
+  private _error : string = "";
 
   constructor() {
   }
@@ -29,5 +30,13 @@ export class LoginResponse {
 
   set token(value: string) {
     this._token = value;
+  }
+
+  get error(): string {
+    return this._error;
+  }
+
+  set error(value: string) {
+    this._error = value;
   }
 }

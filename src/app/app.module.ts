@@ -18,6 +18,8 @@ import {UsersComponent} from "./system/all-users/users.component";
 import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
 import {OneJobComponent} from "./system/one-my-job/one-job.component";
 import { ProfileComponent } from './system/profile/profile.component';
+import {format} from "date-fns";
+import {ru} from "date-fns/locale/ru";
 
 @NgModule({
   declarations: [
@@ -52,9 +54,13 @@ export class AppModule {
 
 export class AppConstants {
 
-  // public static get formatDate(date: string) {
-  //
-  // }
+  public static formatDate(date: Date): string {
+    return format(date, 'd MMM y', { locale: ru});
+  }
+
+  public static formatDateTime(date: Date): string {
+    return format(date, 'd MMM y HH:mm:ss', { locale: ru});
+  }
 
   public static get baseURL(): string {
     return "http://localhost:8080";

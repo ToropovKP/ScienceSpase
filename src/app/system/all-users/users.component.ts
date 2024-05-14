@@ -56,28 +56,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
   }
 
-  changeRole(user: User, role: string) {
-    this.httpService.changeUserRole(String(user.id), role).then((data) => {
-      if (data) {
-        this.users.forEach(e => {
-          if (e.id == user.id) {
-            user.role = role;
-          }
-        })
-      }
-    });
-  }
-
-  changeStatus(user: User, status: string) {
-    this.httpService.changeUserStatus(String(user.id), status).then((data) => {
-      if (data) {
-        this.users.forEach(e => {
-          if (e.id == user.id) {
-            user.status = status;
-          }
-        })
-      }
-    });
+  openProfile(userId: bigint) {
+    this.toPage(`/profile/${userId}`)
   }
 
   isSuperAdmin(): boolean {

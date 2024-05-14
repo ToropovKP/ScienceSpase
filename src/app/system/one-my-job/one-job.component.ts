@@ -9,6 +9,7 @@ import {Job} from "../shared/model/job";
 import {HttpResponse} from "@angular/common/http";
 import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
+import {AppConstants} from "../../app.module";
 
 @Component({
   selector: 'app-one-conference',
@@ -17,6 +18,7 @@ import {UserBaseDto} from "../shared/dto/user.base.dto";
 })
 export class OneJobComponent implements OnInit, AfterViewInit {
 
+  protected readonly AppConstants = AppConstants;
   currentJobId!: string;
   currentJob: Job = new Job();
   jobUser!: User;
@@ -134,7 +136,9 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   deleteJob() {
-    // this.toPage(`/conference/${this.currentConferenceId}/edit`);
+    this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
+    })
+    this.toPage(`/conference/${this.currentJob.conferenceId}`);
   }
 
   createComment() {

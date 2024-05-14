@@ -17,6 +17,7 @@ import {UserBase} from "../shared/model/user.base";
 })
 export class ConferenceComponent implements OnInit, AfterViewInit {
 
+  protected readonly AppConstants = AppConstants;
   sections: Section[] = []
   currentSection!: Section | undefined;
 
@@ -62,13 +63,13 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       title: new FormControl('', [Validators.required]),
       coauthors: new FormControl('',),
       description: new FormControl('', [Validators.required]),
-      phone: new FormControl('',),
+      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('', [Validators.required]),
       rincId: new FormControl('',),
-      section: new FormControl('', [Validators.required]),
+      section: new FormControl('', ),
       files: new FormControl('', [Validators.required]),
     })
 
@@ -80,7 +81,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       this.currentConferenceId = e;
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
-        console.log(this.currentConference)
         this.currentConference = data;
         this.currentAdmins = this.currentConference.admins;
 

@@ -63,7 +63,7 @@ export class JobsComponent implements OnInit, AfterViewInit {
     return this.loggedUser.role == 'SUPER_ADMIN';
   }
 
-  openJob(id: string) {
+  openJob(id: bigint) {
     this.toPage(`/my-jobs/${id}`)
   }
 
@@ -71,5 +71,4 @@ export class JobsComponent implements OnInit, AfterViewInit {
     this.router.navigate([link]);
   }
 
-  protected readonly String = String;
 }

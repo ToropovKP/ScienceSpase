@@ -12,7 +12,7 @@ export class Job {
   private _conferenceId!: bigint;
   private _sectionId!: bigint;
   private _comments!: Commentary[];
-  private _dateTime!: string;
+  private _dateTime!: Date;
   private _fileName!: string;
 
   constructor() {
@@ -106,11 +106,11 @@ export class Job {
     this._comments = value;
   }
 
-  get dateTime(): string {
+  get dateTime(): Date {
     return this._dateTime;
   }
 
-  set dateTime(value: string) {
+  set dateTime(value: Date) {
     this._dateTime = value;
   }
 

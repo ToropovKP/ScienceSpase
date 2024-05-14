@@ -16,6 +16,8 @@ import {HttpService} from "../shared/services/http.service";
 })
 export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 
+  protected readonly AppConstants = AppConstants;
+
   jobs: Job[] = [];
 
   currentConference!: Conference;

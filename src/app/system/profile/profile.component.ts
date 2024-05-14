@@ -5,8 +5,6 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
-import {Job} from "../shared/model/job";
-import {HttpResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-profile',
@@ -107,6 +105,22 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     return String(this.currentUser.id) == this.profileUserId;
   }
 
+  changeRole(role: string) {
+    this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
+      if (data) {
+        this.profileUser.role = role
+      }
+    });
+  }
+
+  changeStatus(status: string) {
+    this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
+      if (data) {
+        this.profileUser.status = status
+      }
+    });
+  }
+
   changeProfile() {
     this.editProfile = true;
   }
@@ -143,7 +157,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.profileUser.rincId = this.formProfile.value.rincId
     this.profileUser.telegramUserName = this.formProfile.value.telegram
 
-    console.log(this.profileUser)
     this.httpService.updateUserInfo(requestUser).then((data) => {
     });
     this.editProfile = false;

@@ -10,8 +10,8 @@ export class Conference {
   private _sections!: Section[];
   private _status!: string;
   private _admins!: UserBase[];
-  private _startDate!: string;
-  private _endDate!: string;
+  private _startDate!: Date;
+  private _endDate!: Date;
 
   constructor() {
   }
@@ -72,19 +72,19 @@ export class Conference {
     this._admins = value;
   }
 
-  get startDate(): string {
+  get startDate(): Date {
     return this._startDate;
   }
 
-  set startDate(value: string) {
+  set startDate(value: Date) {
     this._startDate = value;
   }
 
-  get endDate(): string {
+  get endDate(): Date {
     return this._endDate;
   }
 
-  set endDate(value: string) {
+  set endDate(value: Date) {
     this._endDate = value;
   }
 

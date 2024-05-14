@@ -65,7 +65,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       confName: new FormControl('', [Validators.required, Validators.minLength(4)]),
       confStatus: new FormControl('', [Validators.required]),
       organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
-      description: new FormControl('', []),
+      description: new FormControl('', [Validators.required]),
       date_start: new FormControl('', [Validators.required]),
       date_end: new FormControl('', [Validators.required]),
     })
@@ -176,12 +176,10 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   createConference() {
     // обновление полей + добавление секций
     let sectionsDto: SectionDto[] = []
-    console.log(this.sections)
     this.sections.forEach((e) => {
       if (this.currentConference != undefined) {
         let find = this.currentConference.sections.find((sec) => sec.id == e.id);
         if (find == undefined) {
-          console.log(find)
           // @ts-ignore
           e.id = Number(0)
         }
@@ -190,11 +188,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         e.id = Number(0)
       }
       sectionsDto.push(new SectionDto(e))
-    })
-
-    let adminsDto: UserBaseDto[] = []
-    this.currentAdmins.forEach((e) => {
-      adminsDto.push(new UserBaseDto().createFromUserBase(e))
     })
 
     let request = {
@@ -208,7 +201,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     };
 
     this.httpService.createConference(request).then((data) => {
-      if (this.currentAdmins != undefined) {
+      if (this.currentAdmins != null && this.currentAdmins.length != 0) {
+        let adminsDto: UserBaseDto[] = []
+        this.currentAdmins.forEach((e) => {
+          adminsDto.push(new UserBaseDto().createFromUserBase(e))
+        })
         this.httpService.appointAdminsToConference(String(data.id), adminsDto);
       }
       this.toPage(`/conference/${data.id}`)
@@ -227,11 +224,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       sectionsDto.push(new SectionDto(e))
     })
 
-    let adminsDto: UserBaseDto[] = []
-    this.currentAdmins.forEach((e) => {
-      adminsDto.push(new UserBaseDto().createFromUserBase(e))
-    })
-
     let request = {
       "id": this.currentConferenceId,
       "title": this.formCreateConference.value.confName,
@@ -245,7 +237,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
     this.httpService.updateConference(this.currentConferenceId, request).then((data) => {
       if (this.isSuperAdmin()) {
-        if (this.currentAdmins != undefined) {
+        if (this.currentAdmins != null && this.currentAdmins.length != 0) {
+          let adminsDto: UserBaseDto[] = []
+          this.currentAdmins.forEach((e) => {
+            adminsDto.push(new UserBaseDto().createFromUserBase(e))
+          })
           this.httpService.appointAdminsToConference(String(data.id), adminsDto).then((data) => {
           });
         }
@@ -298,7 +294,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     })
 
     this.currentAdmins = admins
-    console.log(this.currentAdmins)
     this.updateControlsForSections()
   }
 

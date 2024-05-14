@@ -1,194 +1,225 @@
 #conference {
-    background: url(../../../assets/pictures/home/pattern.svg);
-  }
+  background: url(../../../assets/pictures/home/pattern.svg);
+}
 
-  .main {
-    background: url(../../../assets/pictures/home/page.svg);
-    padding: 110px 35px 0px 35px;
-    box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
-    min-height: 100vh;
-  }
+.main {
+  background: url(../../../assets/pictures/home/page.svg);
+  padding: 110px 35px 0px 35px;
+  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  min-height: 100vh;
+}
 
-  .conf-name-adress {
-    font-size: 20px;
-    margin-left: 10px;
-  }
+.conf-name-adress {
+  font-size: 20px;
+  margin-left: 10px;
+}
 
-  .konf-information {
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 20px;
+.konf-information {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 20px;
 
-  }
+}
 
-  .conf-title {
-    font-size: 24px;
-    font-weight: 400;
-    margin-bottom: 20px;
-    margin-top: 10px;
-  }
+.conf-title {
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
 
-  .conf-info-text {
-    font-size: 20px;
-    font-weight: 400;
-    margin-bottom: 20px;
-    margin-top: 10px;
-  }
+.conf-info-text {
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
 
-  .conf-btn-users-list a {
-    color: #8C99B9;
-    text-decoration: dotted underline;
-    cursor: pointer;
-  }
+.conf-btn-users-list a {
+  color: #8C99B9;
+  text-decoration: dotted underline;
+  cursor: pointer;
+}
 
-  .conf-section-title {
-    padding: 13px;
-    height: 47px;
-    background-color: #8C99B9;
-  }
+.conf-section-title {
+  padding: 13px;
+  height: 47px;
+  background-color: #8C99B9;
+}
 
-  .conf-info-section-item {
-    display: contents;
-  }
+.conf-info-section-item {
+  display: contents;
+}
 
-  .conf-info-section {
-    font-size: 20px !important;
-    font-weight: 400 !important;
-    margin-bottom: 10px;
-    padding: 0px;
+.conf-info-section {
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  margin-bottom: 10px;
+  padding: 0px;
 
-  }
+}
 
-  .section-text {
-    border: #8C99B9 solid 1px;
-    background: rgb(255, 255, 255, 0.3);
-    padding: 13px;
-    height: 47px;
-  }
+.section-text {
+  border: #8C99B9 solid 1px;
+  background: rgb(255, 255, 255, 0.3);
+  padding: 13px;
+  height: 47px;
+}
 
-  .section-area {
-    border: #8C99B9 solid 1px;
-    background: rgb(255, 255, 255, 0.3);
-    padding: 13px;
-    height: 80px;
-    min-height: 80px;
-  }
+.section-area {
+  border: #8C99B9 solid 1px;
+  background: rgb(255, 255, 255, 0.3);
+  padding: 13px;
+  height: 80px;
+  min-height: 80px;
+}
 
-  .conf-desc {
-    padding: 20px;
-    min-height: 300px;
-    background: rgb(255, 255, 255, 0.3);
-  }
+.conf-desc {
+  padding: 20px;
+  min-height: 300px;
+  background: rgb(255, 255, 255, 0.3);
+}
 
-  .konf-name {
-    font-size: 24px !important;
-    font-weight: 400 !important;
-    margin-bottom: 20px;
-    background-color: #8C99B9;
-    padding: 10px;
-  }
-
-
-  .konf-pref  {
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    margin-bottom: 20px;
-    height: 80px;
-  }
-
-  .input-search {
-    height: 47px;
-    margin-left: 20px;
-    width: 20vw;
-    min-width: 100px;
-    background: rgba(255, 255, 255, 0.5);
-    border: #8C99B9 solid 1px;
-  }
-
-  .pref-options {
-    margin-left: 20px;
-  }
+.konf-name {
+  font-size: 24px !important;
+  font-weight: 400 !important;
+  margin-bottom: 20px;
+  background-color: #8C99B9;
+  padding: 10px;
+}
 
 
+.konf-pref {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  margin-bottom: 20px;
+  height: 80px;
+}
 
-  .btn-pref {
-    background-color: #212529;
-    height: 47px;
-    border-radius: 0;
-    font-size: 16px;
-    margin-left: 20px;
-  }
-  .btn-pref-add {
-    background-color: #212529;
-    height: 47px;
-    width: 47px;
-    border-radius: 0;
-    font-size: 16px;
-    margin-left: 20px;
-  }
+.input-search {
+  height: 47px;
+  margin-left: 20px;
+  width: 20vw;
+  min-width: 100px;
+  background: rgba(255, 255, 255, 0.5);
+  border: #8C99B9 solid 1px;
+}
 
-
-
-
-
-  .konf-item {
-    background-color: rgba(255, 255, 255, 0.5);
-    z-index: 0;
-    padding: 0px;
-    position: relative;
-
-  }
-
-  .konf-item-outer {
-    z-index: 0;
-    padding: 6px;
-    position: relative;
-  }
-
-  .img-info-conf img {
-    width: 100%;
-    border: #8C99B9 solid 1px;
-    border-bottom: 0px;
-  }
-
-  .general-info-conf {
-    width: 100%;
-    border: #8C99B9 solid 1px;
-    padding: 10px;
-  }
+.pref-options {
+  margin-left: 20px;
+}
 
 
-  .konf-organization {
-    font-size: 20px !important;
-    font-weight: 500 !important;
-    margin-bottom: 25px;
-  }
+.btn-pref {
+  background-color: #212529;
+  height: 47px;
+  border-radius: 0;
+  font-size: 16px;
+  margin-left: 20px;
+}
 
-  .second-info-conf {
-    border: #8C99B9 solid 1px;
-    border-top: 0px;
-    padding: 10px;
-  }
-
-  .btn-konf {
-    background-color: #212529;
-    height: 36px;
-    max-width:  100px;
-    border-radius: 0;
-    font-size: 16px;
-    margin: 20px 10px 3px 0px;
-  }
+.btn-pref-add {
+  background-color: #212529;
+  height: 47px;
+  width: 47px;
+  border-radius: 0;
+  font-size: 16px;
+  margin-left: 20px;
+}
 
 
+.konf-item {
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 0;
+  padding: 0px;
+  position: relative;
 
-  .konf-status {
-    margin-top: 5px;
-    font-size: 16px !important;
-    font-weight: 400 !important;
-    bottom: 30px;
-  }
+}
 
-  .konf-timeDate {
-    margin-top: 5px;
-    font-size: 16px !important;
-    font-weight: 400 !important;
-  }
+.konf-item-outer {
+  z-index: 0;
+  padding: 6px;
+  position: relative;
+}
+
+.img-info-conf img {
+  width: 100%;
+  border: #8C99B9 solid 1px;
+  border-bottom: 0px;
+}
+
+.general-info-conf {
+  width: 100%;
+  border: #8C99B9 solid 1px;
+  padding: 10px;
+}
+
+
+.konf-organization {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  margin-bottom: 25px;
+}
+
+.second-info-conf {
+  border: #8C99B9 solid 1px;
+  border-top: 0px;
+  padding: 10px;
+}
+
+.btn-konf {
+  background-color: #212529;
+  height: 36px;
+  max-width: 100px;
+  border-radius: 0;
+  font-size: 16px;
+  margin: 20px 10px 3px 0px;
+}
+
+
+.konf-status {
+  margin-top: 5px;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  bottom: 30px;
+}
+
+.konf-timeDate {
+  margin-top: 5px;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}
+
+.users-list-text {
+  border: #8C99B9 solid 1px;
+  background: rgb(255, 255, 255, 0.3);
+  padding: 26px 13px;
+  height: 74px;
+  overflow: auto;
+  vertical-align: middle;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  white-space: nowrap;
+  font-size: 16px !important;
+}
+
+.users-list-text-btn {
+  cursor: pointer;
+  font-size: 16px !important;
+  border: #8C99B9 solid 1px;
+  background: rgb(255, 255, 255, 0.3);
+  padding: 8px;
+  height: 37px;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.users-list-text-btn:hover {
+  opacity: 0.8;
+}
+
+.users-list-text::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

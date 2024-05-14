@@ -5,7 +5,7 @@ export class Commentary {
     private _jobId!: bigint;
     private _user!: UserBase;
     private _message!: string;
-    private _dateTime!: string;
+    private _dateTime!: Date;
 
     constructor() {
       }
@@ -42,11 +42,11 @@ export class Commentary {
         this._message = value;
       }
 
-      get dateTime(): string {
+      get dateTime(): Date {
         return this._dateTime;
       }
 
-      set dateTime(value: string) {
+      set dateTime(value: Date) {
         this._dateTime = value;
       }
 }

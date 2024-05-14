@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {Router} from "@angular/router";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {LoginResponse} from "../model/login.response";
@@ -11,6 +11,10 @@ import {HttpService} from "../services/http.service";
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
+
+  @ViewChild('closeModalLogIn') closeModalLogIn!: ElementRef
+  invalidLogin: boolean = false;
+
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
   currentUser!: User;
@@ -34,9 +38,9 @@ export class HeaderComponent implements OnInit {
       middleName: new FormControl('', []),
       phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
-      academicDegree: new FormControl('', [Validators.required, Validators.minLength(4)]),
-      academicTitle: new FormControl('', [Validators.required, Validators.minLength(4)]),
+      organization: new FormControl('', []),
+      academicDegree: new FormControl('', []),
+      academicTitle: new FormControl('', []),
       password: new FormControl('', [Validators.required, Validators.minLength(8)]),
       confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)])
     });
@@ -54,15 +58,21 @@ export class HeaderComponent implements OnInit {
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
-      this.router.navigate(["/conferences"]);
-      sessionStorage.setItem("user", JSON.stringify(data));
-      this.loggedUser = data;
-      this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
-        this.currentUser = data;
-        sessionStorage.setItem("user_info", JSON.stringify(data));
-      });
+      if (data.error != '') {
+        this.invalidLogin = true;
+      } else {
+        this.invalidLogin = false
+        this.closeModalLogIn.nativeElement.click()
+        sessionStorage.setItem("user", JSON.stringify(data));
+        this.loggedUser = data;
+        this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+          this.currentUser = data;
+          sessionStorage.setItem("user_info", JSON.stringify(data));
+        });
+        this.loginForm.reset();
+        this.router.navigate(["/conferences"]);
+      }
     });
-    this.loginForm.reset();
   }
 
   registration(): void {

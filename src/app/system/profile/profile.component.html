@@ -5,11 +5,28 @@
 
     <div class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
-        <div class="d-inline-flex align-items-center col-8">
+        <div class="d-inline-flex align-items-center col-4">
           <div class="conf-name-adress text-black">
             Email: {{this.profileUser.email}}
           </div>
         </div>
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
+          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('ADMIN')">
+            <a>Назначить администратором</a>
+          </div>
+          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role == 'ADMIN'" (click)="changeRole('MEMBER')">
+            <a>Назначить участником</a>
+          </div>
+        </div>
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
+          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
+            <a>Заблокировать</a>
+          </div>
+          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
+            <a>Разблокировать</a>
+          </div>
+        </div>
+
       </div>
 
       <div class="row konf-information rounded-3">
@@ -86,7 +103,7 @@
 
         <div class="row" style="margin-bottom: 20px; margin-top: 10px; margin-left: 0px; padding: 0px;" *ngIf="showButtonsToChange()">
           <div class="col-4 conf-info-text text-black">
-            <button style="margin: 0px; width: 100%;" type="button" [disabled]="!editProfile" class="form-control rounded-3 btn btn-pref text-white">Удалить</button>
+            <button style="margin: 0px; width: 100%;" type="button" [disabled]="true" class="form-control rounded-3 btn btn-pref text-white">Удалить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-center">
             <button style="margin: 0px; width: 100%;" type="button" *ngIf="!editProfile" (click)="changeProfile()" class="form-control rounded-3 btn btn-pref text-white">Изменить</button>

@@ -75,6 +75,19 @@ select{
   }
 }
 
+.has-error span > span {
+  color: red;
+}
+
+.has-error input {
+  border-color: red !important;
+  color: red;
+}
+
+.has-error textarea {
+  border-color: red !important;
+  color: red;
+}
 
 /*
 * {

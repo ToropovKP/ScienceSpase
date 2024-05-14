@@ -68,6 +68,10 @@ export class HttpService {
     return await firstValueFrom(this.http.post<Job>(`${this.baseUrl}/api/v1/member/jobs`, JSON.stringify(request), this.httpOptions));
   }
 
+  async deleteJob(id: string): Promise<Job> {
+    return await firstValueFrom(this.http.delete<Job>(`${this.baseUrl}/api/v1/member/job/${id}/delete`, this.httpOptions));
+  }
+
   async changeUserRole(id: string, role: string): Promise<boolean> {
     return await firstValueFrom(this.http.post<boolean>(`${this.baseUrl}/api/v1/admin/user/appointrole?userId=${id}&role=${role}`, this.httpOptions));
   }

@@ -13,6 +13,7 @@ import {HttpService} from "../shared/services/http.service";
 })
 export class ConferencesComponent implements OnInit, AfterViewInit {
 
+  protected readonly AppConstants = AppConstants;
   conferences: Conference[] = [];
 
   currentUser!: User;

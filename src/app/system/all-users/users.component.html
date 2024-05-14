@@ -42,14 +42,14 @@
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
             <div class="conf-section-title text-center text-white rounded-3">Почта</div>
           </div>
-          <div class="col-1 conf-info-section" style="padding-left: 5px;">
+          <div class="col-2 conf-info-section" style="padding-left: 5px;">
             <div class="conf-section-title text-center text-white rounded-3">Статус</div>
           </div>
-          <div class="col-1 conf-info-section" style="padding-left: 5px;">
+          <div class="col-2 conf-info-section" style="padding-left: 5px;">
             <div class="conf-section-title text-center text-white rounded-3">Роль</div>
           </div>
-          <div class="col-3 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Изменить</div>
+          <div class="col-1 conf-info-section" style="padding-left: 5px;">
+            <div class="conf-section-title text-center text-white rounded-3">Профиль</div>
           </div>
         </div>
 
@@ -70,38 +70,23 @@
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
             <div class="users-list-text text-center text-black rounded-3">{{ user.email }}</div>
           </div>
-          <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black rounded-3">{{ this.userStatusMap.get(user.status) }}</div>
+          <div class="col-2 conf-info-section" style="padding-left: 5px;">
+            <div class="users-list-text text-center rounded-3" [style.color]="user.status == 'ACTIVE' ? 'green' : '#D80000'">{{ this.userStatusMap.get(user.status) }}</div>
           </div>
-          <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black rounded-3">{{ this.userRoleMap.get(user.role) }}</div>
+          <div class="col-2 conf-info-section" style="padding-left: 5px;">
+            <div class="users-list-text text-center rounded-3" [style.color]="user.role == 'ADMIN' ? 'purple' : 'black'">{{ this.userRoleMap.get(user.role) }}</div>
           </div>
-          <div class="col-3 conf-info-section" style="padding-left:5px;">
-
-              <div class="col-12" style="padding: 0px;">
-                <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0; background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.role == 'MEMBER'" (click)="changeRole(user, 'ADMIN')">
-                  <a>Назначить администратором</a>
-                </div>
-                <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0; background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.role == 'ADMIN'" (click)="changeRole(user, 'MEMBER')">
-                  <a>Назначить участником</a>
-                </div>
-              </div>
-              <div class="col-12" style="padding: 0px;">
-                <div style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.status == 'ACTIVE'" (click)="changeStatus(user, 'BANNED')">
-                  <a>Заблокировать</a>
-                </div>
-                <div style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="user.status == 'BANNED'" (click)="changeStatus(user, 'ACTIVE')">
-                  <a>Разблокировать</a>
-                </div>
-              </div>
-
+          <div class="col-1 conf-info-section" style="padding-left:5px; cursor: pointer">
+            <div class="users-list-text text-center text-black rounded-3 download-pointer" (click)="openProfile(user.id)">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.5002 13.5L19.0003 19" stroke="black" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <circle cx="8" cy="8" r="7.25" stroke="black" stroke-width="1.5"/>
+              </svg>
+            </div>
           </div>
-
-
-
         </div>
       </div>
-
 
     </div>
   </div>

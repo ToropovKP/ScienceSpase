@@ -44,7 +44,7 @@
 
         <div class="rounded-3 row konf-information" style="padding-right: 5px;">
           <div class="row" style="margin-bottom: 20px; margin-top: -15px;">
-            <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;">
+            <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;" [ngClass]="{'has-error': formCreateConference.get('confName')?.invalid && formCreateConference.get('confName')?.touched}">
               <label class="main-text" for="floatingInput">Название конференции <span
                   style="color: red;">*</span></label>
               <input type="text" class="bg-white form-control section-text text-black" formControlName="confName"
@@ -58,23 +58,23 @@
                 <option *ngFor="let status of statusList">{{ status }}</option>
               </select>
             </div>
-            <div class="col-4" style="padding-left: 0px;">
+            <div class="col-4" style="padding-left: 0px;" [ngClass]="{'has-error': formCreateConference.get('organization')?.invalid && formCreateConference.get('organization')?.touched}">
               <label class="second-text" for="floatingInput">Организация <span style="color: red;">*</span></label>
               <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
                 id="floatingInput">
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" [ngClass]="{'has-error': formCreateConference.get('date_start')?.invalid && formCreateConference.get('date_start')?.touched}">
               <label class="second-text" for="floatingInput">Дата начала <span style="color: red;">*</span></label>
               <input type="date" class="bg-white form-control section-text text-black" formControlName="date_start"
                 id="floatingInput">
             </div>
-            <div class="col-4 text-end" style="padding-right: 0px;">
+            <div class="col-4 text-end" style="padding-right: 0px;" [ngClass]="{'has-error': formCreateConference.get('date_end')?.invalid && formCreateConference.get('date_end')?.touched}">
               <label class="second-text" for="floatingInput">Дата завершения <span style="color: red;">*</span></label>
               <input type="date" class="bg-white form-control section-text text-black" formControlName="date_end"
                 id="floatingInput">
             </div>
 
-            <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;">
+            <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;" [ngClass]="{'has-error': formCreateConference.get('description')?.invalid && formCreateConference.get('description')?.touched}">
               <label class="second-text" for="floatingInput">Описание <span style="color: red;">*</span></label>
               <textarea style="min-height: 250px;" rows="10" type="text"
                 class="bg-white form-control section-text text-black" formControlName="description"
@@ -141,9 +141,9 @@
 
             </div>
             <div class="col-4 conf-info-text text-black text-center">
-              <button type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId == null"
+              <button [disabled]="formCreateConference.invalid" type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId == null"
                 (click)="createConference()">Сохранить</button>
-              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId != null"
+              <button [disabled]="formCreateConference.invalid" type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId != null"
                 (click)="updateConference()">Сохранить изменения</button>
             </div>
             <div class="col-4 conf-info-text text-black text-end">
