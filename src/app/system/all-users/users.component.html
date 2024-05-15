@@ -61,8 +61,7 @@
 
         <div class="row conf-info-section-item" *ngFor="let user of this.users">
           <div class="col-3 conf-info-section">
-            <div class="users-list-text text-center text-black rounded-3">{{ user.lastName + ' ' + user.firstName + ' '
-            + (user.middleName != '' ? user.middleName.charAt(0) + '.' : '') }}</div>
+            <div class="users-list-text text-center text-black rounded-3">{{ user.lastName + ' ' + user.firstName + ' ' + user.middleName }}</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
             <div class="users-list-text text-center text-black rounded-3">{{ user.phone }}</div>
@@ -74,7 +73,7 @@
             <div class="users-list-text text-center rounded-3" [style.color]="user.status == 'ACTIVE' ? 'green' : '#D80000'">{{ this.userStatusMap.get(user.status) }}</div>
           </div>
           <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center rounded-3" [style.color]="user.role == 'ADMIN' ? 'purple' : 'black'">{{ this.userRoleMap.get(user.role) }}</div>
+            <div class="users-list-text text-center rounded-3" [style.color]="user.role == 'ADMIN' ? '#334FFF' : 'black'">{{ this.userRoleMap.get(user.role) }}</div>
           </div>
           <div class="col-1 conf-info-section" style="padding-left:5px; cursor: pointer">
             <div class="users-list-text text-center text-black rounded-3 download-pointer" (click)="openProfile(user.id)">

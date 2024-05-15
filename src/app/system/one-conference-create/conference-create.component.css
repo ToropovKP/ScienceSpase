@@ -82,6 +82,10 @@
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
   height: 47px;
+  overflow: auto ;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  white-space: nowrap;
 }
 
 .conf-desc {

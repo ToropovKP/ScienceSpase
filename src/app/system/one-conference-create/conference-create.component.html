@@ -115,11 +115,7 @@
                 </div>
                 <div *ngIf="!isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;">
                   <input [attr.disabled]="isSuperAdmin() || isMasterAdminConference()" type="text" class="bg-white form-control section-text text-center text-black"
-                         [value]="section.leaders.length != 0
-                ? (section.leaders[0].firstName + ' ' + section.leaders[0].lastName + ' ' + (section.leaders.length > 1
-                  ? 'и еще ' + (section.leaders.length - 1)
-                  : ''))
-                  : 'Не назначен'" [readonly]="true">
+                         [value]="section.leaders.length != 0 ? getLeadersString(section.leaders) : 'Не назначен'" [readonly]="true">
                 </div>
               </div>
 

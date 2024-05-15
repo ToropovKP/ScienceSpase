@@ -341,11 +341,15 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
       if (find) {
         let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
-        return length != 0
+        return length == this.sections.length
       }
       return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
     }
     return false;
+  }
+
+  getLeadersString(leaders: UserBase[]) {
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName != '' ? " " + lead.middleName : '')).join(", ")
   }
 
   toPage(link: string) {

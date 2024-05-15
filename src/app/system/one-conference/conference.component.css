@@ -62,7 +62,9 @@
   border: #8C99B9 solid 1px;
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
-  height: 47px;
+  min-height: 47px;
+  display: block;
+  white-space: pre-wrap;
 }
 
 .section-area {

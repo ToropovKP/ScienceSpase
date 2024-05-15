@@ -219,6 +219,10 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     this.currentSection = this.sections.find((e) => e.title === sectionName);
   }
 
+  getLeadersString(leaders: UserBase[]) {
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName != '' ? " " + lead.middleName : '')).join("\n")
+  }
+
   toPage(link: string) {
     this.router.navigate([link]);
   }
