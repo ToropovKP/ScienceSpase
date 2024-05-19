@@ -10,4 +10,3 @@ FROM nginx:stable-alpine
 EXPOSE 8085
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=node /app/dist/kograf/browser /www
-gi
