@@ -11,18 +11,18 @@
           </div>
         </div>
         <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('ADMIN')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('ADMIN')">
             <a>Назначить администратором</a>
           </div>
-          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role == 'ADMIN'" (click)="changeRole('MEMBER')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'ADMIN'" (click)="changeRole('MEMBER')">
             <a>Назначить участником</a>
           </div>
         </div>
         <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
             <a>Заблокировать</a>
           </div>
-          <div style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg) var(--bs-border-radius-lg); background-color: #a7b2cf;" class="users-list-text-btn text-center text-black" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
             <a>Разблокировать</a>
           </div>
         </div>

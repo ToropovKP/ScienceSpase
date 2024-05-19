@@ -2,7 +2,7 @@
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
       <a [routerLink]="['']"  class="logo__link d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-        <img class="icon bi me-2" height="65" src="../../../../assets/pictures/header/kograf.svg">
+        <img class="icon bi me-2" height="65" src="../../../../assets/pictures/header/nnstu.svg">
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
@@ -23,7 +23,7 @@
         </a>
 
         <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser">
-          <li><a class="dropdown-item" (click)="toPage('profile/' + this.currentUser.id)">Профиль</a></li>
+          <li><a class="dropdown-item" type="button" (click)="toPage('profile/' + this.currentUser.id)">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#" (click)="logout()">Выход</a></li>
         </ul>
