@@ -8,6 +8,7 @@ import {Conference} from "../shared/model/conference";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
+import {Section} from "../shared/model/section";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -23,7 +24,9 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   currentConference!: Conference;
   currentConferenceId!: string
   countUsers: number = 0;
+  currentSections!: Section[];
 
+  currentUser!: User;
   loggedUser!: LoginResponse;
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
@@ -67,18 +70,26 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
         if (!this.isAdminConference()) {
           this.router.navigate(['']);
         }
-      });
 
-      this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
-        this.countUsers = data
-      });
+        this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
+          this.countUsers = data
+        });
 
-      this.httpService.getConferenceJobs(this.currentConferenceId).then((data) => {
-        this.jobs = data;
+        this.httpService.getConferenceJobs(this.currentConferenceId).then((data) => {
+          if (!this.isMasterAdminConference()) {
+            let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
+            if (find) {
+              let sections = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length > 0)
+              this.currentSections = sections;
+              this.jobs = data.filter((job) => sections.filter((sec) => sec.id == job.sectionId).length > 0);
+            }
+          } else {
+            this.jobs = data
+          }
+        });
       });
     });
   }
-
 
   isAdminAbsolute(): boolean {
     return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
@@ -87,8 +98,21 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   isAdminConference(): boolean {
     let user_info: string | null = sessionStorage.getItem("user_info");
     let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
+    this.currentUser = currentUser;
     let find = this.currentConference.admins.find((admin) => admin.id == currentUser.id);
     return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
+  }
+
+  isMasterAdminConference(): boolean {
+    if (this.isAdminConference()) {
+      let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
+      if (find) {
+        let length = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
+        return length == this.currentConference.sections.length
+      }
+      return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
+    }
+    return false;
   }
 
   isSuperAdmin(): boolean {
@@ -104,7 +128,12 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   downloadFilesConference() {
-    this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response));
+    if (this.isMasterAdminConference()) {
+      this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response));
+    } else {
+      this.currentSections.forEach((sec) =>
+        this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response)));
+    }
   }
 
   processDownloadFile(response: HttpResponse<any>) {

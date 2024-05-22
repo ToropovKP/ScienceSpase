@@ -88,6 +88,15 @@
   white-space: nowrap;
 }
 
+input.section-text, select.section-text, textarea.section-text {
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-white-rgb),var(--bs-bg-opacity))
+}
+
+input.section-text:disabled, select.section-text:disabled, textarea.section-text:disabled{
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 .conf-desc {
   padding: 20px;
   min-height: 300px;

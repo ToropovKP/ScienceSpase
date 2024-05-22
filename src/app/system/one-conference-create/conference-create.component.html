@@ -47,12 +47,12 @@
             <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;" [ngClass]="{'has-error': formCreateConference.get('confName')?.invalid && formCreateConference.get('confName')?.touched}">
               <label class="main-text" for="floatingInput">Название конференции <span
                   style="color: red;">*</span></label>
-              <input type="text" class="bg-white form-control section-text text-black" formControlName="confName"
+              <input [attr.disabled]="!isMasterAdminConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="confName"
                 id="floatingInput">
             </div>
             <div class="col-2 conf-title text-black" style="padding: 0px;">
               <label class="main-text" for="floatingInput">Статус <span style="color: red;">*</span></label>
-              <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px;"
+              <select [attr.disabled]="!isMasterAdminConference() ? true : null" class="form-control section-text text-black text-center" style="height: 47px; padding: 10px;"
                       formControlName="confStatus" (change)="updateStatus($event)">
                 <option selected [ngValue]="undefined" style="font-size: 16px; color: black;">Выберите</option>
                 <option *ngFor="let status of statusList">{{ status }}</option>
@@ -60,24 +60,24 @@
             </div>
             <div class="col-4" style="padding-left: 0px;" [ngClass]="{'has-error': formCreateConference.get('organization')?.invalid && formCreateConference.get('organization')?.touched}">
               <label class="second-text" for="floatingInput">Организация <span style="color: red;">*</span></label>
-              <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+              <input [attr.disabled]="!isMasterAdminConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="organization"
                 id="floatingInput">
             </div>
             <div class="col-4 text-center" [ngClass]="{'has-error': formCreateConference.get('date_start')?.invalid && formCreateConference.get('date_start')?.touched}">
               <label class="second-text" for="floatingInput">Дата начала <span style="color: red;">*</span></label>
-              <input type="date" class="bg-white form-control section-text text-black" formControlName="date_start"
+              <input [attr.disabled]="!isMasterAdminConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_start"
                 id="floatingInput">
             </div>
             <div class="col-4 text-end" style="padding-right: 0px;" [ngClass]="{'has-error': formCreateConference.get('date_end')?.invalid && formCreateConference.get('date_end')?.touched}">
               <label class="second-text" for="floatingInput">Дата завершения <span style="color: red;">*</span></label>
-              <input type="date" class="bg-white form-control section-text text-black" formControlName="date_end"
+              <input [attr.disabled]="!isMasterAdminConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_end"
                 id="floatingInput">
             </div>
 
             <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;" [ngClass]="{'has-error': formCreateConference.get('description')?.invalid && formCreateConference.get('description')?.touched}">
               <label class="second-text" for="floatingInput">Описание <span style="color: red;">*</span></label>
-              <textarea style="min-height: 250px;" rows="10" type="text"
-                class="bg-white form-control section-text text-black" formControlName="description"
+              <textarea [attr.disabled]="!isMasterAdminConference() ? true : null" style="min-height: 250px;" rows="10" type="text"
+                class="form-control section-text text-black" formControlName="description"
                 id="floatingInput"></textarea>
             </div>
           </div>
@@ -95,11 +95,11 @@
 
             <div class="row conf-info-section-item" [formGroup]="formSections" *ngFor="let section of this.sections">
               <div class="col-6 conf-info-section" style="padding-right: 5px;">
-                <input [attr.disabled]="!isSuperAdmin() && !isMasterAdminConference() ? true : null" type="text" class="bg-white form-control section-text text-center text-black"
+                <input [attr.disabled]="!isLeaderSection(section) ? true : null" type="text" class="form-control section-text text-center text-black"
                   [value]="section.title" (change)="updateSections($event, 'org', section, null)">
               </div>
               <div class="col-6 conf-info-section">
-                <div *ngIf="isSuperAdmin() || isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
+                <div *ngIf="isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
                   <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   Изменить
@@ -114,7 +114,7 @@
                   </ul>
                 </div>
                 <div *ngIf="!isMasterAdminConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;">
-                  <input [attr.disabled]="isSuperAdmin() || isMasterAdminConference()" type="text" class="bg-white form-control section-text text-center text-black"
+                  <input [attr.disabled]="isMasterAdminConference()" type="text" class="form-control section-text text-center text-black"
                          [value]="section.leaders.length != 0 ? getLeadersString(section.leaders) : 'Не назначен'" [readonly]="true">
                 </div>
               </div>
@@ -124,7 +124,7 @@
                   [value]="section.leaderName" (change)="updateSections($event, 'user', section)">
               </div> -->
             </div>
-            <div *ngIf="isSuperAdmin() || isMasterAdminConference()" class="conf-info-section">
+            <div *ngIf="isMasterAdminConference()" class="conf-info-section">
               <div style="padding: 10px; cursor: pointer;"
                 class="conf-section-title form-control text-center text-white bg-dark" (click)="addRowForSection()">Добавить
                 секцию</div>
