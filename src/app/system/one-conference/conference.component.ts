@@ -173,6 +173,9 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   createJob() {
     const formData: FormData = new FormData();
     this.files.forEach((file) => {
+      formData.append("conferenceId", String(this.currentConference?.id));
+      formData.append("sectionId", String(this.currentSection?.id));
+      formData.append("fullName", this.currentUser.fullName);
       formData.append("files", file);
     })
 

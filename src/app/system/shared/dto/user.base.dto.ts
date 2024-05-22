@@ -83,6 +83,6 @@ export class UserBaseDto {
   }
 
   get fullName() {
-    return this.lastName + " " + this.firstName + " " + this.middleName
+    return this.lastName + " " + this.firstName + (this.middleName != null ? " " + this.middleName : "")
   }
 }

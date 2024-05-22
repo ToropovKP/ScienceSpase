@@ -130,4 +130,7 @@ export class User {
     this._role = value;
   }
 
+  get fullName() {
+    return this.lastName + " " + this.firstName + (this.middleName != null ? " " + this.middleName : "");
+  }
 }

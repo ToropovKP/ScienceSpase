@@ -132,26 +132,34 @@ export class HttpService {
     return await firstValueFrom(this.http.post<UploadResponse>(`${this.baseUrl}/api/v1/files/uploadFile`, formData));
   }
 
+  //conferenceId: string, sectionId: string,
   async uploadFiles(formData: FormData): Promise<UploadResponse[]> {
     return await firstValueFrom(this.http.post<UploadResponse[]>(`${this.baseUrl}/api/v1/files/uploadMultipleFiles`, formData));
   }
 
-  async downloadFile(fileName: string): Promise<any> {
-    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFile/${fileName}`, {
-      observe: 'response',
-      responseType: 'blob'
-    }));
-  }
-
-  async downloadFilesJob(id: string): Promise<any> {
-    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles/job/${id}`, {
+  async downloadFile(fileName: string, jobId: string): Promise<any> {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFile/${fileName}?jobId=${jobId}`, {
       observe: 'response',
       responseType: 'blob'
     }));
   }
 
   async downloadFilesConference(id: string): Promise<any> {
-    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles/conference/${id}`, {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles?conferenceId=${id}`, {
+      observe: 'response',
+      responseType: 'blob'
+    }));
+  }
+
+  async downloadFilesSection(id: string): Promise<any> {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles?sectionId=${id}`, {
+      observe: 'response',
+      responseType: 'blob'
+    }));
+  }
+
+  async downloadFilesJob(id: string): Promise<any> {
+    return await firstValueFrom(this.http.get(`${this.baseUrl}/api/v1/files/downloadFiles?jobId=${id}`, {
       observe: 'response',
       responseType: 'blob'
     }));

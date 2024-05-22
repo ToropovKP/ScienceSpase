@@ -119,7 +119,7 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   downloadFile(fileName: string) {
-    this.httpService.downloadFile(fileName).then(response => {
+    this.httpService.downloadFile(fileName, String(this.currentJob.id)).then(response => {
       this.processDownloadFile(response)
     });
   }
