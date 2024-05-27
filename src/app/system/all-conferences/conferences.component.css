@@ -59,7 +59,6 @@
   z-index: 0;
   padding: 0px;
   position: relative;
-
 }
 
 .konf-item-outer {
@@ -83,6 +82,7 @@
 .konf-name {
   font-size: 24px !important;
   font-weight: 400 !important;
+  line-height: 35px;
   margin-bottom: 20px;
   background-color: #8C99B9;
   padding: 10px;
@@ -91,6 +91,7 @@
 .konf-organization {
   font-size: 20px !important;
   font-weight: 500 !important;
+  line-height: 30px;
   margin-bottom: 10px;
 }
 

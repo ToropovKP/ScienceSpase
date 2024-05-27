@@ -40,15 +40,15 @@
               <div class="col-6 d-inline-flex conf-info-section" style="padding-right: 5px;">
                 <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{section.title}}</div></div>
               </div>
-              <div class="col-6 conf-info-section" style="padding-left: 5px;">
-                <div class="section-text text-center text-black rounded-3">
+              <div class="col-6 d-inline-flex conf-info-section" style="padding-left: 5px;">
+                <div class="section-text text-center w-100 d-flex justify-content-center align-items-center text-black rounded-3">
                   {{section.leaders.length != 0 ? getLeadersString(section.leaders) : "Не назначен"}}</div>
               </div>
             </div>
           </div>
 
           <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
-            <div class="conf-info-text text-black rounded-3" style="margin: 0px;">Описание: {{this.currentConference.description}}</div>
+            <div class="conf-info-text text-black rounded-3" style="margin: 0px;">{{this.currentConference.description}}</div>
           </div>
 
 

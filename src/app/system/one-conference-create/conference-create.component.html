@@ -14,7 +14,7 @@
           </div>
           <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isSuperAdmin()" style="height: 17px;">
             Администратор
-            <div class="conf-name-adress text-black" style="width: 100%;">
+            <div class="conf-name-adress-2 text-black" style="width: 100%;">
               <div class="form-floating mb-3">
 
                 <div style="padding: 10px; margin-top: 15px;" class="dropdown">
@@ -76,7 +76,7 @@
 
             <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;" [ngClass]="{'has-error': formCreateConference.get('description')?.invalid && formCreateConference.get('description')?.touched}">
               <label class="second-text" for="floatingInput">Описание <span style="color: red;">*</span></label>
-              <textarea [attr.disabled]="!isMasterAdminConference() ? true : null" style="min-height: 250px;" rows="10" type="text"
+              <textarea [attr.disabled]="!isMasterAdminConference() ? true : null" style="white-space: pre-wrap; min-height: 250px;" rows="10" type="text"
                 class="form-control section-text text-black" formControlName="description"
                 id="floatingInput"></textarea>
             </div>

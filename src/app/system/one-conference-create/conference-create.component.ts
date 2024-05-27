@@ -130,48 +130,50 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   createControlsForSections() {
     this.sections = this.currentConference.sections.sort((a, b) => a.id > b.id ? 1 : 0)
-    this.sections.forEach((e) => {
-      this.sectionsMap.set(String(e.title), e)
-      this.currentAdmins.forEach((admin) => {
-        this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
-        this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
-      })
-      e.leaders.forEach((leader) => {
-        this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
-      })
-    })
+    this.updateControlsForSections()
   }
 
   updateControlsForSections() {
     this.sections.forEach((e) => {
       this.sectionsMap.set(String(e.title), e)
-      this.currentAdmins.forEach((admin) => {
-        this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
-        this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
-      })
-      e.leaders.forEach((leader) => {
-        this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
-      })
+      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+        this.currentAdmins.forEach((admin) => {
+          this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
+          this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
+        })
+      }
+      if (e.leaders != undefined && e.leaders.length != 0) {
+        e.leaders.forEach((leader) => {
+          this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
+        })
+      }
     })
   }
 
   createControlsForOneSection(title: string) {
     this.sections.filter((e) => e.title == title).forEach((e) => {
-      this.currentAdmins.forEach((admin) => {
-        this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
-        this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
-      })
-      e.leaders.forEach((leader) => {
-        this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
-      })
+      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+        this.currentAdmins.forEach((admin) => {
+          this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
+          this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
+        })
+      }
+
+      if (e.leaders != undefined && e.leaders.length != 0) {
+        e.leaders.forEach((leader) => {
+          this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
+        })
+      }
     })
   }
 
   removeControlsForSection(title: string) {
     this.sections.filter((e) => e.title == title).forEach((e) => {
-      this.currentAdmins.forEach((admin) => {
-        this.formSections.removeControl("sec" + e.title + "" + admin.id)
-      })
+      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+        this.currentAdmins.forEach((admin) => {
+          this.formSections.removeControl("sec" + e.title + "" + admin.id)
+        })
+      }
     })
   }
 
@@ -258,12 +260,14 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     let org: string = '';
     if (name == 'user' && leader != null) {
       section.leaders = []
-      this.currentAdmins.forEach((admin) => {
-        let value = this.formSections.controls[`sec${section.title}${admin.id}`].value;
-        if (value) {
-          section.leaders.push(admin);
-        }
-      })
+      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+        this.currentAdmins.forEach((admin) => {
+          let value = this.formSections.controls[`sec${section.title}${admin.id}`].value;
+          if (value) {
+            section.leaders.push(admin);
+          }
+        })
+      }
     }
     if (name == 'org') {
       org = (event.target as HTMLInputElement).value;
@@ -279,6 +283,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     if (name == 'org') {
       this.createControlsForOneSection(section.title)
     }
+    console.log(event, section)
     this.sections = this.sections.sort((a, b) => Number(a.id) - Number(b.id))
   }
 
