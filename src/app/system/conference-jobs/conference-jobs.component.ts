@@ -41,6 +41,8 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 
     if (obj != null) {
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
       return true;
     } else {
       this.loggedUser = new LoginResponse();
@@ -91,32 +93,39 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  isSuperAdmin(): boolean {
+    return this.loggedUser.role == 'SUPER_ADMIN';
+  }
+
   isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
   }
 
   isAdminConference(): boolean {
-    let user_info: string | null = sessionStorage.getItem("user_info");
-    let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
-    this.currentUser = currentUser;
-    let find = this.currentConference.admins.find((admin) => admin.id == currentUser.id);
-    return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
-  }
-
-  isMasterAdminConference(): boolean {
-    if (this.isAdminConference()) {
+    if (this.isSuperAdmin()) {
+      return true;
+    }
+    if (this.currentConference.admins != undefined && this.currentConference.admins.length != 0) {
       let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
-      if (find) {
-        let length = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
-        return length == this.currentConference.sections.length
-      }
-      return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
+      return this.loggedUser.role == 'ADMIN' && find != undefined
     }
     return false;
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isMasterAdminConference(): boolean {
+    if (this.isSuperAdmin()) {
+      return true;
+    }
+    if (this.isAdminConference()) {
+      if (this.currentConference.admins != undefined && this.currentConference.admins.length != 0) {
+        let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
+        if (find) {
+          let length = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
+          return length == this.currentConference.sections.length
+        }
+      }
+    }
+    return false;
   }
 
   openJob(id: string) {

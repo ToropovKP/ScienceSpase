@@ -48,6 +48,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
     if (obj) {
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
     return obj != null;
   }
@@ -325,25 +327,32 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
   }
 
   isAdminConference(): boolean {
-    let user_info: string | null = sessionStorage.getItem("user_info");
-    let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
-    this.currentUser = currentUser
-    let find = this.currentAdmins.find((admin) => admin.id == currentUser.id);
-    return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
+    if (this.isSuperAdmin()) {
+      return true;
+    }
+    if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
+      return this.loggedUser.role == 'ADMIN' && find != undefined
+    }
+    return false;
   }
 
   isMasterAdminConference(): boolean {
+    if (this.isSuperAdmin()) {
+      return true;
+    }
     if (this.isAdminConference()) {
-      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-      if (find) {
-        let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
-        return length == this.sections.length
+      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+        let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
+        if (find != undefined && this.sections != undefined && this.sections.length != 0) {
+          let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
+          return length == this.sections.length;
+        }
       }
-      return (this.loggedUser.role == 'ADMIN' && find != undefined) || this.loggedUser.role == 'SUPER_ADMIN';
     }
     return false;
   }

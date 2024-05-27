@@ -46,6 +46,8 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
     if (obj) {
       this.loggedUser = obj;
+      let user_info: string | null = sessionStorage.getItem("user_info");
+      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
     return obj != null;
   }
@@ -69,7 +71,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       academicTitle: new FormControl('',),
       orcId: new FormControl('', [Validators.required]),
       rincId: new FormControl('',),
-      section: new FormControl('', ),
+      section: new FormControl('',),
       files: new FormControl('', [Validators.required]),
     })
 
@@ -120,19 +122,23 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     })
   }
 
+  isSuperAdmin(): boolean {
+    return this.loggedUser.role == 'SUPER_ADMIN';
+  }
+
   isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
   }
 
   isAdminConference(): boolean {
-    let user_info: string | null = sessionStorage.getItem("user_info");
-    let currentUser: User = user_info != null ? JSON.parse(user_info) : new User();
-    let find = this.currentAdmins.filter((admin) => admin.id == currentUser.id).length;
-    return (this.loggedUser.role == 'ADMIN' && find > 0) || this.loggedUser.role == 'SUPER_ADMIN';
-  }
-
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+    if (this.isSuperAdmin()) {
+      return true;
+    }
+    if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
+      return this.loggedUser.role == 'ADMIN' && find != undefined
+    }
+    return false;
   }
 
   checkUsers() {
