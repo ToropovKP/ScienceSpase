@@ -82,8 +82,8 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
             let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
             if (find) {
               let sections = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length > 0)
-              this.currentSections = sections;
               this.jobs = data.filter((job) => sections.filter((sec) => sec.id == job.sectionId).length > 0);
+              this.currentSections = sections.filter((sec) => this.jobs.filter((job) => job.sectionId == sec.id).length > 0);
             }
           } else {
             this.jobs = data
@@ -129,7 +129,7 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   openJob(id: string) {
-    this.toPage(`/my-jobs/${id}`)
+    this.toPage(`/jobs/${id}`)
   }
 
   downloadFilesJob(job: Job) {

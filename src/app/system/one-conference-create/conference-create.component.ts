@@ -37,6 +37,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
   statusList: string[] = ['Открыта', 'Временно приостановлена', 'Закрыта'];
 
+  isNameExists: boolean = false;
+
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
@@ -206,6 +208,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
     this.httpService.createConference(request).then((data) => {
       if (this.currentAdmins != null && this.currentAdmins.length != 0) {
+        this.isNameExists = false;
         let adminsDto: UserBaseDto[] = []
         this.currentAdmins.forEach((e) => {
           adminsDto.push(new UserBaseDto().createFromUserBase(e))
@@ -213,6 +216,10 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         this.httpService.appointAdminsToConference(String(data.id), adminsDto);
       }
       this.toPage(`/conference/${data.id}`)
+    }).catch(error => {
+      if (error.error['code'] == 'NAME_EXISTS') {
+        this.isNameExists = true;
+      }
     });
   }
 
@@ -240,6 +247,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     };
 
     this.httpService.updateConference(this.currentConferenceId, request).then((data) => {
+      this.isNameExists = false;
       if (this.isSuperAdmin()) {
         if (this.currentAdmins != null && this.currentAdmins.length != 0) {
           let adminsDto: UserBaseDto[] = []
@@ -251,6 +259,10 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         }
       }
       this.toPage(`/conference/${data.id}`)
+    }).catch(error => {
+      if (error.error['code'] == 'NAME_EXISTS') {
+        this.isNameExists = true;
+      }
     });
   }
 
@@ -283,7 +295,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     if (name == 'org') {
       this.createControlsForOneSection(section.title)
     }
-    console.log(event, section)
     this.sections = this.sections.sort((a, b) => Number(a.id) - Number(b.id))
   }
 

@@ -168,5 +168,3 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.router.navigate([link]);
   }
 }
-
-

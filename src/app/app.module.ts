@@ -8,7 +8,7 @@ import {ConferencesComponent} from "./system/all-conferences/conferences.compone
 import {ConferenceComponent} from "./system/one-conference/conference.component";
 import {HeaderComponent} from "./system/shared/header/header.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {JobsComponent} from './system/my-jobs/jobs.component';
+import {JobsComponent} from './system/jobs/jobs.component';
 import {HttpClientModule} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {NgxMaskModule} from "ngx-mask";
@@ -16,8 +16,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
 import {UsersComponent} from "./system/all-users/users.component";
 import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
-import {OneJobComponent} from "./system/one-my-job/one-job.component";
-import { ProfileComponent } from './system/profile/profile.component';
+import {OneJobComponent} from "./system/one-job/one-job.component";
+import {ProfileComponent} from './system/profile/profile.component';
 import {format} from "date-fns";
 import {ru} from "date-fns/locale/ru";
 
@@ -55,15 +55,15 @@ export class AppModule {
 export class AppConstants {
 
   public static formatDate(date: Date): string {
-    return format(date, 'd MMM y', { locale: ru});
+    return format(date, 'd MMM y', {locale: ru});
   }
 
   public static formatDateTime(date: Date): string {
-    return format(date, 'd MMM y HH:mm:ss', { locale: ru});
+    return format(date, 'd MMM y HH:mm:ss', {locale: ru});
   }
 
   public static get baseURL(): string {
-    return "./";
+    return "http://localhost:8080";
   }
 
   public static get conferenceStatusMap(): Map<string, string> {

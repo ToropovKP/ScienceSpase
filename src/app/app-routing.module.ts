@@ -3,11 +3,11 @@ import {RouterModule, Routes} from "@angular/router";
 import {HomeComponent} from "./system/home/home.component";
 import {ConferencesComponent} from "./system/all-conferences/conferences.component";
 import {ConferenceComponent} from "./system/one-conference/conference.component";
-import {JobsComponent} from "./system/my-jobs/jobs.component";
+import {JobsComponent} from "./system/jobs/jobs.component";
 import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
 import {UsersComponent} from "./system/all-users/users.component";
 import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
-import {OneJobComponent} from "./system/one-my-job/one-job.component";
+import {OneJobComponent} from "./system/one-job/one-job.component";
 import {ProfileComponent} from "./system/profile/profile.component";
 
 const routes: Routes = [
@@ -36,11 +36,11 @@ const routes: Routes = [
     component: ConferenceComponent,
   },
   {
-    path: 'my-jobs',
+    path: 'jobs',
     component: JobsComponent
   },
   {
-    path: 'my-jobs/:id',
+    path: 'jobs/:id',
     component: OneJobComponent
   },
   {

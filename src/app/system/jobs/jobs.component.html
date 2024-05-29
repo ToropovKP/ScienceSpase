@@ -1,11 +1,11 @@
-<section id="personal-account__client">
+<section id="jobs">
   <div class="container">
 
     <div class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-10">
           <div class="text-black" style="font-size: 20px; margin-left: 10px;">
-            Конференции
+            Мои статьи {{this.currentConferenceId != undefined ? ' / ' + this.currentConference.title : ''}}
           </div>
 <!--          <div class="pref-search-text text-black">-->
 <!--            Поиск конференции-->
@@ -29,34 +29,30 @@
 <!--          </a>-->
 <!--          <button type="button" class="btn btn-pref text-white rounded-3">Применить</button>-->
         </div>
-
-        <div class="d-inline-flex align-items-center justify-content-end col-2">
-          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
-        </div>
       </div>
 
       <div class="row konf-list rounded-3">
-        <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let conf of this.conferences">
-          <div class="konf-item w-100 justify-content-center rounded-3">
-            <div class="img-info-conf rounded-3">
-<!--              <img style="border-radius: var(&#45;&#45;bs-border-radius-lg) var(&#45;&#45;bs-border-radius-lg) 0 0;" src="../../../assets/pictures/conf-images/demo-img.png" alt="">-->
+        <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let job of this.jobs">
+
+          <div class="konf-item rounded-3">
+            <div class="img-info-conf">
+              <img style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;" src="../../../assets/pictures/conf-images/demo-img.png" alt="">
             </div>
             <div class="general-info-conf">
-              <div class="konf-name rounded-3">{{ conf.title }}</div>
-              <div class="konf-organization text-black">{{ conf.organization }}</div>
+              <div class="konf-name rounded-3">{{ job.title }}</div>
+              <div class="konf-organization text-black">Конференция: {{ job.conferenceTitle }}</div>
             </div>
             <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
-<!--              <div class="konf-description text-black">Описание: {{ conf.description }}</div>-->
-              <div class="konf-status text-black" >Статус: <span [style.color]="conf.status == 'ACTIVE' ? 'green' : conf.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(conf.status) }}</span></div>
-              <div class="konf-timeDate text-black align-text-center">{{ AppConstants.formatDate(conf.startDate) }} - {{ AppConstants.formatDate(conf.endDate) }}</div>
+              <div class="konf-description text-black">Описание: {{ job.description }}</div>
               <div class="row justify-content-end">
-                <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openConf(conf.id)">Открыть</button>
+                <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openJob(job.id)">Открыть</button>
               </div>
             </div>
           </div>
         </div>
+
+
       </div>
     </div>
-
   </div>
 </section>

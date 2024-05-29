@@ -11,23 +11,17 @@
 
 .conf-name-adress {
   font-size: 20px;
-  line-height: 30px;
   margin-left: 10px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .konf-information {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 20px;
-
 }
 
 .conf-title {
   font-size: 24px;
   font-weight: 400;
-  line-height: 35px;
   margin-bottom: 20px;
   margin-top: 10px;
 }
@@ -35,7 +29,6 @@
 .conf-info-text {
   font-size: 20px;
   font-weight: 400;
-  line-height: 30px;
   margin-bottom: 20px;
   margin-top: 10px;
 }
@@ -61,17 +54,13 @@
   font-weight: 400 !important;
   margin-bottom: 10px;
   padding: 0px;
-
 }
 
 .section-text {
   border: #8C99B9 solid 1px;
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
-  min-height: 47px;
-  line-height: 25px;
-  display: block;
-  white-space: pre-wrap;
+  height: 47px;
 }
 
 .section-area {

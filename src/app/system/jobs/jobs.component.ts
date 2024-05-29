@@ -2,11 +2,13 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Job} from "../shared/model/job";
 import {LoginResponse} from "../shared/model/login.response";
 import {User} from "../shared/model/user";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
+import {map} from "rxjs";
+import {Conference} from "../shared/model/conference";
 
 @Component({
-  selector: 'app-my-jobs',
+  selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.css']
 })
@@ -14,10 +16,13 @@ export class JobsComponent implements OnInit, AfterViewInit {
 
   jobs: Job[] = [];
 
+  currentConferenceId!: string;
+  currentConference!: Conference;
   currentUser!: User;
   loggedUser!: LoginResponse;
 
   constructor(private router: Router,
+              private route: ActivatedRoute,
               private httpService: HttpService) {
   }
 
@@ -49,10 +54,19 @@ export class JobsComponent implements OnInit, AfterViewInit {
   loadAllData() {
     let user_info: string | null = sessionStorage.getItem("user_info");
     this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+    this.route.queryParams.pipe(map(e => e['conferenceId'])).subscribe(e => {
+      this.currentConferenceId = e;
 
-    this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
-      this.jobs = data;
-    });
+      this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
+        this.jobs = data;
+        if (e != undefined) {
+          this.httpService.getConference(this.currentConferenceId).then((conf) => {
+            this.currentConference = conf;
+          });
+          this.jobs = this.jobs.filter(job => job.conferenceId == e)
+        }
+      });
+    })
   }
 
   isAdmin(): boolean {
@@ -64,7 +78,7 @@ export class JobsComponent implements OnInit, AfterViewInit {
   }
 
   openJob(id: bigint) {
-    this.toPage(`/my-jobs/${id}`)
+    this.toPage(`/jobs/${id}`)
   }
 
   toPage(link: string) {

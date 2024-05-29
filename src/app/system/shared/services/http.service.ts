@@ -64,6 +64,10 @@ export class HttpService {
     return await firstValueFrom(this.http.put<User>(`${this.baseUrl}/api/v1/member/profile/update`, JSON.stringify(request), this.httpOptions));
   }
 
+  async updateUserInfoByJob(request: object): Promise<User> {
+    return await firstValueFrom(this.http.put<User>(`${this.baseUrl}/api/v1/member/profile/update?job=true`, JSON.stringify(request), this.httpOptions));
+  }
+
   async createJob(request: object): Promise<Job> {
     return await firstValueFrom(this.http.post<Job>(`${this.baseUrl}/api/v1/member/jobs`, JSON.stringify(request), this.httpOptions));
   }

@@ -58,19 +58,19 @@ export class HeaderComponent implements OnInit {
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
-      if (data.error != '') {
+      this.invalidLogin = false
+      this.closeModalLogIn.nativeElement.click()
+      sessionStorage.setItem("user", JSON.stringify(data));
+      this.loggedUser = data;
+      this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+        this.currentUser = data;
+        sessionStorage.setItem("user_info", JSON.stringify(data));
+      });
+      this.loginForm.reset();
+      this.router.navigate(["/conferences"]);
+    }).catch((error) => {
+      if (error.error['code'] == 'UNAUTHORIZED') {
         this.invalidLogin = true;
-      } else {
-        this.invalidLogin = false
-        this.closeModalLogIn.nativeElement.click()
-        sessionStorage.setItem("user", JSON.stringify(data));
-        this.loggedUser = data;
-        this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
-          this.currentUser = data;
-          sessionStorage.setItem("user_info", JSON.stringify(data));
-        });
-        this.loginForm.reset();
-        this.router.navigate(["/conferences"]);
       }
     });
   }

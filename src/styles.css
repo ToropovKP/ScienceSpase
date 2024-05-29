@@ -23,24 +23,34 @@
 .fixed-top {
   box-shadow: #000 0px 0px 25px;
 }
+
 .head-text {
   font-size: 18px;
   cursor: pointer;
 }
 
-
 /* gutter 30px (15px + 15px). Comment this code for default gutter start at 1.5rem (24px) wide. */
-.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl { --bs-gutter-x: .5rem; }
-.row, .row > * { --bs-gutter-x: 1rem; }
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+  --bs-gutter-x: .5rem;
+}
+
+.row, .row > * {
+  --bs-gutter-x: 1rem;
+}
 
 /* FONTS LOAD SECTION */
 
 
 /* GENERAL CSS SETTINGS */
-input { outline: none; }
-input:focus:required:invalid { border: 2px red; }
+input {
+  outline: none;
+}
 
-body{
+input:focus:required:invalid {
+  border: 2px red;
+}
+
+body {
   font-family: var(--userfont);
   font-size: var(--regular-text);
   line-height: var(--line-height);
@@ -52,7 +62,7 @@ body{
   background-color: var(--dark);
 }
 
-.input__modal{
+.input__modal {
   background-color: white;
   width: 373px;
   height: 37px;
@@ -60,7 +70,7 @@ body{
   border: 0;
 }
 
-select{
+select {
   background-color: white;
   width: 373px;
   height: 37px;
@@ -69,7 +79,7 @@ select{
 }
 
 @media (min-width: 1200px) {
-  .container{
+  .container {
     max-width: 1436px;
     padding: 0;
   }
@@ -88,24 +98,3 @@ select{
   border-color: red !important;
   color: red;
 }
-
-/*
-* {
-  font-weight: 400;
-  color: white;
-  background-color: black;
-}
-
-
-
-.heading {
-  color: #F6E22B;
-  text-transform: uppercase;
-}
-
-
-
-.input__error {
-  border: 2px solid red;
-}
-*/

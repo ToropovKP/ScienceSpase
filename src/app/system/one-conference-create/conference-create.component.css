@@ -26,7 +26,6 @@
 .konf-information {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 20px;
-
 }
 
 .conf-title {
@@ -67,7 +66,6 @@
   margin-left: 15px;
 }
 
-
 .conf-section-title {
   padding: 13px;
   height: 47px;
@@ -91,18 +89,30 @@
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
   height: 47px;
-  overflow: auto ;
+  overflow: auto;
   -ms-overflow-style: none;
   scrollbar-width: none;
   white-space: nowrap;
 }
 
-input.section-text, select.section-text, textarea.section-text {
-  --bs-bg-opacity: 1;
-  background-color: rgba(var(--bs-white-rgb),var(--bs-bg-opacity))
+.section-area {
+  border: #8C99B9 solid 1px;
+  background: rgb(255, 255, 255, 0.3);
+  padding: 13px;
+  height: 47px;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  min-height: 200px;
+  white-space: pre-wrap;
 }
 
-input.section-text:disabled, select.section-text:disabled, textarea.section-text:disabled{
+input.section-text, select.section-text, textarea.section-area {
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-white-rgb), var(--bs-bg-opacity))
+}
+
+input.section-text:disabled, select.section-text:disabled, textarea.section-area:disabled {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -120,8 +130,7 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   padding: 10px;
 }
 
-
-.konf-pref  {
+.konf-pref {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 10px;
   margin-bottom: 20px;
@@ -141,8 +150,6 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   margin-left: 20px;
 }
 
-
-
 .btn-pref {
   background-color: #212529;
   height: 47px;
@@ -150,6 +157,7 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   font-size: 16px;
   margin-left: 20px;
 }
+
 .btn-pref-add {
   background-color: #212529;
   height: 47px;
@@ -158,10 +166,6 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   font-size: 16px;
   margin-left: 20px;
 }
-
-
-
-
 
 .konf-item {
   background-color: rgba(255, 255, 255, 0.5);
@@ -189,7 +193,6 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   padding: 10px;
 }
 
-
 .konf-organization {
   font-size: 20px !important;
   font-weight: 500 !important;
@@ -205,13 +208,11 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
 .btn-konf {
   background-color: #212529;
   height: 36px;
-  max-width:  100px;
+  max-width: 100px;
   border-radius: 0;
   font-size: 16px;
   margin: 20px 10px 3px 0px;
 }
-
-
 
 .konf-status {
   margin-top: 5px;
@@ -225,4 +226,3 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-text
   font-size: 16px !important;
   font-weight: 400 !important;
 }
-

@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {LoginResponse} from "../shared/model/login.response";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {AppConstants} from "../../app.module";
 import {Section} from "../shared/model/section";
 import {map} from "rxjs";
@@ -155,7 +155,10 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   openJob() {
-    this.toPage(`/my-jobs/${this.currentUserJobId}`)
+    let navigationExtras: NavigationExtras = {
+      queryParams: {'conferenceId': this.currentConferenceId},
+    };
+    this.toPageExtras(`/jobs`, navigationExtras)
   }
 
   files: File[] = [];
@@ -211,7 +214,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           "fileName": fileNames
         };
 
-        this.httpService.updateUserInfo(requestUser).then((data) => {
+        this.httpService.updateUserInfoByJob(requestUser).then((data) => {
         });
         this.httpService.createJob(request).then((data) => {
           this.currentUserJobId = String(data.id)
@@ -234,5 +237,9 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   toPage(link: string) {
     this.router.navigate([link]);
+  }
+
+  toPageExtras(link: string, extras: NavigationExtras) {
+    this.router.navigate([link], extras);
   }
 }

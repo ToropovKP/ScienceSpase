@@ -63,9 +63,9 @@
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
   height: 47px;
-  overflow: auto ;
+  overflow: auto;
   -ms-overflow-style: none;
-      scrollbar-width: none;
+  scrollbar-width: none;
   white-space: nowrap;
 }
 
@@ -92,8 +92,7 @@
   padding: 10px;
 }
 
-
-.konf-pref  {
+.konf-pref {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 10px;
   margin-bottom: 20px;
@@ -113,8 +112,6 @@
   margin-left: 20px;
 }
 
-
-
 .btn-pref {
   background-color: #212529;
   height: 47px;
@@ -122,6 +119,7 @@
   font-size: 16px;
   margin-left: 20px;
 }
+
 .btn-pref-add {
   background-color: #212529;
   height: 47px;
@@ -130,10 +128,6 @@
   font-size: 16px;
   margin-left: 20px;
 }
-
-
-
-
 
 .konf-item {
   background-color: rgba(255, 255, 255, 0.5);
@@ -161,7 +155,6 @@
   padding: 10px;
 }
 
-
 .konf-organization {
   font-size: 20px !important;
   font-weight: 500 !important;
@@ -177,13 +170,11 @@
 .btn-konf {
   background-color: #212529;
   height: 36px;
-  max-width:  100px;
+  max-width: 100px;
   border-radius: 0;
   font-size: 16px;
   margin: 20px 10px 3px 0px;
 }
-
-
 
 .konf-status {
   margin-top: 5px;

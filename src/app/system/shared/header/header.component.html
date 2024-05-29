@@ -7,7 +7,7 @@
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
         <li (click)="toPage('conferences')" *ngIf="loggedUser != null"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('my-jobs')" *ngIf="loggedUser != null"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
+        <li (click)="toPage('jobs')" *ngIf="!isSuperAdmin() && loggedUser != null"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
         <li (click)="toPage('all-users')" *ngIf="isSuperAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
       </ul>
 
@@ -51,7 +51,6 @@
             <input type="password" class="form-control rounded-3" formControlName="password" id="floatingPassword">
             <label for="floatingPassword">Пароль <span style="color: red;">*</span></label>
           </div>
-<!--          <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid" data-bs-dismiss="modal">Вход</button>-->
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
           </div>
@@ -141,10 +140,6 @@
   </div>
 </div>
 
-
-
-
-
 <!--
  FORM CODE
 <div class="modal fade" id="windowCode" tabindex="-1" aria-labelledby="windowCode" aria-hidden="true">
@@ -164,68 +159,3 @@
   </div>
 </div>
 -->
-
-
-
-
-<!-- FORM LOGIN -->
-<!-- <div class="modal fade" (keyup.enter)="pressBtn('loginBtn')" id="windowLogIn" tabindex="-1" aria-labelledby="windowLogIn" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" id="login">
-    <div class="modal-content" id="background__login">
-      <h5 class="modal-title">Вход</h5>
-      <form  [formGroup]="loginForm">
-          <div class="form-group col-7">
-            <label id="email__login">e-mail</label>
-            <input type="text" formControlName="email" class="input__modal"/>
-          </div>
-          <div class="form-group col-7">
-            <label id="password__login">Пароль</label>
-            <input type="password" formControlName="password" class="input__modal"/>
-          </div>
-        <button id="loginBtn" type="button" class="button__modal" (click)="login()" data-bs-dismiss="modal">Войти
-        </button>
-      </form>
-      <p id="text__login">У меня еще нет аккаунта, <a data-bs-target="#windowRegistration" data-bs-toggle="modal" ><span data-bs-target="#windowLogIn" data-bs-dismiss="modal">зарегистрироваться.</span></a>
-      </p>
-    </div>
-  </div>
-</div> -->
-
-<!-- FORM REGISTRATION -->
-<!-- <div class="modal fade" (keyup.enter)="pressBtn('buttonNext')" id="windowRegistration" tabindex="-1" aria-labelledby="windowRegistration" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" id="registration">
-    <div class="modal-content" id="background__registration">
-      <h5 class="modal-title" id="registration__text">Регистрация</h5>
-      <form [formGroup]="formRegistration" (keyup.enter)="pressBtn('button__code')">
-          <div class="form-group col-7">
-            <label>Имя</label>
-            <input type="name" formControlName="name" class="input__modal"/>
-          </div>
-          <div class="form-group col-7">
-            <label>e-mail</label>
-            <input type="email" formControlName="email" class="input__modal"/>
-          </div>
-          <div class="form-group col-7">
-            <label>Номер телефона</label>
-            <input type="tel" prefix="+7" mask=" (000) 000-0000" formControlName="phone" class="input__modal">
-          </div>
-          <div class="form-group col-7">
-            <label>Пароль</label>
-            <input type="password" formControlName="password" class="input__modal"/>
-          </div>
-          <div class="form-group col-7">
-            <label>Введите пароль еще раз</label>
-            <input type="password" formControlName="confirmedPassword" class="input__modal"/>
-          </div>
-        <div class="form-group col-7" *ngIf="showCode">
-          <label>Введите код высланный на ваш e-mail</label>
-          <input type="code" formControlName="code" class="input__modal"/>
-        </div>
-        <button type="button" id="buttonNext" class="button__modal" data-bs-target="#windowCode" (click)="registration()" *ngIf="!showCode" [disabled]="formRegistration.invalid">Далее</button>
-        <button type="button" id="button__code"  data-bs-dismiss="modal" *ngIf="showCode" (click)="confirmCode()">
-          Зарегистрироваться
-        </button>
-      </form>
-    </div>
-  </div>
-</div> -->

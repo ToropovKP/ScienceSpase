@@ -1,4 +1,4 @@
-#conference {
+#jobs {
   background: url(../../../assets/pictures/home/pattern.svg);
 }
 
@@ -9,86 +9,7 @@
   min-height: 100vh;
 }
 
-.conf-name-adress {
-  font-size: 20px;
-  margin-left: 10px;
-}
-
-.konf-information {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 20px;
-
-}
-
-.conf-title {
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
-}
-
-.conf-info-text {
-  font-size: 20px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
-}
-
-.conf-btn-users-list a {
-  color: #8C99B9;
-  text-decoration: dotted underline;
-  cursor: pointer;
-}
-
-.conf-section-title {
-  padding: 13px;
-  height: 47px;
-  background-color: #8C99B9;
-}
-
-.conf-info-section-item {
-  display: contents;
-}
-
-.conf-info-section {
-  font-size: 20px !important;
-  font-weight: 400 !important;
-  margin-bottom: 10px;
-  padding: 0px;
-
-}
-
-.section-text {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 47px;
-}
-
-.section-area {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 80px;
-  min-height: 80px;
-}
-
-.conf-desc {
-  padding: 20px;
-  min-height: 300px;
-  background: rgb(255, 255, 255, 0.3);
-}
-
-.konf-name {
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  margin-bottom: 20px;
-  background-color: #8C99B9;
-  padding: 10px;
-}
-
-
-.konf-pref  {
+.konf-pref {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 10px;
   margin-bottom: 20px;
@@ -108,8 +29,6 @@
   margin-left: 20px;
 }
 
-
-
 .btn-pref {
   background-color: #212529;
   height: 47px;
@@ -117,6 +36,7 @@
   font-size: 16px;
   margin-left: 20px;
 }
+
 .btn-pref-add {
   background-color: #212529;
   height: 47px;
@@ -126,9 +46,10 @@
   margin-left: 20px;
 }
 
-
-
-
+.konf-list {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 3px;
+}
 
 .konf-item {
   background-color: rgba(255, 255, 255, 0.5);
@@ -156,11 +77,18 @@
   padding: 10px;
 }
 
+.konf-name {
+  font-size: 24px !important;
+  font-weight: 400 !important;
+  margin-bottom: 20px;
+  background-color: #8C99B9;
+  padding: 10px;
+}
 
 .konf-organization {
   font-size: 20px !important;
   font-weight: 500 !important;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
 }
 
 .second-info-conf {
@@ -172,13 +100,11 @@
 .btn-konf {
   background-color: #212529;
   height: 36px;
-  max-width:  100px;
+  max-width: 100px;
   border-radius: 0;
   font-size: 16px;
   margin: 20px 10px 3px 0px;
 }
-
-
 
 .konf-status {
   margin-top: 5px;
@@ -191,4 +117,8 @@
   margin-top: 5px;
   font-size: 16px !important;
   font-weight: 400 !important;
+}
+
+.form-select {
+
 }
