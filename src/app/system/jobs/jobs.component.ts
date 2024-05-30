@@ -6,6 +6,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-jobs',
@@ -23,7 +24,8 @@ export class JobsComponent implements OnInit, AfterViewInit {
 
   constructor(private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin(): boolean {
@@ -62,9 +64,17 @@ export class JobsComponent implements OnInit, AfterViewInit {
         if (e != undefined) {
           this.httpService.getConference(this.currentConferenceId).then((conf) => {
             this.currentConference = conf;
+          }).catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
           });
           this.jobs = this.jobs.filter(job => job.conferenceId == e)
         }
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       });
     })
   }

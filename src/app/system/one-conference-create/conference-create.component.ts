@@ -11,6 +11,7 @@ import {SectionDto} from "../shared/dto/section.dto";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-one-conference-create',
@@ -42,7 +43,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin() {
@@ -107,8 +109,16 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               this.formCreateConference.controls['confStatus'].setValue(this.statusMap.get(this.currentConference.status))
               this.currentStatus = this.currentConference.status
               this.createControlsForSections()
+            }).catch(error => {
+              let title = "Возникла непредвиденная ошибка";
+              let description = 'Ошибка на стороне сервера';
+              this.alertService.constructErrorAlert(error, title, description);
             });
           }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         })
       } else {
         if (this.currentConferenceId != null) {
@@ -124,6 +134,10 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.currentStatus = this.currentConference.status
 
             this.createControlsForSections()
+          }).catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
           });
         }
       }
@@ -213,13 +227,24 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         this.currentAdmins.forEach((e) => {
           adminsDto.push(new UserBaseDto().createFromUserBase(e))
         })
-        this.httpService.appointAdminsToConference(String(data.id), adminsDto);
+        this.httpService.appointAdminsToConference(String(data.id), adminsDto).then(data => {
+        })
+          .catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
+          });
       }
       this.toPage(`/conference/${data.id}`)
     }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
       if (error.error['code'] == 'NAME_EXISTS') {
+        title = 'Возникла ошибка при сохранении'
+        description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 
@@ -254,15 +279,25 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
           this.currentAdmins.forEach((e) => {
             adminsDto.push(new UserBaseDto().createFromUserBase(e))
           })
-          this.httpService.appointAdminsToConference(String(data.id), adminsDto).then((data) => {
-          });
+          this.httpService.appointAdminsToConference(String(data.id), adminsDto).then(data => {
+          })
+            .catch(error => {
+              let title = "Возникла непредвиденная ошибка";
+              let description = 'Ошибка на стороне сервера';
+              this.alertService.constructErrorAlert(error, title, description);
+            });
         }
       }
       this.toPage(`/conference/${data.id}`)
     }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
       if (error.error['code'] == 'NAME_EXISTS') {
+        title = 'Возникла ошибка при сохранении'
+        description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 

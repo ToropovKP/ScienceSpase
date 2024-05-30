@@ -68,7 +68,7 @@
     <div class="modal-content rounded-3 shadow">
       <div class="modal-header p-4 pt-4 pb-4 border-bottom-0">
         <h2 class="fw-bold mb-0" style="color: #2D2D2D;">Регистрация</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" #closeModalReg class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body p-4 pb-3 pt-0">
@@ -131,7 +131,7 @@
           </div>
 
 
-          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" data-bs-target="#RegStatus" type="submit" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid" data-bs-dismiss="modal">Регистрация</button>
+          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid">Регистрация</button>
           <small class="text-muted"><span style="color: red;">*</span> Нажимая зарегистрироваться, вы соглашаетесь с <a href="">правилами</a></small>
 
         </form>

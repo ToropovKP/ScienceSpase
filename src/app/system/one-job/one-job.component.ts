@@ -10,6 +10,7 @@ import {HttpResponse} from "@angular/common/http";
 import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AppConstants} from "../../app.module";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-one-conference',
@@ -32,7 +33,8 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin() {
@@ -85,7 +87,15 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
         this.httpService.getJobComments(this.currentJobId).then((data) => {
           this.currentComments = data
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         })
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       })
     });
   }
@@ -103,6 +113,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
       this.formAddJob.controls['orcId'].setValue(this.jobUser.orcId)
       this.formAddJob.controls['rincId'].setValue(this.jobUser.rincId)
       this.formAddJob.controls['section'].setValue(this.currentJob.sectionTitle)
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     })
   }
 
@@ -121,6 +135,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   downloadFile(fileName: string) {
     this.httpService.downloadFile(fileName, String(this.currentJob.id)).then(response => {
       this.processDownloadFile(response)
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 
@@ -137,6 +155,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
   deleteJob() {
     this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     })
     this.toPage(`/conference/${this.currentJob.conferenceId}`);
   }
@@ -150,6 +172,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
     this.httpService.createComment(request).then((data) => {
       this.currentComments.push(data)
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     })
     this.formComment.reset()
   }

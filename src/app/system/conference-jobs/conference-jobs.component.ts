@@ -9,6 +9,7 @@ import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -32,7 +33,8 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 
   constructor(private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin(): boolean {
@@ -88,7 +90,15 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
           } else {
             this.jobs = data
           }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         });
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       });
     });
   }
@@ -133,15 +143,31 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   downloadFilesJob(job: Job) {
-    this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response));
+    this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response))
+      .catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
+      });
   }
 
   downloadFilesConference() {
     if (this.isMasterAdminConference()) {
-      this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response));
+      this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response))
+        .catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
     } else {
       this.currentSections.forEach((sec) =>
-        this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response)));
+        this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response))
+          .catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
+          })
+      );
     }
   }
 

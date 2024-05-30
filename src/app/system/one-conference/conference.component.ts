@@ -9,6 +9,7 @@ import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-one-conference',
@@ -38,7 +39,8 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin() {
@@ -89,14 +91,27 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         if (this.isAdminAbsolute()) {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
+          }).catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
           });
         }
+
         this.httpService.getSections(this.currentConferenceId).then((data) => {
           this.sections = data.sort((a, b) => Number(a.id) - Number(b.id))
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         })
 
         this.updateUserInfo()
 
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       });
     });
   }
@@ -118,7 +133,15 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
             return
           }
         })
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       })
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     })
   }
 
@@ -182,11 +205,11 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   createJob() {
     const formData: FormData = new FormData();
     this.files.forEach((file) => {
-      formData.append("conferenceId", String(this.currentConference?.id));
-      formData.append("sectionId", String(this.currentSection?.id));
-      formData.append("fullName", this.currentUser.fullName);
       formData.append("files", file);
     })
+    formData.append("conferenceId", String(this.currentConference?.id));
+    formData.append("sectionId", String(this.currentSection?.id));
+    formData.append("fullName", this.currentUser.fullName);
 
     this.httpService.uploadFiles(formData).then((data) => {
       if (data[0].size != null) {
@@ -215,14 +238,28 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         };
 
         this.httpService.updateUserInfoByJob(requestUser).then((data) => {
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         });
+
         this.httpService.createJob(request).then((data) => {
           this.currentUserJobId = String(data.id)
           this.toPage(`/conference/${this.currentConference.id}`)
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
         });
+
         this.addingJob = false;
         this.formAddJob.reset()
       }
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 

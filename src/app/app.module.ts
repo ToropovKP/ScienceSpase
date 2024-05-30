@@ -20,6 +20,7 @@ import {OneJobComponent} from "./system/one-job/one-job.component";
 import {ProfileComponent} from './system/profile/profile.component';
 import {format} from "date-fns";
 import {ru} from "date-fns/locale/ru";
+import {AlertModule} from "./system/shared/alert/alert.module";
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {ru} from "date-fns/locale/ru";
     FormsModule,
     HttpClientModule,
     NgxMaskModule.forRoot(),
-    NgbModule
+    NgbModule,
+    AlertModule
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -63,7 +65,7 @@ export class AppConstants {
   }
 
   public static get baseURL(): string {
-    return "http://localhost:8080";
+    return ".";
   }
 
   public static get conferenceStatusMap(): Map<string, string> {

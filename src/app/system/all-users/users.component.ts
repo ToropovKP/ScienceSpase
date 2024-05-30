@@ -4,6 +4,7 @@ import {AppConstants} from "../../app.module";
 import {Router} from "@angular/router";
 import {LoginResponse} from "../shared/model/login.response";
 import {HttpService} from "../shared/services/http.service";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-users',
@@ -20,7 +21,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
   userRoleMap: Map<string, string> = AppConstants.userRoleMap;
 
   constructor(private router: Router,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
 
@@ -53,6 +55,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
   loadAllData() {
     this.httpService.getUsers().then((data) => {
       this.users = data
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 

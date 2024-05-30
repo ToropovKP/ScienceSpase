@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
+import {AlertService} from "../shared/services/alert.service";
 
 @Component({
   selector: 'app-profile',
@@ -24,7 +25,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
-              private httpService: HttpService) {
+              private httpService: HttpService,
+              private alertService: AlertService) {
   }
 
   checkLogin() {
@@ -70,6 +72,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       this.httpService.getUserInfoById(this.profileUserId).then((data) => {
         this.profileUser = data
         this.updateUserInfo()
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       });
     });
   }
@@ -110,6 +116,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       if (data) {
         this.profileUser.role = role
       }
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 
@@ -118,6 +128,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       if (data) {
         this.profileUser.status = status
       }
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
   }
 
@@ -158,6 +172,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.profileUser.telegramUserName = this.formProfile.value.telegram
 
     this.httpService.updateUserInfo(requestUser).then((data) => {
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
     });
     this.editProfile = false;
     this.formProfile.reset()
