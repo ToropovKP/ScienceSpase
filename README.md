@@ -2,26 +2,24 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.3.
 
-## Development server
+# Start & Stop services
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### START BACKEND
 
-## Code scaffolding
+Run `docker compose up -d --build backend`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### START FRONT
 
-## Build
+Run `docker build -t frontend:1.0.1 .`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Run `docker run --name kograf-frontend -d -p 4200:80 frontend:1.0.1`
 
-## Running unit tests
+### STOP FRONT
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `docker stop kograf-frontend ; docker rm kograf-frontend`
 
-## Running end-to-end tests
+# Start With Docker Compose
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Open /kograf-agent. This path includes docker-compose.yml with backend and frontend
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Run `docker compose up -d --build`

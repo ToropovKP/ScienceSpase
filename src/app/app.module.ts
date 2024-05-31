@@ -21,6 +21,7 @@ import {ProfileComponent} from './system/profile/profile.component';
 import {format} from "date-fns";
 import {ru} from "date-fns/locale/ru";
 import {AlertModule} from "./system/shared/alert/alert.module";
+import {environment} from "../environments/environment";
 
 @NgModule({
   declarations: [
@@ -65,7 +66,7 @@ export class AppConstants {
   }
 
   public static get baseURL(): string {
-    return ".";
+    return `${environment.apiUrl}`;
   }
 
   public static get conferenceStatusMap(): Map<string, string> {
