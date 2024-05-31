@@ -16,6 +16,8 @@ export class HeaderComponent implements OnInit {
   @ViewChild('closeModalLogIn') closeModalLogIn!: ElementRef
   @ViewChild('closeModalReg') closeModalReg!: ElementRef
   invalidLogin: boolean = false;
+  userBlocked: boolean = false;
+  userExists: boolean = false;
 
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
@@ -62,6 +64,7 @@ export class HeaderComponent implements OnInit {
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
       this.invalidLogin = false
+      this.userBlocked = false
       this.closeModalLogIn.nativeElement.click()
       sessionStorage.setItem("user", JSON.stringify(data));
       this.loggedUser = data;
@@ -74,13 +77,13 @@ export class HeaderComponent implements OnInit {
     }).catch((error) => {
       if (error.error['code'] == 'UNAUTHORIZED') {
         this.invalidLogin = true;
+        this.userBlocked = false;
+      } else if (error.error['code'] == 'BANNED') {
+        this.invalidLogin = false
+        this.userBlocked = true;
       } else {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
-        if (error.error['code'] == 'BANNED') {
-          title = 'Возникла ошибка при авторизации'
-          description = error.error['description'];
-        }
         this.alertService.constructErrorAlert(error, title, description);
       }
     });
@@ -99,6 +102,8 @@ export class HeaderComponent implements OnInit {
       "password": this.formRegistration.value.password
     };
     this.httpService.registration(request).then((data) => {
+      this.userExists = false;
+      this.userBlocked = false;
       this.closeModalReg.nativeElement.click()
       this.showRegStatus = data;
       this.loginForm.controls['email'].setValue(this.formRegistration.value.email)
@@ -106,16 +111,17 @@ export class HeaderComponent implements OnInit {
       this.login()
       this.formRegistration.reset();
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
       if (error.error['code'] == 'USER_EXISTS') {
-        title = 'Возникла ошибка при регистрации'
-        description = error.error['description'];
+        this.userExists = true;
+        this.userBlocked = false;
       } else if (error.error['code'] == 'BANNED') {
-        title = 'Возникла ошибка при регистрации'
-        description = error.error['description'];
+        this.userExists = false;
+        this.userBlocked = true;
+      } else {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
       }
-      this.alertService.constructErrorAlert(error, title, description);
     })
   }
 

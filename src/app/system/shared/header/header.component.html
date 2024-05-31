@@ -53,6 +53,7 @@
           </div>
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
+            <span *ngIf="userBlocked">Пользователь заблокирован</span>
           </div>
           <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>
         </form>
@@ -131,6 +132,10 @@
           </div>
 
 
+          <div class="text-center" style="color: #D80000; padding-bottom: 10px">
+            <span *ngIf="userBlocked">Пользователь с таким email заблокирован</span>
+            <span *ngIf="userExists">Пользователь с таким email уже зарегистрирован</span>
+          </div>
           <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid">Регистрация</button>
           <small class="text-muted"><span style="color: red;">*</span> Нажимая зарегистрироваться, вы соглашаетесь с <a href="">правилами</a></small>
 
