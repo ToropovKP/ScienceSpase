@@ -16,7 +16,8 @@ export class HeaderComponent implements OnInit {
   @ViewChild('closeModalLogIn') closeModalLogIn!: ElementRef
   @ViewChild('closeModalReg') closeModalReg!: ElementRef
   invalidLogin: boolean = false;
-  userBlocked: boolean = false;
+  userBlockedLogin: boolean = false;
+  userBlockedReg: boolean = false;
   userExists: boolean = false;
 
   loginForm!: FormGroup;
@@ -59,12 +60,19 @@ export class HeaderComponent implements OnInit {
     document.getElementById(id)?.click();
   }
 
+  clearBooleans() {
+    this.invalidLogin = false
+    this.userBlockedLogin = false
+    this.userExists = false;
+    this.userBlockedReg = false;
+  }
+
   login(): void {
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
       this.invalidLogin = false
-      this.userBlocked = false
+      this.userBlockedLogin = false
       this.closeModalLogIn.nativeElement.click()
       sessionStorage.setItem("user", JSON.stringify(data));
       this.loggedUser = data;
@@ -77,10 +85,10 @@ export class HeaderComponent implements OnInit {
     }).catch((error) => {
       if (error.error['code'] == 'UNAUTHORIZED') {
         this.invalidLogin = true;
-        this.userBlocked = false;
+        this.userBlockedLogin = false;
       } else if (error.error['code'] == 'BANNED') {
         this.invalidLogin = false
-        this.userBlocked = true;
+        this.userBlockedLogin = true;
       } else {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
@@ -103,7 +111,7 @@ export class HeaderComponent implements OnInit {
     };
     this.httpService.registration(request).then((data) => {
       this.userExists = false;
-      this.userBlocked = false;
+      this.userBlockedReg = false;
       this.closeModalReg.nativeElement.click()
       this.showRegStatus = data;
       this.loginForm.controls['email'].setValue(this.formRegistration.value.email)
@@ -113,10 +121,10 @@ export class HeaderComponent implements OnInit {
     }).catch(error => {
       if (error.error['code'] == 'USER_EXISTS') {
         this.userExists = true;
-        this.userBlocked = false;
+        this.userBlockedReg = false;
       } else if (error.error['code'] == 'BANNED') {
         this.userExists = false;
-        this.userBlocked = true;
+        this.userBlockedReg = true;
       } else {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';

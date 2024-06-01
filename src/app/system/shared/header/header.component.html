@@ -12,8 +12,8 @@
       </ul>
 
       <div class="text-end" *ngIf="!checkLogin()">
-        <button type="button" data-bs-toggle="modal" data-bs-target="#windowLogIn" class="btn btn-outline-light me-2">Вход</button>
-        <button type="button" data-bs-target="#windowRegistration" data-bs-toggle="modal" class="btn btn-warning">Регистрация</button>
+        <button type="button" (click)="clearBooleans()" data-bs-toggle="modal" data-bs-target="#windowLogIn" class="btn btn-outline-light me-2">Вход</button>
+        <button type="button" (click)="clearBooleans()" data-bs-target="#windowRegistration" data-bs-toggle="modal" class="btn btn-warning">Регистрация</button>
 
       </div>
 
@@ -53,7 +53,7 @@
           </div>
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
-            <span *ngIf="userBlocked">Пользователь заблокирован</span>
+            <span *ngIf="userBlockedLogin">Пользователь заблокирован</span>
           </div>
           <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>
         </form>
@@ -133,7 +133,7 @@
 
 
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
-            <span *ngIf="userBlocked">Пользователь с таким email заблокирован</span>
+            <span *ngIf="userBlockedReg">Пользователь с таким email заблокирован</span>
             <span *ngIf="userExists">Пользователь с таким email уже зарегистрирован</span>
           </div>
           <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid">Регистрация</button>
