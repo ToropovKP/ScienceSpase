@@ -1,10 +1,11 @@
 import {Commentary} from "./commentary";
+import {Author} from "./author";
 
 export class Job {
   private _id!: bigint;
   private _title!: string;
   private _description!: string;
-  private _coAuthors!: string;
+  private _coAuthors!: Author[];
   private _userName!: string;
   private _conferenceTitle!: string;
   private _sectionTitle!: string;
@@ -42,11 +43,11 @@ export class Job {
     this._description = value;
   }
 
-  get coAuthors(): string {
+  get coAuthors(): Author[] {
     return this._coAuthors;
   }
 
-  set coAuthors(value: string) {
+  set coAuthors(value: Author[]) {
     this._coAuthors = value;
   }
 

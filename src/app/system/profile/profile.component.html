@@ -51,7 +51,7 @@
             <div class="row" style="margin-left: 0px;">
                 <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                   <label class="second-text text-black" for="floatingInput">Телефон</label>
-                  <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="phone"
+                  <input [readonly]="allowToChange()" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
                     id="floatingInput">
                 </div>
                 <div class="col-8" style="padding-left: 0px;">
@@ -68,12 +68,12 @@
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Идентификатор ORCID </label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="orcId"
+                <input [readonly]="allowToChange()" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="rincId"
+                <input [readonly]="allowToChange()" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
                        id="floatingInput">
               </div>
             </div>

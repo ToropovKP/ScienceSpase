@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {LoginResponse} from "../shared/model/login.response";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {AppConstants} from "../../app.module";
@@ -10,6 +10,7 @@ import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
+import {AuthorDto} from "../shared/dto/author.dto";
 
 @Component({
   selector: 'app-one-conference',
@@ -65,13 +66,13 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('', [Validators.required]),
-      coauthors: new FormControl('',),
+      authors: this.formBuilder.array([this.createAuthor()]),
       description: new FormControl('', [Validators.required]),
       phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
-      orcId: new FormControl('', [Validators.required]),
+      orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
       rincId: new FormControl('',),
       section: new FormControl('',),
       files: new FormControl('', [Validators.required]),
@@ -164,6 +165,44 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     return false;
   }
 
+  get authors(): FormArray {
+    return this.formAddJob.get('authors') as FormArray;
+  }
+
+  createAuthor(fullName: string = '', organization: string = '', email: string = ''): FormGroup {
+    return this.formBuilder.group({
+      fullName: [fullName],
+      organization: [organization],
+      email: [email],
+    });
+  }
+
+  disableAuthor(index: number) {
+    const author = this.authors.at(index);
+    if (author.get('fullName')?.value != '') {
+      author.get('fullName')?.disable();
+      author.get('organization')?.disable();
+      author.get('email')?.disable();
+      if (this.authors.at(this.authors.length - 1).get('fullName')?.value != '' && this.authors.value.length < 5) {
+        this.authors.push(this.createAuthor());
+      }
+    }
+  }
+
+  enableAuthor(index: number) {
+    const author = this.authors.at(index);
+    author.get('fullName')?.enable();
+    author.get('organization')?.enable();
+    author.get('email')?.enable();
+  }
+
+  removeAuthor(index: number) {
+    this.authors.removeAt(index);
+    if (this.authors.value.length == 4) {
+      this.authors.push(this.createAuthor());
+    }
+  }
+
   checkUsers() {
     this.toPage(`/conference/${this.currentConferenceId}/jobs`);
   }
@@ -224,9 +263,23 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           "organization": this.formAddJob.value.organization,
         }
 
+        const authorsDtos: AuthorDto[] = [];
+        for (let i = 0; i < this.authors.length; i++) {
+          let author = this.authors.at(i);
+          let fullName = author.get('fullName')?.value;
+          let organization = author.get('organization')?.value;
+          let email = author.get('email')?.value;
+          if (fullName != '') {
+            const authorDto = new AuthorDto();
+            authorDto.setFullName(fullName);
+            authorDto.setOrganization(organization);
+            authorDto.setEmail(email);
+            authorsDtos.push(authorDto);
+          }
+        }
         let request = {
           "title": this.formAddJob.value.title,
-          "coAuthors": this.formAddJob.value.coauthors,
+          "coAuthors": authorsDtos,
           "description": this.formAddJob.value.description,
           "userName": this.currentUser.firstName,
           "userId": this.currentUser.id,
@@ -247,14 +300,13 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         this.httpService.createJob(request).then((data) => {
           this.currentUserJobId = String(data.id)
           this.toPage(`/conference/${this.currentConference.id}`)
+          this.addingJob = false;
+          this.formAddJob.reset()
         }).catch(error => {
           let title = "Возникла непредвиденная ошибка";
           let description = 'Ошибка на стороне сервера';
           this.alertService.constructErrorAlert(error, title, description);
         });
-
-        this.addingJob = false;
-        this.formAddJob.reset()
       }
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";

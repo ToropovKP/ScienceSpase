@@ -22,12 +22,29 @@
                 <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="title"
                   id="floatingInput">
               </div>
-              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
-                <label class="second-text text-black" for="floatingInput">Соавторы</label>
-                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="coauthors"
-                  id="floatingInput">
+            </div>
+
+            <div>
+              <div formArrayName="authors">
+                <div *ngFor="let author of authors.controls; let i = index">
+                  <div class="row" style="margin-left: 0px;" [formGroupName]="i" >
+                    <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                      <label class="second-text strong text-black" for="floatingInput">Соавтор {{i+1}}</label>
+                      <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="fullName" placeholder="ФИО" id="floatingInput">
+                    </div>
+                    <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                      <label class="second-text strong text-black" for="floatingInput"></label>
+                      <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="organization" placeholder="Организация">
+                    </div>
+                    <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
+                      <label class="second-text strong text-black" for="floatingInput"></label>
+                      <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="email" placeholder="Почта">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
             <div class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Аннотация </label>
@@ -38,17 +55,17 @@
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Телефон </label>
-                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="phone"
+                <input [readonly]="true" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">ORCID </label>
-                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="orcId"
+                <input [readonly]="true" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
-                <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="rincId"
+                <input [readonly]="true" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
                        id="floatingInput">
               </div>
             </div>

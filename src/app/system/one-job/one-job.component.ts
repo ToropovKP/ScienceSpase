@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {LoginResponse} from "../shared/model/login.response";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
@@ -59,7 +59,7 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('',),
-      coauthors: new FormControl('',),
+      authors: this.formBuilder.array([]),
       description: new FormControl('',),
       phone: new FormControl('',),
       organization: new FormControl('',),
@@ -103,8 +103,11 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   updateUserInfo() {
     this.httpService.getUserInfoById(String(this.currentJob.userId)).then((data) => {
       this.jobUser = data
+      this.authors.clear();
+      this.currentJob.coAuthors.forEach(author => {
+        this.authors.push(this.createAuthor(author.fullName, author.organization, author.email));
+      })
       this.formAddJob.controls['title'].setValue(this.currentJob.title)
-      this.formAddJob.controls['coauthors'].setValue(this.currentJob.coAuthors)
       this.formAddJob.controls['description'].setValue(this.currentJob.description)
       this.formAddJob.controls['phone'].setValue(this.jobUser.phone)
       this.formAddJob.controls['organization'].setValue(this.jobUser.organization)
@@ -130,6 +133,18 @@ export class OneJobComponent implements OnInit, AfterViewInit {
 
   isSuperAdmin(): boolean {
     return this.loggedUser.role == 'SUPER_ADMIN';
+  }
+
+  get authors(): FormArray {
+    return this.formAddJob.get('authors') as FormArray;
+  }
+
+  createAuthor(fullName: string = '', organization: string = '', email: string = ''): FormGroup {
+    return this.formBuilder.group({
+      fullName: [fullName],
+      organization: [organization],
+      email: [email],
+    });
   }
 
   downloadFile(fileName: string) {
