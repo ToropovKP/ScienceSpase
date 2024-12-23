@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup} from "@angular/forms";
-import {LoginResponse} from "../shared/model/login.response";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
@@ -11,6 +10,8 @@ import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AppConstants} from "../../app.module";
 import {AlertService} from "../shared/services/alert.service";
+import {Conference} from "../shared/model/conference";
+import {ReviewDto} from "../shared/dto/review.dto";
 
 @Component({
   selector: 'app-one-conference',
@@ -20,14 +21,20 @@ import {AlertService} from "../shared/services/alert.service";
 export class OneJobComponent implements OnInit, AfterViewInit {
 
   protected readonly AppConstants = AppConstants;
+  reviewsMarks = [1, 2, 3, 4, 5];
+  model: Map<string, number> = new Map<string, number>()
+
   currentJobId!: string;
   currentJob: Job = new Job();
   jobUser!: User;
   currentComments!: Commentary[];
+  currentConference!: Conference;
 
   formAddJob!: FormGroup;
+  formReview!: FormGroup;
   formComment!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
 
   constructor(private formBuilder: FormBuilder,
@@ -38,14 +45,16 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
       this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email != null;
   }
 
   ngAfterViewInit() {
@@ -74,6 +83,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
       message: new FormControl('',),
     })
 
+    this.formReview = this.formBuilder.group({
+      text: new FormControl('',),
+    })
+
     this.loadAllData()
   }
 
@@ -84,6 +97,10 @@ export class OneJobComponent implements OnInit, AfterViewInit {
       this.httpService.getUserOneJob(this.currentJobId).then((data) => {
         this.currentJob = data
         this.updateUserInfo()
+
+        this.httpService.getConference(String(data.conferenceId)).then((conf) => {
+          this.currentConference = conf;
+        });
 
         this.httpService.getJobComments(this.currentJobId).then((data) => {
           this.currentComments = data
@@ -127,12 +144,30 @@ export class OneJobComponent implements OnInit, AfterViewInit {
     return this.currentJob.userId == this.currentUser.id
   }
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role == 'MODERATOR' || this.isAdmin();
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
+  }
+
+  isReviewer(): boolean {
+    return this.role == 'REVIEWER';
+  }
+
+  updateMark(tag: string, mark: number) {
+    this.model.set(tag, mark);
+  }
+
+  saveReview() {
+    console.log(this.model)
+    let request: ReviewDto = new ReviewDto()
+    request.setReviews(Object.fromEntries(this.model))
+    request.setReviewText(this.formReview.value.text)
+    console.log(JSON.stringify(request))
+    this.httpService.reviewJob(this.currentJobId, request).then((data) => {
+    })
   }
 
   get authors(): FormArray {

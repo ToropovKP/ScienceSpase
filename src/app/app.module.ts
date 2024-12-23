@@ -94,11 +94,13 @@ export class AppConstants {
   public static get userRoleMap(): Map<string, string> {
     let statusMap: Map<string, string> = new Map<string, string>();
     statusMap.set('MEMBER', 'Участник');
+    statusMap.set('MODERATOR', 'Модератор');
     statusMap.set('ADMIN', 'Админ');
-    statusMap.set('SUPER_ADMIN', 'Супер-админ');
+    statusMap.set('REVIEWER', 'Рецензент');
     statusMap.set('Участник', 'MEMBER');
+    statusMap.set('Модератор', 'MODERATOR');
     statusMap.set('Админ', 'ADMIN');
-    statusMap.set('Супер-админ', 'SUPER_ADMIN');
+    statusMap.set('Рецензент', 'REVIEWER');
     return statusMap;
   }
 }

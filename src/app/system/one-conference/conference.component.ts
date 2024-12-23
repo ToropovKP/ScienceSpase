@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {LoginResponse} from "../shared/model/login.response";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {AppConstants} from "../../app.module";
 import {Section} from "../shared/model/section";
@@ -29,7 +28,8 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   currentAdmins!: UserBase[];
 
   formAddJob!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
   currentUserJobId!: string;
 
@@ -45,14 +45,15 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+    if (email) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
       this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email != null;
   }
 
   ngAfterViewInit() {
@@ -89,7 +90,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         this.currentConference = data;
         this.currentAdmins = this.currentConference.admins;
 
-        if (this.isAdminAbsolute()) {
+        if (this.isModerator()) {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
           }).catch(error => {
@@ -118,7 +119,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   updateUserInfo() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+    this.httpService.getUserInfo(this.email).then((data) => {
       this.currentUser = data
       this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
       this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
@@ -146,23 +147,27 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     })
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
+  isModerator(): boolean {
+    return this.role == 'MODERATOR' || this.isAdmin();
   }
 
-  isAdminConference(): boolean {
-    if (this.isSuperAdmin()) {
+  isModeratorOfThisConference(): boolean {
+    if (this.isAdmin()) {
       return true;
     }
     if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
       let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-      return this.loggedUser.role == 'ADMIN' && find != undefined
+      return this.role == 'MODERATOR' && find != undefined
     }
     return false;
+  }
+
+  isReviewer(): boolean {
+    return this.role == 'REVIEWER'
   }
 
   get authors(): FormArray {

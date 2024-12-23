@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Job} from "../shared/model/job";
-import {LoginResponse} from "../shared/model/login.response";
 import {User} from "../shared/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
@@ -20,7 +19,8 @@ export class JobsComponent implements OnInit, AfterViewInit {
   currentConferenceId!: string;
   currentConference!: Conference;
   currentUser!: User;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -29,15 +29,16 @@ export class JobsComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -79,12 +80,12 @@ export class JobsComponent implements OnInit, AfterViewInit {
     })
   }
 
-  isAdmin(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.isAdmin() || this.role == 'MODERATOR';
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
   openJob(id: bigint) {

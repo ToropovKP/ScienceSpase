@@ -4,9 +4,12 @@
     <div class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
-          <div class="conf-name-adress text-black">
+          <div *ngIf="!isReviewer()" class="conf-name-adress text-black">
             {{this.jobUser.id == this.currentUser.id ? "Мои статьи" : this.jobUser.lastName + " "
             + this.jobUser.firstName + " " + this.jobUser.middleName }} / {{this.currentJob.conferenceTitle}} / {{this.currentJob.title}}
+          </div>
+          <div *ngIf="isReviewer()" class="conf-name-adress text-black">
+            {{this.currentJob.conferenceTitle}} / {{this.currentJob.title}}
           </div>
         </div>
       </div>
@@ -24,7 +27,7 @@
               </div>
             </div>
 
-            <div>
+            <div *ngIf="!isReviewer()">
               <div formArrayName="authors">
                 <div *ngFor="let author of authors.controls; let i = index">
                   <div class="row" style="margin-left: 0px;" [formGroupName]="i" >
@@ -52,7 +55,7 @@
                           id="floatingInput"></textarea>
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Телефон </label>
                 <input [readonly]="true" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
@@ -69,7 +72,7 @@
                        id="floatingInput">
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Организация </label>
                 <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
@@ -93,7 +96,7 @@
                        id="floatingInput">
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()"  class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Файлы </label>
                 <div *ngFor="let file of this.currentJob.fileName" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
@@ -101,7 +104,35 @@
                 </div>
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+
+            <div [formGroup]="formReview" *ngIf="isReviewer()" class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
+
+                <div *ngFor="let tag of this.currentConference.tags" class="jobs-radio-group" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput" style="padding-bottom: 20px; ">{{ tag }}</label>
+                    <div *ngFor="let mark of this.reviewsMarks" style="padding-left: 0px; margin-bottom: 20px;" id="floatingInput">
+                      <input type="radio" name="{{tag}}" id="floatingInput" (click)="updateMark(tag, mark)">
+                      <label class="second-text text-black" for="floatingInput">{{ mark }}</label>
+                    </div>
+                </div>
+
+              </div>
+
+              <div class="row" style="margin-left: 0px;">
+                <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
+                  <textarea type="text" class="bg-white form-control section-area text-black" formControlName="text"
+                            id="floatingInput"></textarea>
+                </div>
+              </div>
+
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white"
+                      (click)="saveReview()">Сохранить</button>
+            </div>
+
+
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <div class="container py-3">
 

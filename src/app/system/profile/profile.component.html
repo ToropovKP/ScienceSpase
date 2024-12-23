@@ -8,19 +8,19 @@
             Email: {{this.profileUser.email}}
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('ADMIN')">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('MODERATOR')">
             <a>Назначить администратором</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'ADMIN'" (click)="changeRole('MEMBER')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MODERATOR'" (click)="changeRole('MEMBER')">
             <a>Назначить участником</a>
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
             <a>Заблокировать</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
             <a>Разблокировать</a>
           </div>
         </div>

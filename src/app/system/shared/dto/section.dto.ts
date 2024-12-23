@@ -5,6 +5,7 @@ export class SectionDto {
   private id!: bigint;
   private title!: string;
   private leaders!: UserBaseDto[];
+  private reviewers!: UserBaseDto[];
   private conferenceId!: bigint;
 
   constructor(section: Section) {
@@ -16,7 +17,13 @@ export class SectionDto {
       leadersDto.push(new UserBaseDto().createFromUserBase(e))
     })
 
+    let reviewersDto: UserBaseDto[] = []
+    section.reviewers.forEach((e) => {
+      reviewersDto.push(new UserBaseDto().createFromUserBase(e))
+    })
+
     this.leaders = leadersDto
+    this.reviewers = reviewersDto
     this.conferenceId = section.conferenceId
   }
 
@@ -42,6 +49,14 @@ export class SectionDto {
 
   setLeaders(value: UserBaseDto[]) {
     this.leaders = value;
+  }
+
+  getReviewers(): UserBaseDto[] {
+    return this.reviewers;
+  }
+
+  setReviewers(value: UserBaseDto[]) {
+    this.reviewers = value;
   }
 
   getConferenceId(): bigint {

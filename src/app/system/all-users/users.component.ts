@@ -2,7 +2,6 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
 import {AppConstants} from "../../app.module";
 import {Router} from "@angular/router";
-import {LoginResponse} from "../shared/model/login.response";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 
@@ -15,7 +14,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   users: User[] = [];
 
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
 
   userStatusMap: Map<string, string> = AppConstants.userStatusMap;
   userRoleMap: Map<string, string> = AppConstants.userRoleMap;
@@ -27,15 +27,16 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -45,7 +46,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    if (!this.checkLogin() || !this.isSuperAdmin()) {
+    if (!this.checkLogin() || !this.isAdmin()) {
       this.router.navigate(['']);
     }
 
@@ -66,8 +67,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.toPage(`/profile/${userId}`)
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
   toPage(link: string) {

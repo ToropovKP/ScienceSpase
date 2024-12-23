@@ -2,7 +2,6 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {AppConstants} from "../../app.module";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
-import {LoginResponse} from "../shared/model/login.response";
 import {Job} from "../shared/model/job";
 import {Conference} from "../shared/model/conference";
 import {map} from "rxjs";
@@ -10,6 +9,7 @@ import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
 import {AlertService} from "../shared/services/alert.service";
+import {UserBase} from "../shared/model/user.base";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -28,7 +28,8 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   currentSections!: Section[];
 
   currentUser!: User;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
   constructor(private router: Router,
@@ -38,17 +39,18 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
       this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -58,7 +60,7 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    if (!this.checkLogin() || !this.isAdminAbsolute()) {
+    if (!this.checkLogin() || !this.isReviewerOrModerator()) {
       this.router.navigate(['']);
     }
 
@@ -71,7 +73,7 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
-        if (!this.isAdminConference()) {
+        if (!this.isModeratorOfThisConferenceOrReviewer()) {
           this.router.navigate(['']);
         }
 
@@ -80,12 +82,28 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
         });
 
         this.httpService.getConferenceJobs(this.currentConferenceId).then((data) => {
-          if (!this.isMasterAdminConference()) {
+          if (!this.isMasterModeratorOfThisConference()) {
             let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
             if (find) {
               let sections = this.currentConference.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length > 0)
               this.jobs = data.filter((job) => sections.filter((sec) => sec.id == job.sectionId).length > 0);
               this.currentSections = sections.filter((sec) => this.jobs.filter((job) => job.sectionId == sec.id).length > 0);
+            } else {
+
+              let user: UserBase | undefined;
+              let find1 = this.currentConference.sections.find((sec) => {
+                if (sec.reviewers != undefined && sec.reviewers.length != 0) {
+                  user = sec.reviewers.find((rev) => rev.id == this.currentUser.id)
+                  return user != undefined
+                }
+                return false;
+              });
+
+              if (find1) {
+                let sections = this.currentConference.sections.filter((sec) => sec.reviewers.filter((rev) => rev.id == user?.id).length > 0)
+                this.jobs = data.filter((job) => sections.filter((sec) => sec.id == job.sectionId).length > 0);
+                this.currentSections = sections.filter((sec) => this.jobs.filter((job) => job.sectionId == sec.id).length > 0);
+              }
             }
           } else {
             this.jobs = data
@@ -103,30 +121,19 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
+  isModerator(): boolean {
+    return this.role == 'MODERATOR' || this.isAdmin();
   }
 
-  isAdminConference(): boolean {
-    if (this.isSuperAdmin()) {
+  isMasterModeratorOfThisConference(): boolean {
+    if (this.isAdmin()) {
       return true;
     }
-    if (this.currentConference.admins != undefined && this.currentConference.admins.length != 0) {
-      let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
-      return this.loggedUser.role == 'ADMIN' && find != undefined
-    }
-    return false;
-  }
-
-  isMasterAdminConference(): boolean {
-    if (this.isSuperAdmin()) {
-      return true;
-    }
-    if (this.isAdminConference()) {
+    if (this.isModeratorOfThisConferenceOrReviewer()) {
       if (this.currentConference.admins != undefined && this.currentConference.admins.length != 0) {
         let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
         if (find) {
@@ -136,6 +143,39 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
       }
     }
     return false;
+  }
+
+  isModeratorOfThisConferenceOrReviewer(): boolean {
+    if (this.isAdmin()) {
+      return true;
+    }
+    if (this.currentConference.admins != undefined && this.currentConference.admins.length != 0) {
+      let find = this.currentConference.admins.find((admin) => admin.id == this.currentUser.id);
+
+      if (!find) {
+        let find1 = this.currentConference.sections.find((sec) => {
+          if (sec.reviewers != undefined && sec.reviewers.length != 0) {
+            let find2 = sec.reviewers.find((rev) => rev.id == this.currentUser.id);
+            return this.role == 'REVIEWER' && find2 != undefined
+          }
+          return false;
+        });
+
+        return find1 != undefined;
+      }
+
+      return this.role == 'MODERATOR'
+    }
+
+    return false;
+  }
+
+  isReviewerOrModerator(): boolean {
+    return this.role == 'REVIEWER' || this.isModerator()
+  }
+
+  isReviewer(): boolean {
+    return this.role == 'REVIEWER'
   }
 
   openJob(id: string) {
@@ -152,7 +192,7 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   }
 
   downloadFilesConference() {
-    if (this.isMasterAdminConference()) {
+    if (this.isMasterModeratorOfThisConference()) {
       this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response))
         .catch(error => {
           let title = "Возникла непредвиденная ошибка";

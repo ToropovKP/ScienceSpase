@@ -1,18 +1,9 @@
 export class LoginResponse {
 
-  private _email: string = "";
   private _role: string = "";
-  private _token: string = "";
+  private _access_token: string = "";
 
   constructor() {
-  }
-
-  get email(): string {
-    return this._email;
-  }
-
-  set email(value: string) {
-    this._email = value;
   }
 
   get role(): string {
@@ -23,11 +14,11 @@ export class LoginResponse {
     this._role = value;
   }
 
-  get token(): string {
-    return this._token;
+  get access_token(): string {
+    return this._access_token;
   }
 
-  set token(value: string) {
-    this._token = value;
+  set access_token(value: string) {
+    this._access_token = value;
   }
 }

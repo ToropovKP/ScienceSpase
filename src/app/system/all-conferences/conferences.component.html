@@ -31,7 +31,7 @@
         </div>
 
         <div class="d-inline-flex align-items-center justify-content-end col-2">
-          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
+          <button *ngIf="isAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
         </div>
       </div>
 

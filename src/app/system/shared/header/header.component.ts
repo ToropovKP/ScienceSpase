@@ -1,7 +1,6 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {Router} from "@angular/router";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {LoginResponse} from "../model/login.response";
 import {User} from "../model/user";
 import {HttpService} from "../services/http.service";
 import {AlertService} from "../services/alert.service";
@@ -20,11 +19,10 @@ export class HeaderComponent implements OnInit {
   userBlockedReg: boolean = false;
   userExists: boolean = false;
 
+  role!: string;
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
   currentUser!: User;
-
-  loggedUser!: LoginResponse | null;
   loggedStatus: boolean = false;
 
   public showRegStatus!: User;
@@ -74,10 +72,13 @@ export class HeaderComponent implements OnInit {
       this.invalidLogin = false
       this.userBlockedLogin = false
       this.closeModalLogIn.nativeElement.click()
-      sessionStorage.setItem("user", JSON.stringify(data));
-      this.loggedUser = data;
-      this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+      sessionStorage.setItem("email", email);
+      sessionStorage.setItem("token", data.access_token);
+      sessionStorage.setItem("role", data.role);
+      this.role = data.role;
+      this.httpService.getUserInfo(email).then((data) => {
         this.currentUser = data;
+        //todo убрать и заменить на вызов апи в других местах
         sessionStorage.setItem("user_info", JSON.stringify(data));
       });
       this.loginForm.reset();
@@ -134,27 +135,26 @@ export class HeaderComponent implements OnInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
 
-    if (obj != null) {
+    if (email != null) {
       this.loggedStatus = true;
-      this.loggedUser = obj;
       let user_info: string | null = sessionStorage.getItem("user_info");
       this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
       return true;
     } else {
       this.loggedStatus = false;
-      this.loggedUser = null;
       return false;
     }
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser != null && this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.loggedStatus && this.role == 'ADMIN';
   }
 
   logout() {
+    //todo не работает
+    this.httpService.logout().then();
     sessionStorage.clear();
   }
 

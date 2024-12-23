@@ -3,7 +3,6 @@ import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {AppConstants} from "../../app.module";
 import {Router} from "@angular/router";
-import {LoginResponse} from "../shared/model/login.response";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 
@@ -18,7 +17,8 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
   conferences: Conference[] = [];
 
   currentUser!: User;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
 
   statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
@@ -30,15 +30,16 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
 
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -56,7 +57,7 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
   }
 
   loadAllData() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+    this.httpService.getUserInfo(this.email).then((data) => {
       this.currentUser = data;
       sessionStorage.setItem("user_info", JSON.stringify(data));
     }).catch(error => {
@@ -74,12 +75,12 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  isAdmin(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role == 'MODERATOR' || this.role == 'ADMIN';
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
   openConf(id: bigint): void {

@@ -15,7 +15,8 @@ import {AlertService} from "../shared/services/alert.service";
 export class ProfileComponent implements OnInit, AfterViewInit {
 
   formProfile!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
@@ -30,14 +31,16 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+
+    if (email != null) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
       this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email != null;
   }
 
   ngAfterViewInit() {
@@ -95,12 +98,12 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role == 'MODERATOR' || this.isAdmin();
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role == 'ADMIN';
   }
 
   allowToChange(): boolean {
