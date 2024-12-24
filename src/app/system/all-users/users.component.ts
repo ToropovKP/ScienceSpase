@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../../main";
+import {AppConstants} from "../../app.constants";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
