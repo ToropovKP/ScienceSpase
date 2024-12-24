@@ -14,11 +14,10 @@ import {AppConstants} from "../../../main";
 import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
-  selector: 'app-one-conference',
-  templateUrl: './conference.component.html',
-  styleUrls: ['./conference.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+    selector: 'app-one-conference',
+    templateUrl: './conference.component.html',
+    styleUrls: ['./conference.component.css'],
+    imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ConferenceComponent implements OnInit, AfterViewInit {
 

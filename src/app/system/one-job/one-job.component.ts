@@ -16,11 +16,10 @@ import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
-  selector: 'app-one-conference',
-  templateUrl: './one-job.component.html',
-  styleUrls: ['./one-job.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+    selector: 'app-one-conference',
+    templateUrl: './one-job.component.html',
+    styleUrls: ['./one-job.component.css'],
+    imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class OneJobComponent implements OnInit, AfterViewInit {
 

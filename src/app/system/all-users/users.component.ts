@@ -7,11 +7,10 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css'],
-  standalone: true,
-  imports: [CommonModule]
+    selector: 'app-users',
+    templateUrl: './users.component.html',
+    styleUrls: ['./users.component.css'],
+    imports: [CommonModule]
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 

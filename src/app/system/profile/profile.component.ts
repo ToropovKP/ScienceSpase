@@ -13,7 +13,6 @@ import {NgxMaskDirective} from "ngx-mask";
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  standalone: true,
   imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ProfileComponent implements OnInit, AfterViewInit {

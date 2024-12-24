@@ -14,11 +14,10 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: 'app-conference-jobs',
-  templateUrl: './conference-jobs.component.html',
-  styleUrls: ['./conference-jobs.component.css'],
-  standalone: true,
-  imports: [CommonModule]
+    selector: 'app-conference-jobs',
+    templateUrl: './conference-jobs.component.html',
+    styleUrls: ['./conference-jobs.component.css'],
+    imports: [CommonModule]
 })
 export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 

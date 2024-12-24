@@ -8,11 +8,10 @@ import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
-  selector: 'app-header',
-  templateUrl: 'header.component.html',
-  styleUrls: ['header.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective]
+    selector: 'app-header',
+    templateUrl: 'header.component.html',
+    styleUrls: ['header.component.css'],
+    imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective]
 })
 export class HeaderComponent implements OnInit {
 

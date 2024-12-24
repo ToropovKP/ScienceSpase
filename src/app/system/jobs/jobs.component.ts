@@ -9,11 +9,10 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: 'app-jobs',
-  templateUrl: './jobs.component.html',
-  styleUrls: ['./jobs.component.css'],
-  standalone: true,
-  imports: [CommonModule]
+    selector: 'app-jobs',
+    templateUrl: './jobs.component.html',
+    styleUrls: ['./jobs.component.css'],
+    imports: [CommonModule]
 })
 export class JobsComponent implements OnInit, AfterViewInit {
 

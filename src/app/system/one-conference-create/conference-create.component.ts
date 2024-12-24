@@ -14,11 +14,10 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: 'app-one-conference-create',
-  templateUrl: './conference-create.component.html',
-  styleUrls: ['./conference-create.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule]
+    selector: 'app-one-conference-create',
+    templateUrl: './conference-create.component.html',
+    styleUrls: ['./conference-create.component.css'],
+    imports: [ReactiveFormsModule, CommonModule]
 })
 export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
