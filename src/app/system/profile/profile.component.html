@@ -34,63 +34,63 @@
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Фамилия</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="lastName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="lastName"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Имя</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="firstName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="firstName"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Отчество</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="middleName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="middleName"
                        id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
                 <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                   <label class="second-text text-black" for="floatingInput">Телефон</label>
-                  <input [readonly]="allowToChange()" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
+                  <input [readonly]="!allowToChange()" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
                     id="floatingInput">
                 </div>
                 <div class="col-8" style="padding-left: 0px;">
                   <label class="second-text text-black" for="floatingInput">Организация</label>
-                  <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
                          id="floatingInput">
                 </div>
             </div>
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Пароль </label>
-                <input [readonly]="allowToChange()" type="password" class="bg-white form-control section-text text-black" formControlName="password"
+                <input [readonly]="!allowToChange()" type="password" class="bg-white form-control section-text text-black" formControlName="password"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Идентификатор ORCID </label>
-                <input [readonly]="allowToChange()" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
+                <input [readonly]="!allowToChange()" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
-                <input [readonly]="allowToChange()" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
+                <input [readonly]="!allowToChange()" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
                        id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Telegram </label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="telegram"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="telegram"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученая степень</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученое звание</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
                   id="floatingInput">
               </div>
             </div>

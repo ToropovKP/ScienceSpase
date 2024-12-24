@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
-import {AppConstants} from "../../app.module";
 import {Section} from "../shared/model/section";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
@@ -10,11 +9,16 @@ import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
+import {CommonModule} from "@angular/common";
+import {AppConstants} from "../../../main";
+import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
-  styleUrls: ['./conference.component.css']
+  styleUrls: ['./conference.component.css'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ConferenceComponent implements OnInit, AfterViewInit {
 

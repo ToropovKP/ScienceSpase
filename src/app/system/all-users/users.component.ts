@@ -1,14 +1,17 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../app.module";
+import {AppConstants} from "../../../main";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css']
+  styleUrls: ['./users.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 

@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {AppConstants} from "../../app.module";
+import {AppConstants} from "../../../main";
 import {ActivatedRoute, Router} from "@angular/router";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {Job} from "../shared/model/job";
 import {Conference} from "../shared/model/conference";
 import {map} from "rxjs";
@@ -10,11 +10,15 @@ import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
 import {AlertService} from "../shared/services/alert.service";
 import {UserBase} from "../shared/model/user.base";
+import {ReactiveFormsModule} from "@angular/forms";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
-  styleUrls: ['./conference-jobs.component.css']
+  styleUrls: ['./conference-jobs.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class ConferenceJobsComponent implements OnInit, AfterViewInit {
 

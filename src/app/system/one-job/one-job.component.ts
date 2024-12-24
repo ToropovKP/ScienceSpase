@@ -1,22 +1,26 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
-import {AppConstants} from "../../app.module";
+import {AppConstants} from "../../../main";
 import {AlertService} from "../shared/services/alert.service";
 import {Conference} from "../shared/model/conference";
 import {ReviewDto} from "../shared/dto/review.dto";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
-  styleUrls: ['./one-job.component.css']
+  styleUrls: ['./one-job.component.css'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class OneJobComponent implements OnInit, AfterViewInit {
 

@@ -1,14 +1,18 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Router} from "@angular/router";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {Router, RouterModule} from "@angular/router";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {User} from "../model/user";
 import {HttpService} from "../services/http.service";
 import {AlertService} from "../services/alert.service";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
   selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  templateUrl: 'header.component.html',
+  styleUrls: ['header.component.css'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective]
 })
 export class HeaderComponent implements OnInit {
 

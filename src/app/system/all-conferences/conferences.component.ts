@@ -1,15 +1,18 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../app.module";
+import {AppConstants} from "../../../main";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-conferences',
   templateUrl: './conferences.component.html',
-  styleUrls: ['./conferences.component.css']
+  styleUrls: ['./conferences.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class ConferencesComponent implements OnInit, AfterViewInit {
 

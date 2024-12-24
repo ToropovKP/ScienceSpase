@@ -1,16 +1,20 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {LoginResponse} from "../shared/model/login.response";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrl: './profile.component.css',
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ProfileComponent implements OnInit, AfterViewInit {
 
@@ -107,7 +111,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   allowToChange(): boolean {
-    return this.showButtonsToChange() && !this.editProfile;
+    return this.showButtonsToChange() && this.editProfile;
   }
 
   showButtonsToChange(): boolean {

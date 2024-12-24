@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {AppConstants} from "../../app.module";
+import {AppConstants} from "../../../main";
 import {Section} from "../shared/model/section";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
@@ -11,11 +11,14 @@ import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-one-conference-create',
   templateUrl: './conference-create.component.html',
-  styleUrls: ['./conference-create.component.css']
+  styleUrls: ['./conference-create.component.css'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
@@ -278,11 +281,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         })
         this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
         })
-          .catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
-          });
+        .catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
       }
       this.toPage(`/conference/${data.id}`)
     }).catch(error => {
@@ -310,7 +313,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     })
 
 
-
     let request = {
       "id": this.currentConferenceId,
       "title": this.formCreateConference.value.confName,
@@ -333,11 +335,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
           })
           this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
           })
-            .catch(error => {
-              let title = "Возникла непредвиденная ошибка";
-              let description = 'Ошибка на стороне сервера';
-              this.alertService.constructErrorAlert(error, title, description);
-            });
+          .catch(error => {
+            let title = "Возникла непредвиденная ошибка";
+            let description = 'Ошибка на стороне сервера';
+            this.alertService.constructErrorAlert(error, title, description);
+          });
         }
       }
       this.toPage(`/conference/${data.id}`)
@@ -398,7 +400,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   updateTags(event: Event, tag: string) {
-    let number = this.tags.findIndex((value, index, array) => { return value == tag});
+    let number = this.tags.findIndex((value, index, array) => {
+      return value == tag
+    });
     this.tags[number] = (event.target as HTMLInputElement).value;
     console.log(number, this.tags)
   }
@@ -444,7 +448,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   addRowForTag() {
-    if (this.tags[this.tags.length-1] != '') {
+    if (this.tags[this.tags.length - 1] != '') {
       this.tags.push('')
     }
   }
