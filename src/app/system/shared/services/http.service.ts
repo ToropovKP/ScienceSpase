@@ -11,7 +11,7 @@ import {UserBaseDto} from "../dto/user.base.dto";
 import {LoginResponse} from "../model/login.response";
 import {Commentary} from "../model/commentary";
 import {ReviewDto} from "../dto/review.dto";
-import {AppConstants} from "../../../../main";
+import {AppConstants} from "../../../app.constants";
 
 @Injectable({providedIn: 'root'})
 export class HttpService {

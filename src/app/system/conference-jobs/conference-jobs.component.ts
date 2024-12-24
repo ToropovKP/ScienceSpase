@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {AppConstants} from "../../../main";
+import {AppConstants} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
 import {Job} from "../shared/model/job";

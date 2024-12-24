@@ -10,7 +10,7 @@ import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
-import {AppConstants} from "../../../main";
+import {AppConstants} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 
 @Component({

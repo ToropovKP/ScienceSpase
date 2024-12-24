@@ -8,7 +8,7 @@ import {Job} from "../shared/model/job";
 import { HttpResponse } from "@angular/common/http";
 import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
-import {AppConstants} from "../../../main";
+import {AppConstants} from "../../app.constants";
 import {AlertService} from "../shared/services/alert.service";
 import {Conference} from "../shared/model/conference";
 import {ReviewDto} from "../shared/dto/review.dto";
