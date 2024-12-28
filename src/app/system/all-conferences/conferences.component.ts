@@ -8,10 +8,10 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-    selector: 'app-conferences',
-    templateUrl: './conferences.component.html',
-    styleUrls: ['./conferences.component.css'],
-    imports: [CommonModule]
+  selector: 'app-conferences',
+  templateUrl: './conferences.component.html',
+  styleUrls: ['./conferences.component.css'],
+  imports: [CommonModule]
 })
 export class ConferencesComponent implements OnInit, AfterViewInit {
 
