@@ -1,9 +1,10 @@
-import {ApplicationConfig} from '@angular/core';
+import {ApplicationConfig, provideZoneChangeDetection} from '@angular/core';
 import {provideRouter, withInMemoryScrolling} from "@angular/router";
 import {appRoutes} from "./app.routes";
 import {provideHttpClient, withInterceptorsFromDi} from "@angular/common/http";
 import {NgxMaskConfig, provideEnvironmentNgxMask} from "ngx-mask";
 import {provideClientHydration, withEventReplay, withHttpTransferCacheOptions} from "@angular/platform-browser";
+
 
 const maskConfig: Partial<NgxMaskConfig> = {
   validation: false,
@@ -11,6 +12,7 @@ const maskConfig: Partial<NgxMaskConfig> = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZoneChangeDetection({eventCoalescing: true}),
     provideRouter(appRoutes,
         withInMemoryScrolling({
           scrollPositionRestoration: 'enabled',
@@ -19,8 +21,8 @@ export const appConfig: ApplicationConfig = {
         })),
     provideHttpClient(withInterceptorsFromDi()),
     provideEnvironmentNgxMask(maskConfig), provideClientHydration(withEventReplay()),
-    provideClientHydration(withHttpTransferCacheOptions({
+    provideClientHydration(withEventReplay(), withHttpTransferCacheOptions({
       includePostRequests: true
     }))
-  ],
+  ]
 };

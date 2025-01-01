@@ -34,7 +34,7 @@ export class JobsComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       return true;
@@ -53,18 +53,17 @@ export class JobsComponent implements OnInit, AfterViewInit {
     if (!this.checkLogin()) {
       this.router.navigate(['']);
     }
-    this.loadAllData()
   }
 
   loadAllData() {
     let user_info: string | null = sessionStorage.getItem("user_info");
-    this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+    this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     this.route.queryParams.pipe(map(e => e['conferenceId'])).subscribe(e => {
-      this.currentConferenceId = e;
 
+      this.currentConferenceId = e;
       this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
         this.jobs = data;
-        if (e != undefined) {
+        if (this.currentConferenceId !== undefined) {
           this.httpService.getConference(this.currentConferenceId).then((conf) => {
             this.currentConference = conf;
           }).catch(error => {
@@ -72,7 +71,7 @@ export class JobsComponent implements OnInit, AfterViewInit {
             let description = 'Ошибка на стороне сервера';
             this.alertService.constructErrorAlert(error, title, description);
           });
-          this.jobs = this.jobs.filter(job => job.conferenceId == e)
+          this.jobs = this.jobs.filter(job => String(job.conferenceId) === this.currentConferenceId)
         }
       }).catch(error => {
         let title = "Возникла непредвиденная ошибка";
@@ -83,11 +82,11 @@ export class JobsComponent implements OnInit, AfterViewInit {
   }
 
   isModerator(): boolean {
-    return this.isAdmin() || this.role == 'MODERATOR';
+    return this.isAdmin() || this.role === 'MODERATOR';
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   openJob(id: bigint) {

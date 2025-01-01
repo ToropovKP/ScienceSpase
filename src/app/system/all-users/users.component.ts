@@ -1,26 +1,26 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../app.constants";
+import {userRoleMap, userStatusMap} from "../../app.constants";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-    selector: 'app-users',
-    templateUrl: './users.component.html',
-    styleUrls: ['./users.component.css'],
-    imports: [CommonModule]
+  selector: 'app-users',
+  templateUrl: './users.component.html',
+  styleUrls: ['./users.component.css'],
+  imports: [CommonModule]
 })
 export class UsersComponent implements OnInit, AfterViewInit {
+
+  protected readonly userStatusMap = userStatusMap;
+  protected readonly userRoleMap = userRoleMap;
 
   users: User[] = [];
 
   email!: string;
   role!: string;
-
-  userStatusMap: Map<string, string> = AppConstants.userStatusMap;
-  userRoleMap: Map<string, string> = AppConstants.userRoleMap;
 
   constructor(private router: Router,
               private httpService: HttpService,
@@ -32,7 +32,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       return true;
@@ -51,8 +51,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
     if (!this.checkLogin() || !this.isAdmin()) {
       this.router.navigate(['']);
     }
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -70,11 +68,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   toPage(link: string) {
     this.router.navigate([link]);
   }
-
 }

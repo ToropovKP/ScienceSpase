@@ -87,10 +87,10 @@ export class HeaderComponent implements OnInit {
       this.loginForm.reset();
       this.router.navigate(["/conferences"]);
     }).catch((error) => {
-      if (error.error['code'] == 'UNAUTHORIZED') {
+      if (error.error['code'] === 'UNAUTHORIZED') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;
-      } else if (error.error['code'] == 'BANNED') {
+      } else if (error.error['code'] === 'BANNED') {
         this.invalidLogin = false
         this.userBlockedLogin = true;
       } else {
@@ -123,10 +123,10 @@ export class HeaderComponent implements OnInit {
       this.login()
       this.formRegistration.reset();
     }).catch(error => {
-      if (error.error['code'] == 'USER_EXISTS') {
+      if (error.error['code'] === 'USER_EXISTS') {
         this.userExists = true;
         this.userBlockedReg = false;
-      } else if (error.error['code'] == 'BANNED') {
+      } else if (error.error['code'] === 'BANNED') {
         this.userExists = false;
         this.userBlockedReg = true;
       } else {
@@ -139,11 +139,13 @@ export class HeaderComponent implements OnInit {
 
   checkLogin() {
     let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.loggedStatus = true;
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
+      this.role = role ? role : '';
       return true;
     } else {
       this.loggedStatus = false;
@@ -152,13 +154,13 @@ export class HeaderComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.loggedStatus && this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   logout() {
-    //todo не работает
-    this.httpService.logout().then();
-    sessionStorage.clear();
+    this.httpService.logout().then(() => {
+      sessionStorage.clear()
+    });
   }
 
   toPage(link: string) {

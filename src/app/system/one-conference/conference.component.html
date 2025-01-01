@@ -1,7 +1,7 @@
 <section id="conference">
   <div class="container">
 
-    <div class="main">
+    <div *ngIf="currentConference.id !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
           <div class="conf-name-adress text-black">
@@ -18,9 +18,9 @@
 
         <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
         <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
-        <div class="col-4 conf-info-text text-black text-center">Дата начала: {{AppConstants.formatDate(this.currentConference.startDate)}}</div>
-        <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{AppConstants.formatDate(this.currentConference.endDate)}}</div>
-        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(this.currentConference.status) }}</span></div>
+        <div class="col-4 conf-info-text text-black text-center">Дата начала: {{DateService.formatDate(this.currentConference.startDate)}}</div>
+        <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{DateService.formatDate(this.currentConference.endDate)}}</div>
+        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap.get(this.currentConference.status) }}</span></div>
         <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isModeratorOfThisConference()">Количество участников: {{this.countUsers}}</span></div>
         <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isModeratorOfThisConference() || isReviewer()" (click)="checkUsers()">Перейти к списку участников</a></div>
 

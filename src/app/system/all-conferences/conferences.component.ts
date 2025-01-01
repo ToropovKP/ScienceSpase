@@ -1,11 +1,12 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../app.constants";
+import {conferenceStatusMap} from "../../app.constants";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
+import {DateService} from "../shared/services/date.service";
 
 @Component({
   selector: 'app-conferences',
@@ -15,14 +16,14 @@ import {CommonModule} from "@angular/common";
 })
 export class ConferencesComponent implements OnInit, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly DateService = DateService;
+
   conferences: Conference[] = [];
 
   currentUser!: User;
   email!: string;
   role!: string;
-
-  statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
   constructor(private router: Router,
               private httpService: HttpService,
@@ -35,7 +36,7 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       return true;
@@ -54,8 +55,6 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
     if (!this.checkLogin()) {
       this.router.navigate(['']);
     }
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -78,11 +77,11 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
   }
 
   isModerator(): boolean {
-    return this.role == 'MODERATOR' || this.role == 'ADMIN';
+    return this.role === 'MODERATOR' || this.role === 'ADMIN';
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   openConf(id: bigint): void {
@@ -92,5 +91,4 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
-
 }
