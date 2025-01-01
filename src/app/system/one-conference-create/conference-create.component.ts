@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {AppConstants} from "../../app.constants";
+import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
 import {Section} from "../shared/model/section";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
@@ -14,12 +14,14 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-    selector: 'app-one-conference-create',
-    templateUrl: './conference-create.component.html',
-    styleUrls: ['./conference-create.component.css'],
-    imports: [ReactiveFormsModule, CommonModule]
+  selector: 'app-one-conference-create',
+  templateUrl: './conference-create.component.html',
+  styleUrls: ['./conference-create.component.css'],
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class ConferenceCreateComponent implements OnInit, AfterViewInit {
+
+  protected readonly conferenceStatusList = conferenceStatusList;
 
   sectionsMap: Map<string, Section> = new Map;
   sections: Section[] = [];
@@ -40,8 +42,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   role!: string;
 
   currentUser!: User;
-  statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
-  statusList: string[] = ['Открыта', 'Временно приостановлена', 'Закрыта'];
 
   isNameExists: boolean = false;
 
@@ -56,13 +56,13 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return email != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -84,8 +84,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     })
 
     this.formSections = this.formBuilder.group({})
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -105,7 +103,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.formCreateConference.addControl("admin" + admin.id, new FormControl())
           })
 
-          if (this.currentConferenceId != null) {
+          if (this.currentConferenceId) {
             this.httpService.getConference(this.currentConferenceId).then((data) => {
 
               this.currentConference = data;
@@ -119,7 +117,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               this.formCreateConference.controls['description'].setValue(this.currentConference.description)
               this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
               this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-              this.formCreateConference.controls['confStatus'].setValue(this.statusMap.get(this.currentConference.status))
+              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
               this.currentStatus = this.currentConference.status
               this.createControlsForSections()
               this.createControlsForTags()
@@ -135,7 +133,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
           this.alertService.constructErrorAlert(error, title, description);
         })
       } else {
-        if (this.currentConferenceId != null) {
+        if (this.currentConferenceId) {
           this.httpService.getConference(this.currentConferenceId).then((data) => {
             this.currentConference = data;
             this.currentAdmins = this.currentConference.admins
@@ -144,7 +142,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.formCreateConference.controls['description'].setValue(this.currentConference.description)
             this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
             this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-            this.formCreateConference.controls['confStatus'].setValue(this.statusMap.get(this.currentConference.status))
+            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
             this.currentStatus = this.currentConference.status
 
             this.createControlsForSections()
@@ -174,24 +172,24 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   updateControlsForSections() {
     this.sections.forEach((e) => {
       this.sectionsMap.set(String(e.title), e)
-      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
         this.currentAdmins.forEach((admin) => {
           this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
           this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
         })
       }
-      if (e.leaders != undefined && e.leaders.length != 0) {
+      if (e.leaders && e.leaders.length !== 0) {
         e.leaders.forEach((leader) => {
           this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
         })
       }
-      if (this.reviewers != undefined && this.reviewers.length != 0) {
+      if (this.reviewers && this.reviewers.length !== 0) {
         this.reviewers.forEach((reviewers) => {
           this.formSections.addControl("secrev" + e.title + "" + reviewers.id, new FormControl())
           this.formSections.controls["secrev" + e.title + "" + reviewers.id].setValue(false)
         })
       }
-      if (e.reviewers != undefined && e.reviewers.length != 0) {
+      if (e.reviewers && e.reviewers.length !== 0) {
         e.reviewers.forEach((reviewer) => {
           this.formSections.controls["secrev" + e.title + "" + reviewer.id].setValue(true)
         })
@@ -200,27 +198,27 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   createControlsForOneSection(title: string) {
-    this.sections.filter((e) => e.title == title).forEach((e) => {
-      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+    this.sections.filter((e) => e.title === title).forEach((e) => {
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
         this.currentAdmins.forEach((admin) => {
           this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
           this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
         })
       }
 
-      if (e.leaders != undefined && e.leaders.length != 0) {
+      if (e.leaders && e.leaders.length !== 0) {
         e.leaders.forEach((leader) => {
           this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
         })
       }
 
-      if (this.reviewers != undefined && this.reviewers.length != 0) {
+      if (this.reviewers && this.reviewers.length !== 0) {
         this.reviewers.forEach((reviewers) => {
           this.formSections.addControl("secrev" + e.title + "" + reviewers.id, new FormControl())
           this.formSections.controls["secrev" + e.title + "" + reviewers.id].setValue(false)
         })
       }
-      if (e.reviewers != undefined && e.reviewers.length != 0) {
+      if (e.reviewers && e.reviewers.length !== 0) {
         e.reviewers.forEach((reviewer) => {
           this.formSections.controls["secrev" + e.title + "" + reviewer.id].setValue(true)
         })
@@ -229,13 +227,13 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   removeControlsForSection(title: string) {
-    this.sections.filter((e) => e.title == title).forEach((e) => {
-      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+    this.sections.filter((e) => e.title === title).forEach((e) => {
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
         this.currentAdmins.forEach((admin) => {
           this.formSections.removeControl("sec" + e.title + "" + admin.id)
         })
       }
-      if (this.reviewers != undefined && this.reviewers.length != 0) {
+      if (this.reviewers && this.reviewers.length !== 0) {
         this.reviewers.forEach((reviewers) => {
           this.formSections.removeControl("secrev" + e.title + "" + reviewers.id)
         })
@@ -247,9 +245,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     // обновление полей + добавление секций
     let sectionsDto: SectionDto[] = []
     this.sections.forEach((e) => {
-      if (this.currentConference != undefined) {
-        let find = this.currentConference.sections.find((sec) => sec.id == e.id);
-        if (find == undefined) {
+      if (this.currentConference) {
+        let find = this.currentConference.sections.find((sec) => sec.id === e.id);
+        if (find) {
           // @ts-ignore
           e.id = Number(0)
         }
@@ -272,7 +270,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     };
 
     this.httpService.createConference(request).then((data) => {
-      if (this.currentAdmins != null && this.currentAdmins.length != 0) {
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
         this.isNameExists = false;
         let adminsDto: UserBaseDto[] = []
         this.currentAdmins.forEach((e) => {
@@ -290,7 +288,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
-      if (error.error['code'] == 'NAME_EXISTS') {
+      if (error.error['code'] === 'NAME_EXISTS') {
         title = 'Возникла ошибка при сохранении'
         description = 'Такое имя уже существует';
         this.isNameExists = true;
@@ -303,8 +301,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     // обновление полей + добавление секций
     let sectionsDto: SectionDto[] = []
     this.sections.forEach((e) => {
-      let find = this.currentConference.sections.find((sec) => sec.id == e.id);
-      if (find == undefined) {
+      let find = this.currentConference.sections.find((sec) => sec.id === e.id);
+      if (find) {
         // @ts-ignore
         e.id = Number(0)
       }
@@ -327,7 +325,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.httpService.updateConference(this.currentConferenceId, request).then((data) => {
       this.isNameExists = false;
       if (this.isAdmin()) {
-        if (this.currentAdmins != null && this.currentAdmins.length != 0) {
+        if (this.currentAdmins && this.currentAdmins.length !== 0) {
           let adminsDto: UserBaseDto[] = []
           this.currentAdmins.forEach((e) => {
             adminsDto.push(new UserBaseDto().createFromUserBase(e))
@@ -358,9 +356,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.sectionsMap.delete(section.title)
     this.sectionsMap.delete(' ')
     let org: string = '';
-    if (name == 'user' && user != null) {
+    if (name === 'user' && user) {
       section.leaders = []
-      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
         this.currentAdmins.forEach((admin) => {
           let value = this.formSections.controls[`sec${section.title}${admin.id}`].value;
           if (value) {
@@ -369,9 +367,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         })
       }
     }
-    if (name == 'rev' && user != null) {
+    if (name === 'rev' && user) {
       section.reviewers = []
-      if (this.reviewers != undefined && this.reviewers.length != 0) {
+      if (this.reviewers && this.reviewers.length !== 0) {
         this.reviewers.forEach((reviewer) => {
           let value = this.formSections.controls[`secrev${section.title}${reviewer.id}`].value;
           if (value) {
@@ -380,7 +378,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         })
       }
     }
-    if (name == 'org') {
+    if (name === 'org') {
       org = (event.target as HTMLInputElement).value;
       this.removeControlsForSection(section.title)
       section.title = org
@@ -391,7 +389,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       this.sections.push(value)
     }
 
-    if (name == 'org') {
+    if (name === 'org') {
       this.createControlsForOneSection(section.title)
     }
     this.sections = this.sections.sort((a, b) => Number(a.id) - Number(b.id))
@@ -400,7 +398,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   updateTags(event: Event, tag: string) {
     let number = this.tags.findIndex((value, index, array) => {
-      return value == tag
+      return value === tag
     });
     this.tags[number] = (event.target as HTMLInputElement).value;
     console.log(number, this.tags)
@@ -414,7 +412,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         admins.push(admin);
       } else {
         this.sections.forEach((sec) => {
-          sec.leaders = sec.leaders.filter((lead) => lead.id != admin.id)
+          sec.leaders = sec.leaders.filter((lead) => lead.id !== admin.id)
         })
       }
     })
@@ -425,8 +423,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   updateStatus(event: Event) {
     let statusName: string = (event.target as HTMLOptionElement).value;
-    let status = this.statusMap.get(statusName);
-    this.currentStatus = status != null ? status : 'ON_HOLD';
+    let status = conferenceStatusMap.get(statusName);
+    this.currentStatus = status ? status : 'ON_HOLD';
   }
 
   addRowForSection() {
@@ -447,26 +445,26 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   addRowForTag() {
-    if (this.tags[this.tags.length - 1] != '') {
+    if (this.tags[this.tags.length - 1] !== '') {
       this.tags.push('')
     }
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   isModerator(): boolean {
-    return this.role == 'MODERATOR' || this.isAdmin();
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
   isModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
       return true;
     }
-    if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
-      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-      return this.role == 'MODERATOR' && find != undefined
+    if (this.currentAdmins && this.currentAdmins.length !== 0) {
+      let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
+      return this.role === 'MODERATOR' && find !== undefined
     }
     return false;
   }
@@ -476,11 +474,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       return true;
     }
     if (this.isModeratorOfThisConference()) {
-      if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
-        let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-        if (find != undefined && this.sections != undefined && this.sections.length != 0) {
-          let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id == find?.id).length == 0).length;
-          return length == this.sections.length;
+      if (this.currentAdmins && this.currentAdmins.length !== 0) {
+        let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
+        if (find && this.sections && this.sections.length !== 0) {
+          let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id === find?.id).length === 0).length;
+          return length === this.sections.length;
         }
       }
     }
@@ -489,21 +487,21 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   isLeaderSection(section: Section): boolean {
     if (!this.isMasterModeratorOfThisConference()) {
-      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
+      let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
       if (find) {
-        let leaders = this.sections.find((sec) => sec.id == section.id)?.leaders.filter((lead) => lead.id == find?.id);
-        if (leaders != undefined) {
+        let leaders = this.sections.find((sec) => sec.id === section.id)?.leaders.filter((lead) => lead.id === find?.id);
+        if (leaders) {
           return leaders?.length > 0
         }
       }
-      return (this.role == 'MODERATOR' && find != undefined) || this.role == 'ADMIN';
+      return (this.role === 'MODERATOR' && find !== undefined) || this.role === 'ADMIN';
     } else {
       return true
     }
   }
 
   getUsersString(users: UserBase[]) {
-    return users.map((u) => u.lastName + " " + u.firstName + (u.middleName != '' ? " " + u.middleName : '')).join(", ")
+    return users.map((u) => u.lastName + " " + u.firstName + (u.middleName !== '' ? " " + u.middleName : '')).join(", ")
   }
 
   toPage(link: string) {

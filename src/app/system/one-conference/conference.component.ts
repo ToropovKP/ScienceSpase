@@ -10,18 +10,21 @@ import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
-import {AppConstants} from "../../app.constants";
+import {conferenceStatusMap} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
+import {DateService} from "../shared/services/date.service";
 
 @Component({
-    selector: 'app-one-conference',
-    templateUrl: './conference.component.html',
-    styleUrls: ['./conference.component.css'],
-    imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  selector: 'app-one-conference',
+  templateUrl: './conference.component.html',
+  styleUrls: ['./conference.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ConferenceComponent implements OnInit, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly DateService = DateService;
+
   sections: Section[] = []
   currentSection!: Section | undefined;
 
@@ -35,8 +38,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   role!: string;
   currentUser!: User;
   currentUserJobId!: string;
-
-  statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
   addingJob: boolean = false;
 
@@ -54,9 +55,9 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       this.email = email;
       this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return email != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -81,8 +82,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       section: new FormControl('',),
       files: new FormControl('', [Validators.required]),
     })
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -133,7 +132,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
       this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
         data.forEach((job) => {
-          if (String(job.conferenceId) == this.currentConferenceId) {
+          if (String(job.conferenceId) === this.currentConferenceId) {
             this.currentUserJobId = String(job.id)
             return
           }
@@ -151,26 +150,26 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   isModerator(): boolean {
-    return this.role == 'MODERATOR' || this.isAdmin();
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
   isModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
       return true;
     }
-    if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
-      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-      return this.role == 'MODERATOR' && find != undefined
+    if (this.currentAdmins !== undefined && this.currentAdmins.length !== 0) {
+      let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
+      return this.role === 'MODERATOR' && find !== undefined
     }
     return false;
   }
 
   isReviewer(): boolean {
-    return this.role == 'REVIEWER'
+    return this.role === 'REVIEWER'
   }
 
   get authors(): FormArray {
@@ -187,11 +186,11 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   disableAuthor(index: number) {
     const author = this.authors.at(index);
-    if (author.get('fullName')?.value != '') {
+    if (author.get('fullName')?.value !== '') {
       author.get('fullName')?.disable();
       author.get('organization')?.disable();
       author.get('email')?.disable();
-      if (this.authors.at(this.authors.length - 1).get('fullName')?.value != '' && this.authors.value.length < 5) {
+      if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
         this.authors.push(this.createAuthor());
       }
     }
@@ -206,7 +205,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   removeAuthor(index: number) {
     this.authors.removeAt(index);
-    if (this.authors.value.length == 4) {
+    if (this.authors.value.length === 4) {
       this.authors.push(this.createAuthor());
     }
   }
@@ -237,10 +236,10 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     this.files = []
     let files = (event.target as HTMLInputElement).files;
 
-    if (files != null) {
+    if (files !== null) {
       for (let i = 0; i < files.length; i++) {
         let file = files.item(i);
-        if (file != null) {
+        if (file !== null) {
           this.files.push(file);
         }
       }
@@ -259,7 +258,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     formData.append("fullName", this.currentUser.fullName);
 
     this.httpService.uploadFiles(formData).then((data) => {
-      if (data[0].size != null) {
+      if (data[0].size !== null) {
         let fileNames = data.map((e) => e.fileName);
         let requestUser = {
           "id": this.currentUser.id,
@@ -277,7 +276,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           let fullName = author.get('fullName')?.value;
           let organization = author.get('organization')?.value;
           let email = author.get('email')?.value;
-          if (fullName != '') {
+          if (fullName !== '') {
             const authorDto = new AuthorDto();
             authorDto.setFullName(fullName);
             authorDto.setOrganization(organization);
@@ -329,7 +328,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   getLeadersString(leaders: UserBase[]) {
-    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName != '' ? " " + lead.middleName : '')).join("\n")
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join("\n")
   }
 
   toPage(link: string) {

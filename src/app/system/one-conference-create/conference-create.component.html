@@ -53,7 +53,7 @@
               <select [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" class="form-control section-text text-black text-center" style="height: 47px; padding: 10px;"
                       formControlName="confStatus" (change)="updateStatus($event)">
                 <option selected [ngValue]="undefined" style="font-size: 16px; color: black;">Выберите</option>
-                <option *ngFor="let status of statusList">{{ status }}</option>
+                <option *ngFor="let status of conferenceStatusList">{{ status }}</option>
               </select>
             </div>
             <div class="col-4" style="padding-left: 0px;" [ngClass]="{'has-error': formCreateConference.get('organization')?.invalid && formCreateConference.get('organization')?.touched}">

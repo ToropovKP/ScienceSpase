@@ -1,53 +1,34 @@
-import {format} from "date-fns";
-import {ru} from "date-fns/locale/ru";
 import {environment} from "../environments/environment";
 
-export class AppConstants {
+export const baseUrl: string = `${environment.apiUrl}`;
 
-  public static formatDate(date: Date): string {
-    return format(date, 'd MMM y', {locale: ru});
-  }
+export const conferenceStatusList: string[] = ['Открыта', 'Временно приостановлена', 'Закрыта'];
 
-  public static formatDateTime(date: Date): string {
-    return format(date, 'd MMM y HH:mm:ss', {locale: ru});
-  }
+export const conferenceStatusMap: Map<string, string> = new Map<string, string>([
+  ['ACTIVE', 'Открыта'],
+  ['ON_HOLD', 'Временно приостановлена'],
+  ['CLOSED', 'Закрыта'],
+  ['Открыта', 'ACTIVE'],
+  ['Временно приостановлена', 'ON_HOLD'],
+  ['Закрыта', 'CLOSED'],
+])
 
-  public static get baseURL(): string {
-    return `${environment.apiUrl}`;
-  }
+export const userStatusMap: Map<string, string> = new Map<string, string>([
+  ['ACTIVE', 'Активен'],
+  ['BANNED', 'Заблокирован'],
+  ['CONFIRMATION', 'Подтверждение'],
+  ['Активен', 'ACTIVE'],
+  ['Заблокирован', 'BANNED'],
+  ['Подтверждение', 'CONFIRMATION'],
+])
 
-  public static get conferenceStatusMap(): Map<string, string> {
-    let statusMap: Map<string, string> = new Map<string, string>();
-    statusMap.set('ACTIVE', 'Открыта');
-    statusMap.set('ON_HOLD', 'Временно приостановлена');
-    statusMap.set('CLOSED', 'Закрыта');
-    statusMap.set('Открыта', 'ACTIVE');
-    statusMap.set('Временно приостановлена', 'ON_HOLD');
-    statusMap.set('Закрыта', 'CLOSED');
-    return statusMap;
-  }
-
-  public static get userStatusMap(): Map<string, string> {
-    let statusMap: Map<string, string> = new Map<string, string>();
-    statusMap.set('ACTIVE', 'Активен');
-    statusMap.set('BANNED', 'Заблокирован');
-    statusMap.set('CONFIRMATION', 'Подтверждение');
-    statusMap.set('Активен', 'ACTIVE');
-    statusMap.set('Заблокирован', 'BANNED');
-    statusMap.set('Подтверждение', 'CONFIRMATION');
-    return statusMap;
-  }
-
-  public static get userRoleMap(): Map<string, string> {
-    let statusMap: Map<string, string> = new Map<string, string>();
-    statusMap.set('MEMBER', 'Участник');
-    statusMap.set('MODERATOR', 'Модератор');
-    statusMap.set('ADMIN', 'Админ');
-    statusMap.set('REVIEWER', 'Рецензент');
-    statusMap.set('Участник', 'MEMBER');
-    statusMap.set('Модератор', 'MODERATOR');
-    statusMap.set('Админ', 'ADMIN');
-    statusMap.set('Рецензент', 'REVIEWER');
-    return statusMap;
-  }
-}
+export const userRoleMap: Map<string, string> = new Map<string, string>([
+  ['MEMBER', 'Участник'],
+  ['MODERATOR', 'Модератор'],
+  ['ADMIN', 'Админ'],
+  ['REVIEWER', 'Рецензент'],
+  ['Участник', 'MEMBER'],
+  ['Модератор', 'MODERATOR'],
+  ['Админ', 'ADMIN'],
+  ['Рецензент', 'REVIEWER']
+])

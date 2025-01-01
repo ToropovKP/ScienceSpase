@@ -13,6 +13,6 @@ export class UtilsService {
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 }

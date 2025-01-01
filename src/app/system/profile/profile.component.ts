@@ -37,13 +37,13 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return email != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -68,8 +68,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       telegram: new FormControl('',),
       password: new FormControl('',),
     })
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -102,11 +100,11 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
 
   isModerator(): boolean {
-    return this.role == 'MODERATOR' || this.isAdmin();
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   allowToChange(): boolean {
@@ -114,7 +112,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   showButtonsToChange(): boolean {
-    return String(this.currentUser.id) == this.profileUserId;
+    return String(this.currentUser.id) === this.profileUserId;
   }
 
   changeRole(role: string) {

@@ -5,25 +5,26 @@ import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
-import { HttpResponse } from "@angular/common/http";
+import {HttpResponse} from "@angular/common/http";
 import {Commentary} from "../shared/model/commentary";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
-import {AppConstants} from "../../app.constants";
 import {AlertService} from "../shared/services/alert.service";
 import {Conference} from "../shared/model/conference";
 import {ReviewDto} from "../shared/dto/review.dto";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
+import {DateService} from "../shared/services/date.service";
 
 @Component({
-    selector: 'app-one-conference',
-    templateUrl: './one-job.component.html',
-    styleUrls: ['./one-job.component.css'],
-    imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  selector: 'app-one-conference',
+  templateUrl: './one-job.component.html',
+  styleUrls: ['./one-job.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class OneJobComponent implements OnInit, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly DateService = DateService;
+
   reviewsMarks = [1, 2, 3, 4, 5];
   model: Map<string, number> = new Map<string, number>()
 
@@ -51,13 +52,13 @@ export class OneJobComponent implements OnInit, AfterViewInit {
     let email: string | null = sessionStorage.getItem("email");
     let role: string | null = sessionStorage.getItem("role");
 
-    if (email != null) {
+    if (email !== null) {
       this.email = email;
       this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return email != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -89,8 +90,6 @@ export class OneJobComponent implements OnInit, AfterViewInit {
     this.formReview = this.formBuilder.group({
       text: new FormControl('',),
     })
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -144,19 +143,19 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   isUserJob(): boolean {
-    return this.currentJob.userId == this.currentUser.id
+    return this.currentJob.userId === this.currentUser.id
   }
 
   isModerator(): boolean {
-    return this.role == 'MODERATOR' || this.isAdmin();
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
   isAdmin(): boolean {
-    return this.role == 'ADMIN';
+    return this.role === 'ADMIN';
   }
 
   isReviewer(): boolean {
-    return this.role == 'REVIEWER';
+    return this.role === 'REVIEWER';
   }
 
   updateMark(tag: string, mark: number) {
