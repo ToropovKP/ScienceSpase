@@ -99,8 +99,8 @@
             <div *ngIf="!isReviewer()"  class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Файлы </label>
-                <div *ngFor="let file of this.currentJob.fileName" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
-                  <a (click)="downloadFile(file)" class="bg-white form-control section-text text-black">{{ file }}</a>
+                <div *ngFor="let file of this.currentJob.files" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
+                  <a (click)="downloadFile(file.uuid)" class="bg-white form-control section-text text-black">{{ file.originalName }}</a>
                 </div>
               </div>
             </div>

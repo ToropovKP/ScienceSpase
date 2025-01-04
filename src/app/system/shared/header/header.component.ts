@@ -6,12 +6,17 @@ import {HttpService} from "../services/http.service";
 import {AlertService} from "../services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
+import {IftaLabelModule} from "primeng/iftalabel";
+import {InputTextModule} from "primeng/inputtext";
+import {PasswordModule} from "primeng/password";
+import {ButtonModule} from "primeng/button";
 
 @Component({
-    selector: 'app-header',
-    templateUrl: 'header.component.html',
-    styleUrls: ['header.component.css'],
-    imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective]
+  selector: 'app-header',
+  templateUrl: 'header.component.html',
+  styleUrls: ['header.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective,
+    IftaLabelModule, InputTextModule, PasswordModule, ButtonModule]
 })
 export class HeaderComponent implements OnInit {
 
@@ -68,7 +73,10 @@ export class HeaderComponent implements OnInit {
     this.userBlockedReg = false;
   }
 
+  loading: boolean = false
+
   login(): void {
+    this.loading = true;
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
@@ -84,9 +92,11 @@ export class HeaderComponent implements OnInit {
         //todo убрать и заменить на вызов апи в других местах
         sessionStorage.setItem("user_info", JSON.stringify(data));
       });
+      this.loading = false;
       this.loginForm.reset();
       this.router.navigate(["/conferences"]);
     }).catch((error) => {
+      this.loading = false;
       if (error.error['code'] === 'UNAUTHORIZED') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;

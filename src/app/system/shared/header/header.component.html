@@ -43,19 +43,30 @@
 
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="loginForm">
-          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}">
-            <input type="email" class="form-control rounded-3" formControlName="email" id="floatingInput">
-            <label for="floatingInput">Email <span style="color: red;">*</span></label>
-          </div>
-          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}">
-            <input type="password" class="form-control rounded-3" formControlName="password" id="floatingPassword">
-            <label for="floatingPassword">Пароль <span style="color: red;">*</span></label>
-          </div>
+
+          <p-iftalabel>
+            <input pInputText id="email" formControlName="email" autocomplete="off" class="w-100 mb-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" />
+            <label for="email">Email <span style="color: red;">*</span></label>
+          </p-iftalabel>
+
+          <p-iftalabel>
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password" inputId="password" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
+            <label for="password">Пароль <span style="color: red;">*</span></label>
+          </p-iftalabel>
+<!--          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}">-->
+<!--            <input type="email" class="form-control rounded-3" formControlName="email" id="floatingInput">-->
+<!--            <label for="floatingInput">Email <span style="color: red;">*</span></label>-->
+<!--          </div>-->
+<!--          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}">-->
+<!--            <input type="password" class="form-control rounded-3" formControlName="password" id="floatingPassword">-->
+<!--            <label for="floatingPassword">Пароль <span style="color: red;">*</span></label>-->
+<!--          </div>-->
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
             <span *ngIf="userBlockedLogin">Пользователь заблокирован</span>
           </div>
-          <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>
+          <p-button class="w-100 btn-login" label="Вход" type="submit" [fluid]="true" [loading]="loading" (click)="login()" [disabled]="loginForm.invalid"/>
+<!--          <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>-->
         </form>
       </div>
     </div>

@@ -5,10 +5,10 @@ import {HeaderComponent} from "./system/shared/header/header.component";
 import {AlertModule} from "./system/shared/alert/alert.module";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
-    imports: [CommonModule, RouterModule, RouterOutlet, HeaderComponent, AlertModule]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  imports: [CommonModule, RouterModule, RouterOutlet, HeaderComponent, AlertModule]
 })
 export class AppComponent {
 
