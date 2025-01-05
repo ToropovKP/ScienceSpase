@@ -1,6 +1,7 @@
 import {Commentary} from "./commentary";
 import {Author} from "./author";
 import {FileMetadata} from "./file.metadata";
+import {Review} from "./review";
 
 export class Job {
   private _id!: bigint;
@@ -16,6 +17,7 @@ export class Job {
   private _comments!: Commentary[];
   private _dateTime!: Date;
   private _files!: FileMetadata[];
+  private _reviews!: Review[];
 
   constructor() {
   }
@@ -122,5 +124,13 @@ export class Job {
 
   set files(value: FileMetadata[]) {
     this._files = value;
+  }
+
+  get reviews(): Review[] {
+    return this._reviews;
+  }
+
+  set reviews(value: Review[]) {
+    this._reviews = value;
   }
 }

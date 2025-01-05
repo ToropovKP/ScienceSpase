@@ -105,7 +105,7 @@
               </div>
             </div>
 
-            <div [formGroup]="formReview" *ngIf="isReviewer()" class="row" style="margin-left: 0px;">
+            <div [formGroup]="formReview" *ngIf="isReviewer() && !existReviewByCurrentUser" class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
 
@@ -124,6 +124,28 @@
                   <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
                   <textarea type="text" class="bg-white form-control section-area text-black" formControlName="text"
                             id="floatingInput"></textarea>
+                </div>
+              </div>
+
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white"
+                      (click)="saveReview()">Сохранить</button>
+            </div>
+
+            <div [formGroup]="formReview" *ngIf="isReviewer() && existReviewByCurrentUser" class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
+
+                <div *ngFor="let tag of this.currentConference.tags" class="jobs-radio-group" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput" style="padding-bottom: 20px; ">{{ tag + ': ' + this.reviewByCurrentUser.reviews[tag] }}</label>
+                </div>
+
+              </div>
+
+              <div class="row" style="margin-left: 0px;">
+                <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
+                  <textarea readonly type="text" class="bg-white form-control section-area text-black" formControlName="text"
+                            id="floatingInput">{{ this.reviewByCurrentUser.text }}</textarea>
                 </div>
               </div>
 

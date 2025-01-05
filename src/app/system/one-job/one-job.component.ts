@@ -14,6 +14,7 @@ import {ReviewDto} from "../shared/dto/review.dto";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
+import {Review} from "../shared/model/review";
 
 @Component({
   selector: 'app-one-conference',
@@ -26,7 +27,7 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   protected readonly DateService = DateService;
 
   reviewsMarks = [1, 2, 3, 4, 5];
-  model: Map<string, number> = new Map<string, number>()
+  model: Record<string, number> = {}
 
   currentJobId!: string;
   currentJob: Job = new Job();
@@ -40,6 +41,9 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   email!: string;
   role!: string;
   currentUser!: User;
+
+  existReviewByCurrentUser: boolean = false;
+  reviewByCurrentUser!: Review;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -100,6 +104,16 @@ export class OneJobComponent implements OnInit, AfterViewInit {
         this.currentJob = data
         this.updateUserInfo()
 
+        if (this.isReviewer()) {
+          let find = this.currentJob.reviews.find(review => review.userId === this.currentUser.id);
+          if (find) {
+            this.existReviewByCurrentUser = true;
+            this.reviewByCurrentUser = find;
+            this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
+            console.log(find)
+          }
+        }
+
         this.httpService.getConference(String(data.conferenceId)).then((conf) => {
           this.currentConference = conf;
         });
@@ -159,16 +173,22 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   updateMark(tag: string, mark: number) {
-    this.model.set(tag, mark);
+    this.model[tag] = mark;
   }
 
   saveReview() {
     console.log(this.model)
     let request: ReviewDto = new ReviewDto()
-    request.setReviews(Object.fromEntries(this.model))
-    request.setReviewText(this.formReview.value.text)
+    request.setReviews(this.model)
+    request.setText(this.formReview.value.text)
     console.log(JSON.stringify(request))
     this.httpService.reviewJob(this.currentJobId, request).then((data) => {
+      this.existReviewByCurrentUser = true
+      let review: Review = new Review();
+      review.reviews = request.getReviews();
+      review.text = request.getText();
+      review.userId = this.currentUser.id;
+      this.reviewByCurrentUser = review;
     })
   }
 

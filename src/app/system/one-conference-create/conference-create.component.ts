@@ -117,7 +117,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               this.formCreateConference.controls['description'].setValue(this.currentConference.description)
               this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
               this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
+              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
               this.currentStatus = this.currentConference.status
               this.createControlsForSections()
               this.createControlsForTags()
@@ -142,7 +142,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.formCreateConference.controls['description'].setValue(this.currentConference.description)
             this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
             this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
+            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
             this.currentStatus = this.currentConference.status
 
             this.createControlsForSections()
@@ -423,7 +423,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   updateStatus(event: Event) {
     let statusName: string = (event.target as HTMLOptionElement).value;
-    let status = conferenceStatusMap.get(statusName);
+    let status = conferenceStatusMap[statusName];
     this.currentStatus = status ? status : 'ON_HOLD';
   }
 
