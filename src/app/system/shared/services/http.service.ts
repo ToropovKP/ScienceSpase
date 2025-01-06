@@ -9,7 +9,7 @@ import {UploadResponse} from "../model/upload.response";
 import {UserBase} from "../model/user.base";
 import {UserBaseDto} from "../dto/user.base.dto";
 import {LoginResponse} from "../model/login.response";
-import {Commentary} from "../model/commentary";
+import {Comment} from "../model/comment";
 import {ReviewDto} from "../dto/review.dto";
 import {baseUrl} from "../../../app.constants";
 
@@ -124,14 +124,9 @@ export class HttpService {
     return await firstValueFrom(this.http.get<Job[]>(`${baseUrl}/api/v1/member/jobs/${id}`, this.httpOptions));
   }
 
-  async getJobComments(id: string): Promise<Commentary[]> {
+  async getJobComments(id: string): Promise<Comment[]> {
     this.updateHeaders();
-    return await firstValueFrom(this.http.get<Commentary[]>(`${baseUrl}/api/v1/member/comments/${id}`, this.httpOptions));
-  }
-
-  async createComment(request: object): Promise<Commentary> {
-    this.updateHeaders();
-    return await firstValueFrom(this.http.post<Commentary>(`${baseUrl}/api/v1/member/comments/create`, JSON.stringify(request), this.httpOptions));
+    return await firstValueFrom(this.http.get<Comment[]>(`${baseUrl}/api/v1/member/comments/${id}`, this.httpOptions));
   }
 
   async getUserOneJob(id: string): Promise<Job> {

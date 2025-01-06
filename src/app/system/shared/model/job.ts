@@ -1,4 +1,3 @@
-import {Commentary} from "./commentary";
 import {Author} from "./author";
 import {FileMetadata} from "./file.metadata";
 import {Review} from "./review";
@@ -14,10 +13,9 @@ export class Job {
   private _userId!: bigint;
   private _conferenceId!: bigint;
   private _sectionId!: bigint;
-  private _comments!: Commentary[];
-  private _dateTime!: Date;
   private _files!: FileMetadata[];
   private _reviews!: Review[];
+  private _dateTime!: Date;
 
   constructor() {
   }
@@ -102,22 +100,6 @@ export class Job {
     this._sectionId = value;
   }
 
-  get comments(): Commentary[] {
-    return this._comments;
-  }
-
-  set comments(value: Commentary[]) {
-    this._comments = value;
-  }
-
-  get dateTime(): Date {
-    return this._dateTime;
-  }
-
-  set dateTime(value: Date) {
-    this._dateTime = value;
-  }
-
   get files(): FileMetadata[] {
     return this._files;
   }
@@ -132,5 +114,13 @@ export class Job {
 
   set reviews(value: Review[]) {
     this._reviews = value;
+  }
+
+  get dateTime(): Date {
+    return this._dateTime;
+  }
+
+  set dateTime(value: Date) {
+    this._dateTime = value;
   }
 }
