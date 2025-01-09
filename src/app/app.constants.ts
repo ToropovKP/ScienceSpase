@@ -17,9 +17,6 @@ export const userStatusMap: Record<string, string> = {
   'ACTIVE': 'Активен',
   'BANNED': 'Заблокирован',
   'CONFIRMATION': 'Подтверждение',
-  'Активен': 'ACTIVE',
-  'Заблокирован': 'BANNED',
-  'Подтверждение': 'CONFIRMATION'
 }
 
 export const userRoleMap: Record<string, string> = {
@@ -27,8 +24,4 @@ export const userRoleMap: Record<string, string> = {
   'MODERATOR': 'Модератор',
   'ADMIN': 'Админ',
   'REVIEWER': 'Рецензент',
-  'Участник': 'MEMBER',
-  'Модератор': 'MODERATOR',
-  'Админ': 'ADMIN',
-  'Рецензент': 'REVIEWER'
 }
