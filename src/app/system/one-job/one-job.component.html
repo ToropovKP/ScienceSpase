@@ -99,13 +99,13 @@
             <div *ngIf="!isReviewer()"  class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Файлы </label>
-                <div *ngFor="let file of this.currentJob.fileName" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
-                  <a (click)="downloadFile(file)" class="bg-white form-control section-text text-black">{{ file }}</a>
+                <div *ngFor="let file of this.currentJob.files" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
+                  <a (click)="downloadFile(file.uuid)" class="bg-white form-control section-text text-black">{{ file.originalName }}</a>
                 </div>
               </div>
             </div>
 
-            <div [formGroup]="formReview" *ngIf="isReviewer()" class="row" style="margin-left: 0px;">
+            <div [formGroup]="formReview" *ngIf="isReviewer() && !existReviewByCurrentUser" class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
 
@@ -131,6 +131,28 @@
                       (click)="saveReview()">Сохранить</button>
             </div>
 
+            <div [formGroup]="formReview" *ngIf="isReviewer() && existReviewByCurrentUser" class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
+
+                <div *ngFor="let tag of this.currentConference.tags" class="jobs-radio-group" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput" style="padding-bottom: 20px; ">{{ tag + ': ' + this.reviewByCurrentUser.reviews[tag] }}</label>
+                </div>
+
+              </div>
+
+              <div class="row" style="margin-left: 0px;">
+                <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
+                  <textarea readonly type="text" class="bg-white form-control section-area text-black" formControlName="text"
+                            id="floatingInput">{{ this.reviewByCurrentUser.text }}</textarea>
+                </div>
+              </div>
+
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white"
+                      (click)="saveReview()">Сохранить</button>
+            </div>
+
 
             <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
@@ -145,14 +167,14 @@
                           <h5 class="mb-0">Чат</h5>
                         </div>
 
-                        <div class="card-body" data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px; overflow: auto;">
+                        <div id="chat-box" class="card-body" data-mdb-perfect-scrollbar="true" style="scroll-behavior: smooth; position: relative; height: 400px; overflow: auto;">
 
                           <div *ngFor="let comment of this.currentComments">
-                            <div *ngIf="comment.user.id != this.currentUser.id; then ifThen; else ifElse">
+                            <div *ngIf="comment.userId !== this.currentUser.id; then ifThen; else ifElse">
                             </div>
                             <ng-template #ifThen>
                               <div class="d-flex justify-content-start">
-                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }},</p><pre> </pre>
+                                <p class="mb-1">{{ comment.firstName + ' ' + comment.lastName }},</p><pre> </pre>
                                 <p class="mb-1 text-muted">{{ DateService.formatDateTime(comment.dateTime) }}</p>
                               </div>
                               <div class="d-flex flex-row justify-content-start">
@@ -167,9 +189,9 @@
                             <ng-template #ifElse>
                               <div class="d-flex justify-content-end">
                                 <p class="mb-1 text-muted">{{ DateService.formatDateTime(comment.dateTime) }},</p><pre> </pre>
-                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }}</p>
+                                <p class="mb-1">{{ comment.firstName + ' ' + comment.lastName }}</p>
                               </div>
-                              <div class="d-flex flex-row justify-content-end mb-4 pt-1">
+                              <div class="d-flex flex-row justify-content-end">
                                 <div>
                                   <p class="p-2 ms-3 mb-3 text-white rounded-3" style="background-color: #8C99B9;">
                                     {{ comment.message }}
@@ -184,7 +206,7 @@
                           <div class="input-group mb-0">
                             <input type="text" class="form-control" placeholder="Type message"
                               aria-label="Recipient's username" aria-describedby="button-addon2" formControlName="message" />
-                            <button (click)="createComment()" data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
+                            <button (click)="createComment()" [disabled]="formComment.invalid" data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
                               Отправить
                             </button>
                           </div>

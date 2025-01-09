@@ -47,7 +47,7 @@
             </div>
             <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
 <!--              <div class="konf-description text-black">Описание: {{ conf.description }}</div>-->
-              <div class="konf-status text-black" >Статус: <span [style.color]="conf.status === 'ACTIVE' ? 'green' : conf.status === 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap.get(conf.status) }}</span></div>
+              <div class="konf-status text-black" >Статус: <span [style.color]="conf.status === 'ACTIVE' ? 'green' : conf.status === 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[conf.status] }}</span></div>
               <div class="konf-timeDate text-black align-text-center">{{ DateService.formatDate(conf.startDate) }} - {{ DateService.formatDate(conf.endDate) }}</div>
               <div class="row justify-content-end">
                 <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openConf(conf.id)">Открыть</button>

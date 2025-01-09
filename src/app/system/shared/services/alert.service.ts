@@ -25,8 +25,8 @@ export class AlertService {
       "description": description,
     }
     const message = `${title}:\n\n`
-      + `Код ошибки: ${error.status}\n\n`
-      + JSON.stringify(messageJson, undefined, 2)
+        + `Код ошибки: ${error.status}\n\n`
+        + JSON.stringify(messageJson, undefined, 2)
     this.create(message);
   }
 

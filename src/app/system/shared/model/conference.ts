@@ -96,7 +96,4 @@ export class Conference {
   set endDate(value: Date) {
     this._endDate = value;
   }
-
-
 }
-

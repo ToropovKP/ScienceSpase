@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {ReactiveFormsModule} from "@angular/forms";
+import {Component, OnInit} from '@angular/core';
 import {CommonModule} from "@angular/common";
 
 @Component({
@@ -11,7 +10,8 @@ import {CommonModule} from "@angular/common";
 })
 export class NotFoundComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }

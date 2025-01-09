@@ -249,72 +249,66 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   createJob() {
-    const formData: FormData = new FormData();
-    this.files.forEach((file) => {
-      formData.append("files", file);
-    })
-    formData.append("conferenceId", String(this.currentConference?.id));
-    formData.append("sectionId", String(this.currentSection?.id));
-    formData.append("fullName", this.currentUser.fullName);
+    let requestUser = {
+      "id": this.currentUser.id,
+      "phone": this.formAddJob.value.phone,
+      "academicDegree": this.formAddJob.value.academicDegree,
+      "academicTitle": this.formAddJob.value.academicTitle,
+      "orcId": this.formAddJob.value.orcId,
+      "rincId": this.formAddJob.value.rincId,
+      "organization": this.formAddJob.value.organization,
+    }
 
-    this.httpService.uploadFiles(formData).then((data) => {
-      if (data[0].size !== null) {
-        let fileNames = data.map((e) => e.fileName);
-        let requestUser = {
-          "id": this.currentUser.id,
-          "phone": this.formAddJob.value.phone,
-          "academicDegree": this.formAddJob.value.academicDegree,
-          "academicTitle": this.formAddJob.value.academicTitle,
-          "orcId": this.formAddJob.value.orcId,
-          "rincId": this.formAddJob.value.rincId,
-          "organization": this.formAddJob.value.organization,
-        }
+    this.httpService.updateUserInfoByJob(requestUser).then((data) => {
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
+    });
 
-        const authorsDtos: AuthorDto[] = [];
-        for (let i = 0; i < this.authors.length; i++) {
-          let author = this.authors.at(i);
-          let fullName = author.get('fullName')?.value;
-          let organization = author.get('organization')?.value;
-          let email = author.get('email')?.value;
-          if (fullName !== '') {
-            const authorDto = new AuthorDto();
-            authorDto.setFullName(fullName);
-            authorDto.setOrganization(organization);
-            authorDto.setEmail(email);
-            authorsDtos.push(authorDto);
-          }
-        }
-        let request = {
-          "title": this.formAddJob.value.title,
-          "coAuthors": authorsDtos,
-          "description": this.formAddJob.value.description,
-          "userName": this.currentUser.firstName,
-          "userId": this.currentUser.id,
-          "sectionId": this.currentSection?.id,
-          "sectionTitle": this.currentSection?.title,
-          "conferenceId": this.currentConference?.id,
-          "conferenceTitle": this.currentConference?.title,
-          "fileName": fileNames
-        };
-
-        this.httpService.updateUserInfoByJob(requestUser).then((data) => {
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        });
-
-        this.httpService.createJob(request).then((data) => {
-          this.currentUserJobId = String(data.id)
-          this.toPage(`/conference/${this.currentConference.id}`)
-          this.addingJob = false;
-          this.formAddJob.reset()
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        });
+    const authorsDtos: AuthorDto[] = [];
+    for (let i = 0; i < this.authors.length; i++) {
+      let author = this.authors.at(i);
+      let fullName = author.get('fullName')?.value;
+      let organization = author.get('organization')?.value;
+      let email = author.get('email')?.value;
+      if (fullName !== '') {
+        const authorDto = new AuthorDto();
+        authorDto.setFullName(fullName);
+        authorDto.setOrganization(organization);
+        authorDto.setEmail(email);
+        authorsDtos.push(authorDto);
       }
+    }
+    let request = {
+      "title": this.formAddJob.value.title,
+      "coAuthors": authorsDtos,
+      "description": this.formAddJob.value.description,
+      "userName": this.currentUser.firstName,
+      "userId": this.currentUser.id,
+      "sectionId": this.currentSection?.id,
+      "sectionTitle": this.currentSection?.title,
+      "conferenceId": this.currentConference?.id,
+      "conferenceTitle": this.currentConference?.title
+    };
+    this.httpService.createJob(request).then((data) => {
+      this.currentUserJobId = String(data.id)
+
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+      formData.append("jobId", String(data?.id));
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.toPage(`/conference/${this.currentConference.id}`)
+        this.addingJob = false;
+        this.formAddJob.reset()
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
+      });
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';

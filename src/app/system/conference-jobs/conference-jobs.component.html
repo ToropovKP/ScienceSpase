@@ -20,7 +20,7 @@
           <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{ DateService.formatDate(this.currentConference.endDate) }}
           </div>
           <div class="col-4 conf-info-text text-black ">
-            Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap.get(this.currentConference.status) }}</span>
+            Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[this.currentConference.status] }}</span>
           </div>
           <div *ngIf="!isReviewer()" class="col-4 conf-info-text text-black text-center"><span>Количество участников: {{ this.countUsers }}</span></div>
           <div *ngIf="!isReviewer()" class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a (click)="downloadFilesConference()">Скачать

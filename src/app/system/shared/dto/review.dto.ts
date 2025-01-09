@@ -1,23 +1,23 @@
 export class ReviewDto {
-  private reviews!: object;
-  private reviewText!: string;
+  private reviews!: Record<string, number>;
+  private text!: string;
 
   constructor() {
   }
 
-  getReviews(): object {
+  getReviews(): Record<string, number> {
     return this.reviews;
   }
 
-  setReviews(value: object) {
+  setReviews(value: Record<string, number>) {
     this.reviews = value;
   }
 
-  getReviewText(): string {
-    return this.reviewText;
+  getText(): string {
+    return this.text;
   }
 
-  setReviewText(value: string) {
-    this.reviewText = value;
+  setText(value: string) {
+    this.text = value;
   }
 }

@@ -117,7 +117,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               this.formCreateConference.controls['description'].setValue(this.currentConference.description)
               this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
               this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
+              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
               this.currentStatus = this.currentConference.status
               this.createControlsForSections()
               this.createControlsForTags()
@@ -142,7 +142,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
             this.formCreateConference.controls['description'].setValue(this.currentConference.description)
             this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
             this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap.get(this.currentConference.status))
+            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
             this.currentStatus = this.currentConference.status
 
             this.createControlsForSections()
@@ -158,7 +158,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   createControlsForSections() {
-    this.sections = this.currentConference.sections.sort((a, b) => a.id > b.id ? 1 : 0)
+    this.sections = this.currentConference.sections.sort((a, b) => Number(a.id) - Number(b.id))
     this.updateControlsForSections()
   }
 
@@ -247,7 +247,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.sections.forEach((e) => {
       if (this.currentConference) {
         let find = this.currentConference.sections.find((sec) => sec.id === e.id);
-        if (find) {
+        if (!find) {
           // @ts-ignore
           e.id = Number(0)
         }
@@ -302,7 +302,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     let sectionsDto: SectionDto[] = []
     this.sections.forEach((e) => {
       let find = this.currentConference.sections.find((sec) => sec.id === e.id);
-      if (find) {
+      if (!find) {
         // @ts-ignore
         e.id = Number(0)
       }
@@ -423,7 +423,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   updateStatus(event: Event) {
     let statusName: string = (event.target as HTMLOptionElement).value;
-    let status = conferenceStatusMap.get(statusName);
+    let status = conferenceStatusMap[statusName];
     this.currentStatus = status ? status : 'ON_HOLD';
   }
 
