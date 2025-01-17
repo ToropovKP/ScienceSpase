@@ -1,8 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {LoginResponse} from "../shared/model/login.response";
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
-import {AppConstants} from "../../app.module";
 import {Section} from "../shared/model/section";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
@@ -11,15 +9,22 @@ import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
+import {CommonModule} from "@angular/common";
+import {conferenceStatusMap} from "../../app.constants";
+import {NgxMaskDirective} from "ngx-mask";
+import {DateService} from "../shared/services/date.service";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
-  styleUrls: ['./conference.component.css']
+  styleUrls: ['./conference.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ConferenceComponent implements OnInit, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly DateService = DateService;
+
   sections: Section[] = []
   currentSection!: Section | undefined;
 
@@ -29,11 +34,10 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   currentAdmins!: UserBase[];
 
   formAddJob!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
   currentUserJobId!: string;
-
-  statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
 
   addingJob: boolean = false;
 
@@ -45,14 +49,15 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+    if (email) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -77,8 +82,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       section: new FormControl('',),
       files: new FormControl('', [Validators.required]),
     })
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -89,7 +92,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
         this.currentConference = data;
         this.currentAdmins = this.currentConference.admins;
 
-        if (this.isAdminAbsolute()) {
+        if (this.isModerator()) {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
           }).catch(error => {
@@ -118,7 +121,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   updateUserInfo() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+    this.httpService.getUserInfo(this.email).then((data) => {
       this.currentUser = data
       this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
       this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
@@ -129,7 +132,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
       this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
         data.forEach((job) => {
-          if (String(job.conferenceId) == this.currentConferenceId) {
+          if (String(job.conferenceId) === this.currentConferenceId) {
             this.currentUserJobId = String(job.id)
             return
           }
@@ -146,23 +149,27 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     })
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
   }
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.isSuperAdmin();
+  isModerator(): boolean {
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
-  isAdminConference(): boolean {
-    if (this.isSuperAdmin()) {
+  isModeratorOfThisConference(): boolean {
+    if (this.isAdmin()) {
       return true;
     }
-    if (this.currentAdmins != undefined && this.currentAdmins.length != 0) {
-      let find = this.currentAdmins.find((admin) => admin.id == this.currentUser.id);
-      return this.loggedUser.role == 'ADMIN' && find != undefined
+    if (this.currentAdmins !== undefined && this.currentAdmins.length !== 0) {
+      let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
+      return this.role === 'MODERATOR' && find !== undefined
     }
     return false;
+  }
+
+  isReviewer(): boolean {
+    return this.role === 'REVIEWER'
   }
 
   get authors(): FormArray {
@@ -179,11 +186,11 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   disableAuthor(index: number) {
     const author = this.authors.at(index);
-    if (author.get('fullName')?.value != '') {
+    if (author.get('fullName')?.value !== '') {
       author.get('fullName')?.disable();
       author.get('organization')?.disable();
       author.get('email')?.disable();
-      if (this.authors.at(this.authors.length - 1).get('fullName')?.value != '' && this.authors.value.length < 5) {
+      if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
         this.authors.push(this.createAuthor());
       }
     }
@@ -198,7 +205,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
   removeAuthor(index: number) {
     this.authors.removeAt(index);
-    if (this.authors.value.length == 4) {
+    if (this.authors.value.length === 4) {
       this.authors.push(this.createAuthor());
     }
   }
@@ -229,10 +236,10 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     this.files = []
     let files = (event.target as HTMLInputElement).files;
 
-    if (files != null) {
+    if (files !== null) {
       for (let i = 0; i < files.length; i++) {
         let file = files.item(i);
-        if (file != null) {
+        if (file !== null) {
           this.files.push(file);
         }
       }
@@ -242,72 +249,66 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   createJob() {
-    const formData: FormData = new FormData();
-    this.files.forEach((file) => {
-      formData.append("files", file);
-    })
-    formData.append("conferenceId", String(this.currentConference?.id));
-    formData.append("sectionId", String(this.currentSection?.id));
-    formData.append("fullName", this.currentUser.fullName);
+    let requestUser = {
+      "id": this.currentUser.id,
+      "phone": this.formAddJob.value.phone,
+      "academicDegree": this.formAddJob.value.academicDegree,
+      "academicTitle": this.formAddJob.value.academicTitle,
+      "orcId": this.formAddJob.value.orcId,
+      "rincId": this.formAddJob.value.rincId,
+      "organization": this.formAddJob.value.organization,
+    }
 
-    this.httpService.uploadFiles(formData).then((data) => {
-      if (data[0].size != null) {
-        let fileNames = data.map((e) => e.fileName);
-        let requestUser = {
-          "id": this.currentUser.id,
-          "phone": this.formAddJob.value.phone,
-          "academicDegree": this.formAddJob.value.academicDegree,
-          "academicTitle": this.formAddJob.value.academicTitle,
-          "orcId": this.formAddJob.value.orcId,
-          "rincId": this.formAddJob.value.rincId,
-          "organization": this.formAddJob.value.organization,
-        }
+    this.httpService.updateUserInfoByJob(requestUser).then((data) => {
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
+    });
 
-        const authorsDtos: AuthorDto[] = [];
-        for (let i = 0; i < this.authors.length; i++) {
-          let author = this.authors.at(i);
-          let fullName = author.get('fullName')?.value;
-          let organization = author.get('organization')?.value;
-          let email = author.get('email')?.value;
-          if (fullName != '') {
-            const authorDto = new AuthorDto();
-            authorDto.setFullName(fullName);
-            authorDto.setOrganization(organization);
-            authorDto.setEmail(email);
-            authorsDtos.push(authorDto);
-          }
-        }
-        let request = {
-          "title": this.formAddJob.value.title,
-          "coAuthors": authorsDtos,
-          "description": this.formAddJob.value.description,
-          "userName": this.currentUser.firstName,
-          "userId": this.currentUser.id,
-          "sectionId": this.currentSection?.id,
-          "sectionTitle": this.currentSection?.title,
-          "conferenceId": this.currentConference?.id,
-          "conferenceTitle": this.currentConference?.title,
-          "fileName": fileNames
-        };
-
-        this.httpService.updateUserInfoByJob(requestUser).then((data) => {
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        });
-
-        this.httpService.createJob(request).then((data) => {
-          this.currentUserJobId = String(data.id)
-          this.toPage(`/conference/${this.currentConference.id}`)
-          this.addingJob = false;
-          this.formAddJob.reset()
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        });
+    const authorsDtos: AuthorDto[] = [];
+    for (let i = 0; i < this.authors.length; i++) {
+      let author = this.authors.at(i);
+      let fullName = author.get('fullName')?.value;
+      let organization = author.get('organization')?.value;
+      let email = author.get('email')?.value;
+      if (fullName !== '') {
+        const authorDto = new AuthorDto();
+        authorDto.setFullName(fullName);
+        authorDto.setOrganization(organization);
+        authorDto.setEmail(email);
+        authorsDtos.push(authorDto);
       }
+    }
+    let request = {
+      "title": this.formAddJob.value.title,
+      "coAuthors": authorsDtos,
+      "description": this.formAddJob.value.description,
+      "userName": this.currentUser.firstName,
+      "userId": this.currentUser.id,
+      "sectionId": this.currentSection?.id,
+      "sectionTitle": this.currentSection?.title,
+      "conferenceId": this.currentConference?.id,
+      "conferenceTitle": this.currentConference?.title
+    };
+    this.httpService.createJob(request).then((data) => {
+      this.currentUserJobId = String(data.id)
+
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+      formData.append("jobId", String(data?.id));
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.toPage(`/conference/${this.currentConference.id}`)
+        this.addingJob = false;
+        this.formAddJob.reset()
+      }).catch(error => {
+        let title = "Возникла непредвиденная ошибка";
+        let description = 'Ошибка на стороне сервера';
+        this.alertService.constructErrorAlert(error, title, description);
+      });
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
@@ -321,7 +322,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   getLeadersString(leaders: UserBase[]) {
-    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName != '' ? " " + lead.middleName : '')).join("\n")
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join("\n")
   }
 
   toPage(link: string) {

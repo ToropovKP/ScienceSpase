@@ -1,26 +1,26 @@
 <section id="conference">
   <div class="container">
 
-    <div class="main">
+    <div *ngIf="profileUser !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-4">
           <div class="conf-name-adress text-black">
             Email: {{this.profileUser.email}}
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('ADMIN')">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('MODERATOR')">
             <a>Назначить администратором</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'ADMIN'" (click)="changeRole('MEMBER')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MODERATOR'" (click)="changeRole('MEMBER')">
             <a>Назначить участником</a>
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'SUPER_ADMIN'">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
             <a>Заблокировать</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'SUPER_ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
             <a>Разблокировать</a>
           </div>
         </div>
@@ -34,63 +34,63 @@
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Фамилия</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="lastName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="lastName"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Имя</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="firstName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="firstName"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text strong text-black" for="floatingInput">Отчество</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="middleName"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="middleName"
                        id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
                 <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                   <label class="second-text text-black" for="floatingInput">Телефон</label>
-                  <input [readonly]="allowToChange()" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
+                  <input [readonly]="!allowToChange()" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
                     id="floatingInput">
                 </div>
                 <div class="col-8" style="padding-left: 0px;">
                   <label class="second-text text-black" for="floatingInput">Организация</label>
-                  <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
+                  <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
                          id="floatingInput">
                 </div>
             </div>
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Пароль </label>
-                <input [readonly]="allowToChange()" type="password" class="bg-white form-control section-text text-black" formControlName="password"
+                <input [readonly]="!allowToChange()" type="password" class="bg-white form-control section-text text-black" formControlName="password"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Идентификатор ORCID </label>
-                <input [readonly]="allowToChange()" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
+                <input [readonly]="!allowToChange()" type="text" mask="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
-                <input [readonly]="allowToChange()" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
+                <input [readonly]="!allowToChange()" type="text" mask="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
                        id="floatingInput">
               </div>
             </div>
             <div class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Telegram </label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="telegram"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="telegram"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученая степень</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
                   id="floatingInput">
               </div>
               <div class="col-4" style="padding-left: 0px;">
                 <label class="second-text text-black" for="floatingInput">Ученое звание</label>
-                <input [readonly]="allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
+                <input [readonly]="!allowToChange()" type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
                   id="floatingInput">
               </div>
             </div>

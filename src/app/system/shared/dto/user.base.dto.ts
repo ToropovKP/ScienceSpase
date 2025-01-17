@@ -10,7 +10,8 @@ export class UserBaseDto {
   private role!: string;
   private status!: string;
 
-  constructor() {}
+  constructor() {
+  }
 
   createFromUser(user: User) {
     const base = new UserBaseDto()

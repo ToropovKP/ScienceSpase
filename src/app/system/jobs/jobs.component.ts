@@ -1,17 +1,18 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Job} from "../shared/model/job";
-import {LoginResponse} from "../shared/model/login.response";
 import {User} from "../shared/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
-  styleUrls: ['./jobs.component.css']
+  styleUrls: ['./jobs.component.css'],
+  imports: [CommonModule]
 })
 export class JobsComponent implements OnInit, AfterViewInit {
 
@@ -20,7 +21,8 @@ export class JobsComponent implements OnInit, AfterViewInit {
   currentConferenceId!: string;
   currentConference!: Conference;
   currentUser!: User;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -29,15 +31,16 @@ export class JobsComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email !== null) {
+      this.email = email;
+      this.role = role ? role : '';
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -50,18 +53,17 @@ export class JobsComponent implements OnInit, AfterViewInit {
     if (!this.checkLogin()) {
       this.router.navigate(['']);
     }
-    this.loadAllData()
   }
 
   loadAllData() {
     let user_info: string | null = sessionStorage.getItem("user_info");
-    this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+    this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     this.route.queryParams.pipe(map(e => e['conferenceId'])).subscribe(e => {
-      this.currentConferenceId = e;
 
+      this.currentConferenceId = e;
       this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
         this.jobs = data;
-        if (e != undefined) {
+        if (this.currentConferenceId !== undefined) {
           this.httpService.getConference(this.currentConferenceId).then((conf) => {
             this.currentConference = conf;
           }).catch(error => {
@@ -69,7 +71,7 @@ export class JobsComponent implements OnInit, AfterViewInit {
             let description = 'Ошибка на стороне сервера';
             this.alertService.constructErrorAlert(error, title, description);
           });
-          this.jobs = this.jobs.filter(job => job.conferenceId == e)
+          this.jobs = this.jobs.filter(job => String(job.conferenceId) === this.currentConferenceId)
         }
       }).catch(error => {
         let title = "Возникла непредвиденная ошибка";
@@ -79,12 +81,12 @@ export class JobsComponent implements OnInit, AfterViewInit {
     })
   }
 
-  isAdmin(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.isAdmin() || this.role === 'MODERATOR';
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
   }
 
   openJob(id: bigint) {

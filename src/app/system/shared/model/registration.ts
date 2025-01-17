@@ -17,7 +17,6 @@ export class Registration {
   set academicTitle(value: string) {
     this._academicTitle = value;
   }
-  
 
   get academicDegree(): string {
     return this._academicDegree;
@@ -26,7 +25,7 @@ export class Registration {
   set academicDegree(value: string) {
     this._academicDegree = value;
   }
-  
+
   get organization(): string {
     return this._organization;
   }

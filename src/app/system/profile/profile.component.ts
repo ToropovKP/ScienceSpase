@@ -1,21 +1,24 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
-import {LoginResponse} from "../shared/model/login.response";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrl: './profile.component.css',
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
 export class ProfileComponent implements OnInit, AfterViewInit {
 
   formProfile!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
@@ -30,14 +33,16 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+
+    if (email !== null) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
@@ -62,8 +67,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       telegram: new FormControl('',),
       password: new FormControl('',),
     })
-
-    this.loadAllData()
   }
 
   loadAllData() {
@@ -95,20 +98,20 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
   }
 
   allowToChange(): boolean {
-    return this.showButtonsToChange() && !this.editProfile;
+    return this.showButtonsToChange() && this.editProfile;
   }
 
   showButtonsToChange(): boolean {
-    return String(this.currentUser.id) == this.profileUserId;
+    return String(this.currentUser.id) === this.profileUserId;
   }
 
   changeRole(role: string) {

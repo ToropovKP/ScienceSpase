@@ -1,15 +1,22 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Router} from "@angular/router";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {LoginResponse} from "../model/login.response";
+import {Router, RouterModule} from "@angular/router";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {User} from "../model/user";
 import {HttpService} from "../services/http.service";
 import {AlertService} from "../services/alert.service";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
+import {IftaLabelModule} from "primeng/iftalabel";
+import {InputTextModule} from "primeng/inputtext";
+import {PasswordModule} from "primeng/password";
+import {ButtonModule} from "primeng/button";
 
 @Component({
   selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  templateUrl: 'header.component.html',
+  styleUrls: ['header.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective,
+    IftaLabelModule, InputTextModule, PasswordModule, ButtonModule]
 })
 export class HeaderComponent implements OnInit {
 
@@ -20,11 +27,10 @@ export class HeaderComponent implements OnInit {
   userBlockedReg: boolean = false;
   userExists: boolean = false;
 
+  role!: string;
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
   currentUser!: User;
-
-  loggedUser!: LoginResponse | null;
   loggedStatus: boolean = false;
 
   public showRegStatus!: User;
@@ -67,26 +73,34 @@ export class HeaderComponent implements OnInit {
     this.userBlockedReg = false;
   }
 
+  loading: boolean = false
+
   login(): void {
+    this.loading = true;
     let email: string = this.loginForm.value.email;
     let request = {"email": email, "password": this.loginForm.value.password};
     this.httpService.login(request).then((data) => {
       this.invalidLogin = false
       this.userBlockedLogin = false
       this.closeModalLogIn.nativeElement.click()
-      sessionStorage.setItem("user", JSON.stringify(data));
-      this.loggedUser = data;
-      this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+      sessionStorage.setItem("email", email);
+      sessionStorage.setItem("token", data.access_token);
+      sessionStorage.setItem("role", data.role);
+      this.role = data.role;
+      this.httpService.getUserInfo(email).then((data) => {
         this.currentUser = data;
+        //todo убрать и заменить на вызов апи в других местах
         sessionStorage.setItem("user_info", JSON.stringify(data));
       });
+      this.loading = false;
       this.loginForm.reset();
       this.router.navigate(["/conferences"]);
     }).catch((error) => {
-      if (error.error['code'] == 'UNAUTHORIZED') {
+      this.loading = false;
+      if (error.error['code'] === 'UNAUTHORIZED') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;
-      } else if (error.error['code'] == 'BANNED') {
+      } else if (error.error['code'] === 'BANNED') {
         this.invalidLogin = false
         this.userBlockedLogin = true;
       } else {
@@ -119,10 +133,10 @@ export class HeaderComponent implements OnInit {
       this.login()
       this.formRegistration.reset();
     }).catch(error => {
-      if (error.error['code'] == 'USER_EXISTS') {
+      if (error.error['code'] === 'USER_EXISTS') {
         this.userExists = true;
         this.userBlockedReg = false;
-      } else if (error.error['code'] == 'BANNED') {
+      } else if (error.error['code'] === 'BANNED') {
         this.userExists = false;
         this.userBlockedReg = true;
       } else {
@@ -134,28 +148,29 @@ export class HeaderComponent implements OnInit {
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
+    if (email !== null) {
       this.loggedStatus = true;
-      this.loggedUser = obj;
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
+      this.role = role ? role : '';
       return true;
     } else {
       this.loggedStatus = false;
-      this.loggedUser = null;
       return false;
     }
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser != null && this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
   }
 
   logout() {
-    sessionStorage.clear();
+    this.httpService.logout().then(() => {
+      sessionStorage.clear()
+    });
   }
 
   toPage(link: string) {

@@ -31,7 +31,7 @@
         </div>
 
         <div class="d-inline-flex align-items-center justify-content-end col-2">
-          <button *ngIf="isSuperAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
+          <button *ngIf="isAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
         </div>
       </div>
 
@@ -47,8 +47,8 @@
             </div>
             <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
 <!--              <div class="konf-description text-black">Описание: {{ conf.description }}</div>-->
-              <div class="konf-status text-black" >Статус: <span [style.color]="conf.status == 'ACTIVE' ? 'green' : conf.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(conf.status) }}</span></div>
-              <div class="konf-timeDate text-black align-text-center">{{ AppConstants.formatDate(conf.startDate) }} - {{ AppConstants.formatDate(conf.endDate) }}</div>
+              <div class="konf-status text-black" >Статус: <span [style.color]="conf.status === 'ACTIVE' ? 'green' : conf.status === 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[conf.status] }}</span></div>
+              <div class="konf-timeDate text-black align-text-center">{{ DateService.formatDate(conf.startDate) }} - {{ DateService.formatDate(conf.endDate) }}</div>
               <div class="row justify-content-end">
                 <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openConf(conf.id)">Открыть</button>
               </div>
