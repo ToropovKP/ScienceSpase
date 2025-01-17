@@ -13,7 +13,13 @@
           <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isAdmin()" style="height: 17px;">
             Администратор
             <div class="conf-name-adress-2 text-black" style="width: 100%;">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-3" style="width: 100%;">
+
+<!--                <p-multi-select [options]="admins" formControlName="moderators" optionLabel="fullName" placeholder="Выберите" emptyFilterMessage="Нет результатов" [fluid]="true" styleClass="w-full md:w-80">-->
+<!--                  <ng-template let-admin #item>-->
+<!--                      <div>{{ admin.fullName }}</div>-->
+<!--                  </ng-template>-->
+<!--                </p-multi-select>-->
 
                 <div style="padding: 10px; margin-top: 15px;" class="dropdown">
                   <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
@@ -29,12 +35,6 @@
                       </li>
                   </ul>
                 </div>
-
-                <!-- <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
-                  formControlName="adminName" (change)="updateAdmin($event)">
-                  <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
-                  <option *ngFor="let user of admins">{{ user.fullName }}</option>
-                </select> -->
               </div>
             </div>
           </div>

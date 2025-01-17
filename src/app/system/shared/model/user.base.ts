@@ -6,6 +6,7 @@ export class UserBase {
   private _middleName!: string;
   private _role!: string;
   private _status!: string;
+  private _fullName!: string;
 
   constructor() {
   }
@@ -58,7 +59,11 @@ export class UserBase {
     this._role = value;
   }
 
-  get fullName() {
-    return this.lastName + " " + this.firstName + " " + this.middleName
+  set fullName(value: string) {
+    this._fullName = value;
+  }
+
+  get fullName(): string {
+    return this._fullName
   }
 }

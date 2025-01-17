@@ -12,12 +12,13 @@ import {UserBase} from "../shared/model/user.base";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
+import {MultiSelectModule} from "primeng/multiselect";
 
 @Component({
   selector: 'app-one-conference-create',
   templateUrl: './conference-create.component.html',
   styleUrls: ['./conference-create.component.css'],
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule, MultiSelectModule]
 })
 export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
@@ -101,6 +102,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
           this.admins = data;
           data.forEach((admin) => {
             this.formCreateConference.addControl("admin" + admin.id, new FormControl())
+            admin.fullName = admin.lastName + " " + admin.firstName + (admin.middleName !== '' ? " " + admin.middleName : '')
           })
 
           if (this.currentConferenceId) {
