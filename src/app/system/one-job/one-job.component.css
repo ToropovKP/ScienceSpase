@@ -182,3 +182,20 @@
   font-size: 16px !important;
   font-weight: 400 !important;
 }
+
+.jobs-radio-group {
+  display: flex;
+  align-items: center; /* Центровка по вертикали */
+  gap: 10px; /* Промежуток между кнопками */
+}
+
+.jobs-radio-group label {
+  display: flex;
+  flex-direction: column; /* Расположить текст под кнопками */
+  align-items: center; /* Центровка кнопок и текста */
+  font-size: 14px; /* Размер шрифта */
+}
+
+.jobs-radio-group input[type="radio"] {
+  margin-bottom: 5px; /* Отступ между кнопкой и текстом */
+}

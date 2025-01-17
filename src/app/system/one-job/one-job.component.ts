@@ -1,55 +1,106 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup} from "@angular/forms";
-import {LoginResponse} from "../shared/model/login.response";
+import {AfterViewInit, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
 import {HttpResponse} from "@angular/common/http";
-import {Commentary} from "../shared/model/commentary";
-import {UserBaseDto} from "../shared/dto/user.base.dto";
-import {AppConstants} from "../../app.module";
+import {Comment} from "../shared/model/comment";
 import {AlertService} from "../shared/services/alert.service";
+import {Conference} from "../shared/model/conference";
+import {ReviewDto} from "../shared/dto/review.dto";
+import {CommonModule} from "@angular/common";
+import {NgxMaskDirective} from "ngx-mask";
+import {DateService} from "../shared/services/date.service";
+import {Review} from "../shared/model/review";
+import {ChatService} from "../shared/services/chat.service";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
-  styleUrls: ['./one-job.component.css']
+  styleUrls: ['./one-job.component.css'],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
-export class OneJobComponent implements OnInit, AfterViewInit {
+export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly DateService = DateService;
+
+  reviewsMarks = [1, 2, 3, 4, 5];
+  model: Record<string, number> = {}
+
   currentJobId!: string;
   currentJob: Job = new Job();
   jobUser!: User;
-  currentComments!: Commentary[];
+  currentComments!: Comment[];
+  currentConference!: Conference;
 
   formAddJob!: FormGroup;
+  formReview!: FormGroup;
   formComment!: FormGroup;
-  loggedUser!: LoginResponse;
+  email!: string;
+  role!: string;
   currentUser!: User;
+
+  existReviewByCurrentUser: boolean = false;
+  reviewByCurrentUser!: Review;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
+              private alertService: AlertService,
+              private chatService: ChatService) {
+  }
+
+  private timer: any;
+  private isPaused = false;
+  private scrollInterval: any;
+
+  @HostListener('window:wheel', ['$event'])
+  onWheelEvent(event: WheelEvent): void {
+    this.isPaused = true;
+    clearTimeout(this.timer);
+    this.timer = window.setTimeout(() => {
+      this.isPaused = false;
+    }, 1000);
   }
 
   checkLogin() {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
-    if (obj) {
-      this.loggedUser = obj;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
+
+    if (email !== null) {
+      this.email = email;
+      this.role = role ? role : '';
       let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info != null ? JSON.parse(user_info) : new User();
+      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     }
-    return obj != null;
+    return email !== null;
   }
 
   ngAfterViewInit() {
     this.loadAllData()
+    const callback = () => {
+      this.chatService.subscribeToJob(this.currentJobId, (message) => {
+        console.log('Received message for job:', message);
+        this.currentComments.push(message);
+      });
+    };
+    this.chatService.connect().then(callback).catch((error) => {
+      console.error('Failed to connect to WebSocket:', error);
+    });
+
+    if (!this.isReviewer()) {
+      this.scrollInterval = window.setInterval(() => {
+        if (!this.isPaused) {
+          const box = document.getElementById('chat-box');
+          if (box) {
+            box.scrollTop = box.scrollHeight;
+          }
+        }
+      }, 500);
+    }
   }
 
   ngOnInit() {
@@ -71,10 +122,22 @@ export class OneJobComponent implements OnInit, AfterViewInit {
     })
 
     this.formComment = this.formBuilder.group({
-      message: new FormControl('',),
+      message: new FormControl('', [Validators.required]),
     })
 
-    this.loadAllData()
+    this.formReview = this.formBuilder.group({
+      text: new FormControl('',),
+    })
+  }
+
+  ngOnDestroy() {
+    this.chatService.disconnect();
+    if (this.scrollInterval) {
+      clearInterval(this.scrollInterval);
+    }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   }
 
   loadAllData() {
@@ -84,6 +147,20 @@ export class OneJobComponent implements OnInit, AfterViewInit {
       this.httpService.getUserOneJob(this.currentJobId).then((data) => {
         this.currentJob = data
         this.updateUserInfo()
+
+        if (this.isReviewer()) {
+          let find = this.currentJob.reviews.find(review => review.userId === this.currentUser.id);
+          if (find) {
+            this.existReviewByCurrentUser = true;
+            this.reviewByCurrentUser = find;
+            this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
+            console.log(find)
+          }
+        }
+
+        this.httpService.getConference(String(data.conferenceId)).then((conf) => {
+          this.currentConference = conf;
+        });
 
         this.httpService.getJobComments(this.currentJobId).then((data) => {
           this.currentComments = data
@@ -124,15 +201,39 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   isUserJob(): boolean {
-    return this.currentJob.userId == this.currentUser.id
+    return this.currentJob.userId === this.currentUser.id
   }
 
-  isAdminAbsolute(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role === 'MODERATOR' || this.isAdmin();
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
+  }
+
+  isReviewer(): boolean {
+    return this.role === 'REVIEWER';
+  }
+
+  updateMark(tag: string, mark: number) {
+    this.model[tag] = mark;
+  }
+
+  saveReview() {
+    console.log(this.model)
+    let request: ReviewDto = new ReviewDto()
+    request.setReviews(this.model)
+    request.setText(this.formReview.value.text)
+    console.log(JSON.stringify(request))
+    this.httpService.reviewJob(this.currentJobId, request).then((data) => {
+      this.existReviewByCurrentUser = true
+      let review: Review = new Review();
+      review.reviews = request.getReviews();
+      review.text = request.getText();
+      review.userId = this.currentUser.id;
+      this.reviewByCurrentUser = review;
+    })
   }
 
   get authors(): FormArray {
@@ -179,19 +280,15 @@ export class OneJobComponent implements OnInit, AfterViewInit {
   }
 
   createComment() {
-    let request = {
+    const message = {
       "jobId": this.currentJobId,
-      "message": this.formComment.value.message,
-      "user": new UserBaseDto().createFromUser(this.currentUser)
-    }
-
-    this.httpService.createComment(request).then((data) => {
-      this.currentComments.push(data)
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    })
+      "userId": this.currentUser.id,
+      "firstName": this.currentUser.firstName,
+      "lastName": this.currentUser.lastName,
+      "middleName": this.currentUser.middleName,
+      "message": this.formComment.value.message
+    };
+    this.chatService.sendMessage(`/app/send`, message);
     this.formComment.reset()
   }
 

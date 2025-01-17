@@ -1,16 +1,15 @@
-import {NgModule} from "@angular/core";
-import {RouterModule, Routes} from "@angular/router";
+import {Routes} from "@angular/router";
 import {HomeComponent} from "./system/home/home.component";
 import {ConferencesComponent} from "./system/all-conferences/conferences.component";
+import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
+import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
 import {ConferenceComponent} from "./system/one-conference/conference.component";
 import {JobsComponent} from "./system/jobs/jobs.component";
-import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
-import {UsersComponent} from "./system/all-users/users.component";
-import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
 import {OneJobComponent} from "./system/one-job/one-job.component";
+import {UsersComponent} from "./system/all-users/users.component";
 import {ProfileComponent} from "./system/profile/profile.component";
 
-const routes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
     component: HomeComponent
@@ -56,15 +55,3 @@ const routes: Routes = [
     component: HomeComponent
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes, {
-    scrollPositionRestoration: 'enabled',
-    anchorScrolling: 'enabled',
-    scrollOffset: [0, 64]
-  })],
-  exports: [RouterModule]
-})
-
-export class AppRoutingModule {
-}

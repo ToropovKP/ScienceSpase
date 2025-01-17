@@ -4,6 +4,7 @@ export class Section {
   private _id!: bigint;
   private _title!: string;
   private _leaders!: UserBase[];
+  private _reviewers!: UserBase[];
   private _conferenceId!: bigint;
 
   constructor() {
@@ -31,6 +32,14 @@ export class Section {
 
   set leaders(value: UserBase[]) {
     this._leaders = value;
+  }
+
+  get reviewers(): UserBase[] {
+    return this._reviewers;
+  }
+
+  set reviewers(value: UserBase[]) {
+    this._reviewers = value;
   }
 
   get conferenceId(): bigint {

@@ -1,7 +1,7 @@
 <section id="conference">
   <div class="container">
 
-    <div class="main">
+    <div *ngIf="currentConference.id !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
           <div class="conf-name-adress text-black">
@@ -16,38 +16,49 @@
 
       <div class="row konf-information rounded-3">
 
-          <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
-          <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
-          <div class="col-4 conf-info-text text-black text-center">Дата начала: {{AppConstants.formatDate(this.currentConference.startDate)}}</div>
-          <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{AppConstants.formatDate(this.currentConference.endDate)}}</div>
-        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(this.currentConference.status) }}</span></div>
-          <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isAdminConference()">Количество участников: {{this.countUsers}}</span></div>
-          <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isAdminConference()" (click)="checkUsers()">Перейти к списку участников</a></div>
+        <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
+        <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
+        <div class="col-4 conf-info-text text-black text-center">Дата начала: {{DateService.formatDate(this.currentConference.startDate)}}</div>
+        <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{DateService.formatDate(this.currentConference.endDate)}}</div>
+        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[this.currentConference.status] }}</span></div>
+        <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isModeratorOfThisConference()">Количество участников: {{this.countUsers}}</span></div>
+        <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isModeratorOfThisConference() || isReviewer()" (click)="checkUsers()">Перейти к списку участников</a></div>
 
-          <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length != 0">
-            <div class="col-6 conf-info-section" style="padding-right: 5px;">
-              <div class="conf-section-title text-center text-white rounded-3">Секция</div>
-            </div>
-            <div class="col-6 conf-info-section" style="padding-left: 5px;">
-              <div class="conf-section-title text-center text-white rounded-3">Руководитель</div>
-            </div>
-
-
-            <div class="row conf-info-section-item" *ngFor="let section of this.sections">
-              <div class="col-6 d-inline-flex conf-info-section" style="padding-right: 5px;">
-                <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{section.title}}</div></div>
-              </div>
-              <div class="col-6 d-inline-flex conf-info-section" style="padding-left: 5px;">
-                <div class="section-text text-center w-100 d-flex justify-content-center align-items-center text-black rounded-3">
-                  {{section.leaders.length != 0 ? getLeadersString(section.leaders) : "Не назначен"}}</div>
-              </div>
-            </div>
+        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length != 0">
+          <div class="col-6 conf-info-section" style="padding-right: 5px;">
+            <div class="conf-section-title text-center text-white rounded-3">Секция</div>
+          </div>
+          <div class="col-6 conf-info-section" style="padding-left: 5px;">
+            <div class="conf-section-title text-center text-white rounded-3">Руководитель</div>
           </div>
 
-          <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
-            <div class="conf-info-text text-black rounded-3" style="margin: 0px;">{{this.currentConference.description}}</div>
+
+          <div class="row conf-info-section-item" *ngFor="let section of this.sections">
+            <div class="col-6 d-inline-flex conf-info-section" style="padding-right: 5px;">
+              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{section.title}}</div></div>
+            </div>
+            <div class="col-6 d-inline-flex conf-info-section" style="padding-left: 5px;">
+              <div class="section-text text-center w-100 d-flex justify-content-center align-items-center text-black rounded-3">
+                {{section.leaders.length != 0 ? getLeadersString(section.leaders) : "Не назначен"}}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.currentConference.tags.length != 0">
+          <div class="col-12 conf-info-section" style="padding-right: 5px;">
+            <div class="conf-section-title text-center text-white rounded-3">Критерии оценивания</div>
           </div>
 
+          <div class="row conf-info-section-item" *ngFor="let tag of this.currentConference.tags">
+            <div class="col-12 d-inline-flex conf-info-section" style="padding-right: 5px;">
+              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{tag}}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
+          <div class="conf-info-text text-black rounded-3" style="margin: 0px;">{{this.currentConference.description}}</div>
+        </div>
 
         <div *ngIf="this.addingJob" style="margin-top: 20px; padding: 0px;">
           <!-- Загрузка через проводник и перетаскиванием -->
@@ -154,10 +165,10 @@
 
           </div>
           <div class="col-4 conf-info-text text-black text-center">
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isSuperAdmin() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="openJob()" *ngIf="!isSuperAdmin() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId != null  && !this.addingJob">Посмотреть работы</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isAdminConference() && !this.addingJob">Изменить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" [disabled]="formAddJob.invalid" (click)="createJob()" *ngIf="!isSuperAdmin() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="openJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId != null  && !this.addingJob">Посмотреть работы</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isModeratorOfThisConference() && !this.addingJob">Изменить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" [disabled]="formAddJob.invalid" (click)="createJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-end">
 

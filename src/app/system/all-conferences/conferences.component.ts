@@ -1,26 +1,29 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
-import {AppConstants} from "../../app.module";
+import {conferenceStatusMap} from "../../app.constants";
 import {Router} from "@angular/router";
-import {LoginResponse} from "../shared/model/login.response";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
+import {CommonModule} from "@angular/common";
+import {DateService} from "../shared/services/date.service";
 
 @Component({
   selector: 'app-conferences',
   templateUrl: './conferences.component.html',
-  styleUrls: ['./conferences.component.css']
+  styleUrls: ['./conferences.component.css'],
+  imports: [CommonModule]
 })
 export class ConferencesComponent implements OnInit, AfterViewInit {
 
-  protected readonly AppConstants = AppConstants;
+  protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly DateService = DateService;
+
   conferences: Conference[] = [];
 
   currentUser!: User;
-  loggedUser!: LoginResponse;
-
-  statusMap: Map<string, string> = AppConstants.conferenceStatusMap;
+  email!: string;
+  role!: string;
 
   constructor(private router: Router,
               private httpService: HttpService,
@@ -30,15 +33,16 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
 
 
   checkLogin(): boolean {
-    let json: string | null = sessionStorage.getItem("user");
-    let obj: LoginResponse | null = json != null ? JSON.parse(json) : null;
+    let email: string | null = sessionStorage.getItem("email");
+    let role: string | null = sessionStorage.getItem("role");
 
-    if (obj != null) {
-      this.loggedUser = obj;
+    if (email !== null) {
+      this.email = email;
+      this.role = role ? role : '';
       return true;
     } else {
-      this.loggedUser = new LoginResponse();
-      this.loggedUser.email = '';
+      this.email = '';
+      this.role = '';
       return false;
     }
   }
@@ -51,12 +55,10 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
     if (!this.checkLogin()) {
       this.router.navigate(['']);
     }
-
-    this.loadAllData()
   }
 
   loadAllData() {
-    this.httpService.getUserInfo(this.loggedUser.email).then((data) => {
+    this.httpService.getUserInfo(this.email).then((data) => {
       this.currentUser = data;
       sessionStorage.setItem("user_info", JSON.stringify(data));
     }).catch(error => {
@@ -74,12 +76,12 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  isAdmin(): boolean {
-    return this.loggedUser.role == 'ADMIN' || this.loggedUser.role == 'SUPER_ADMIN';
+  isModerator(): boolean {
+    return this.role === 'MODERATOR' || this.role === 'ADMIN';
   }
 
-  isSuperAdmin(): boolean {
-    return this.loggedUser.role == 'SUPER_ADMIN';
+  isAdmin(): boolean {
+    return this.role === 'ADMIN';
   }
 
   openConf(id: bigint): void {
@@ -89,5 +91,4 @@ export class ConferencesComponent implements OnInit, AfterViewInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
-
 }

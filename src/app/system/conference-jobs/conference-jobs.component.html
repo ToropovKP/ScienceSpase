@@ -1,7 +1,7 @@
 <section id="jobs">
   <div class="container">
 
-    <div class="main">
+    <div *ngIf="currentConference !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref">
         <div class="d-inline-flex align-items-center col-10">
           <div class="conf-name-adress text-black">
@@ -15,15 +15,15 @@
         <div class="row" style="margin-bottom: 20px;">
           <div class="col-12 conf-title text-black">{{ this.currentConference.title }}</div>
           <div class="col-4 conf-info-text text-black">Организация: {{ this.currentConference.organization }}</div>
-          <div class="col-4 conf-info-text text-black text-center">Дата начала: {{ AppConstants.formatDate(this.currentConference.startDate) }}
+          <div class="col-4 conf-info-text text-black text-center">Дата начала: {{ DateService.formatDate(this.currentConference.startDate) }}
           </div>
-          <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{ AppConstants.formatDate(this.currentConference.endDate) }}
+          <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{ DateService.formatDate(this.currentConference.endDate) }}
           </div>
           <div class="col-4 conf-info-text text-black ">
-            Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ this.statusMap.get(this.currentConference.status) }}</span>
+            Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[this.currentConference.status] }}</span>
           </div>
-          <div class="col-4 conf-info-text text-black text-center"><span>Количество участников: {{ this.countUsers }}</span></div>
-          <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a (click)="downloadFilesConference()">Скачать
+          <div *ngIf="!isReviewer()" class="col-4 conf-info-text text-black text-center"><span>Количество участников: {{ this.countUsers }}</span></div>
+          <div *ngIf="!isReviewer()" class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a (click)="downloadFilesConference()">Скачать
             все работы</a></div>
         </div>
 
@@ -47,9 +47,13 @@
           </div>
 
           <div class="row conf-info-section-item" *ngFor="let job of this.jobs">
-            <div class="col-3 conf-info-section">
+            <div *ngIf="!isReviewer()" class="col-3 conf-info-section">
               <div class="jobs-list-text text-center text-black">{{ job.userName }}</div>
             </div>
+            <div *ngIf="isReviewer()" class="col-3 conf-info-section">
+              <div class="jobs-list-text text-center text-black">-</div>
+            </div>
+
             <div class="col-3 conf-info-section" style="padding-left: 5px;">
               <div class="jobs-list-text text-center text-black">{{ job.title }}</div>
             </div>
@@ -57,7 +61,7 @@
               <div class="jobs-list-text text-center text-black">{{ job.sectionTitle }}</div>
             </div>
             <div class="col-2 conf-info-section" style="padding-left: 5px;">
-              <div class="jobs-list-text text-center text-black">{{ AppConstants.formatDateTime(job.dateTime) }}</div>
+              <div class="jobs-list-text text-center text-black">{{ DateService.formatDateTime(job.dateTime) }}</div>
             </div>
             <div class="col-1 conf-info-section" style="padding-left: 5px;">
               <div class="jobs-list-text text-center text-black download-pointer" (click)="openJob(String(job.id))">
@@ -78,6 +82,7 @@
                 </svg>
               </div>
             </div>
+
           </div>
         </div>
 

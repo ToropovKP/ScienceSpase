@@ -10,6 +10,7 @@ export class Conference {
   private _sections!: Section[];
   private _status!: string;
   private _admins!: UserBase[];
+  private _tags!: string[];
   private _startDate!: Date;
   private _endDate!: Date;
 
@@ -72,6 +73,14 @@ export class Conference {
     this._admins = value;
   }
 
+  get tags(): string[] {
+    return this._tags;
+  }
+
+  set tags(value: string[]) {
+    this._tags = value;
+  }
+
   get startDate(): Date {
     return this._startDate;
   }
@@ -87,7 +96,4 @@ export class Conference {
   set endDate(value: Date) {
     this._endDate = value;
   }
-
-
 }
-

@@ -1,12 +1,15 @@
 <section id="conference">
   <div class="container">
 
-    <div class="main">
+    <div *ngIf="currentJob.id !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
-          <div class="conf-name-adress text-black">
+          <div *ngIf="!isReviewer()" class="conf-name-adress text-black">
             {{this.jobUser.id == this.currentUser.id ? "Мои статьи" : this.jobUser.lastName + " "
             + this.jobUser.firstName + " " + this.jobUser.middleName }} / {{this.currentJob.conferenceTitle}} / {{this.currentJob.title}}
+          </div>
+          <div *ngIf="isReviewer()" class="conf-name-adress text-black">
+            {{this.currentJob.conferenceTitle}} / {{this.currentJob.title}}
           </div>
         </div>
       </div>
@@ -24,7 +27,7 @@
               </div>
             </div>
 
-            <div>
+            <div *ngIf="!isReviewer()">
               <div formArrayName="authors">
                 <div *ngFor="let author of authors.controls; let i = index">
                   <div class="row" style="margin-left: 0px;" [formGroupName]="i" >
@@ -52,7 +55,7 @@
                           id="floatingInput"></textarea>
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Телефон </label>
                 <input [readonly]="true" type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
@@ -69,7 +72,7 @@
                        id="floatingInput">
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Организация </label>
                 <input [readonly]="true" type="text" class="bg-white form-control section-text text-black" formControlName="organization"
@@ -93,15 +96,65 @@
                        id="floatingInput">
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+            <div *ngIf="!isReviewer()"  class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <label class="second-text text-black" for="floatingInput">Файлы </label>
-                <div *ngFor="let file of this.currentJob.fileName" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
-                  <a (click)="downloadFile(file)" class="bg-white form-control section-text text-black">{{ file }}</a>
+                <div *ngFor="let file of this.currentJob.files" id="floatingInput" style="padding-left: 0px; margin-bottom: 20px;">
+                  <a (click)="downloadFile(file.uuid)" class="bg-white form-control section-text text-black">{{ file.originalName }}</a>
                 </div>
               </div>
             </div>
-            <div class="row" style="margin-left: 0px;">
+
+            <div [formGroup]="formReview" *ngIf="isReviewer() && !existReviewByCurrentUser" class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
+
+                <div *ngFor="let tag of this.currentConference.tags" class="jobs-radio-group" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput" style="padding-bottom: 20px; ">{{ tag }}</label>
+                    <div *ngFor="let mark of this.reviewsMarks" style="padding-left: 0px; margin-bottom: 20px;" id="floatingInput">
+                      <input type="radio" name="{{tag}}" id="floatingInput" (click)="updateMark(tag, mark)">
+                      <label class="second-text text-black" for="floatingInput">{{ mark }}</label>
+                    </div>
+                </div>
+
+              </div>
+
+              <div class="row" style="margin-left: 0px;">
+                <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
+                  <textarea type="text" class="bg-white form-control section-area text-black" formControlName="text"
+                            id="floatingInput"></textarea>
+                </div>
+              </div>
+
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white"
+                      (click)="saveReview()">Сохранить</button>
+            </div>
+
+            <div [formGroup]="formReview" *ngIf="isReviewer() && existReviewByCurrentUser" class="row" style="margin-left: 0px;">
+              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                <div class="second-text text-black" style="padding-left: 0px; margin-bottom: 20px;">Критерии оценивания </div>
+
+                <div *ngFor="let tag of this.currentConference.tags" class="jobs-radio-group" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text text-black" for="floatingInput" style="padding-bottom: 20px; ">{{ tag + ': ' + this.reviewByCurrentUser.reviews[tag] }}</label>
+                </div>
+
+              </div>
+
+              <div class="row" style="margin-left: 0px;">
+                <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
+                  <label class="second-text strong text-black" for="floatingInput">Комментарий к рецензии </label>
+                  <textarea readonly type="text" class="bg-white form-control section-area text-black" formControlName="text"
+                            id="floatingInput">{{ this.reviewByCurrentUser.text }}</textarea>
+                </div>
+              </div>
+
+              <button type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white"
+                      (click)="saveReview()">Сохранить</button>
+            </div>
+
+
+            <div *ngIf="!isReviewer()" class="row" style="margin-left: 0px;">
               <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;">
                 <div class="container py-3">
 
@@ -114,15 +167,15 @@
                           <h5 class="mb-0">Чат</h5>
                         </div>
 
-                        <div class="card-body" data-mdb-perfect-scrollbar="true" style="position: relative; height: 400px; overflow: auto;">
+                        <div id="chat-box" class="card-body" data-mdb-perfect-scrollbar="true" style="scroll-behavior: smooth; position: relative; height: 400px; overflow: auto;">
 
                           <div *ngFor="let comment of this.currentComments">
-                            <div *ngIf="comment.user.id != this.currentUser.id; then ifThen; else ifElse">
+                            <div *ngIf="comment.userId !== this.currentUser.id; then ifThen; else ifElse">
                             </div>
                             <ng-template #ifThen>
                               <div class="d-flex justify-content-start">
-                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }},</p><pre> </pre>
-                                <p class="mb-1 text-muted">{{ AppConstants.formatDateTime(comment.dateTime) }}</p>
+                                <p class="mb-1">{{ comment.firstName + ' ' + comment.lastName }},</p><pre> </pre>
+                                <p class="mb-1 text-muted">{{ DateService.formatDateTime(comment.dateTime) }}</p>
                               </div>
                               <div class="d-flex flex-row justify-content-start">
                                 <div>
@@ -135,10 +188,10 @@
 
                             <ng-template #ifElse>
                               <div class="d-flex justify-content-end">
-                                <p class="mb-1 text-muted">{{ AppConstants.formatDateTime(comment.dateTime) }},</p><pre> </pre>
-                                <p class="mb-1">{{ comment.user.firstName + ' ' + comment.user.lastName }}</p>
+                                <p class="mb-1 text-muted">{{ DateService.formatDateTime(comment.dateTime) }},</p><pre> </pre>
+                                <p class="mb-1">{{ comment.firstName + ' ' + comment.lastName }}</p>
                               </div>
-                              <div class="d-flex flex-row justify-content-end mb-4 pt-1">
+                              <div class="d-flex flex-row justify-content-end">
                                 <div>
                                   <p class="p-2 ms-3 mb-3 text-white rounded-3" style="background-color: #8C99B9;">
                                     {{ comment.message }}
@@ -153,7 +206,7 @@
                           <div class="input-group mb-0">
                             <input type="text" class="form-control" placeholder="Type message"
                               aria-label="Recipient's username" aria-describedby="button-addon2" formControlName="message" />
-                            <button (click)="createComment()" data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
+                            <button (click)="createComment()" [disabled]="formComment.invalid" data-mdb-button-init data-mdb-ripple-init class="btn btn-dark" type="button" id="button-addon2">
                               Отправить
                             </button>
                           </div>
