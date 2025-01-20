@@ -29,12 +29,6 @@
                       </li>
                   </ul>
                 </div>
-
-                <!-- <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
-                  formControlName="adminName" (change)="updateAdmin($event)">
-                  <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
-                  <option *ngFor="let user of admins">{{ user.fullName }}</option>
-                </select> -->
               </div>
             </div>
           </div>
@@ -80,95 +74,111 @@
             </div>
           </div>
 
-          <div class="row" style="margin-bottom: 5px;">
+          <div class="row" style="margin-top: 50px; margin-bottom: 0px;">
             <div class="row conf-info-section-item">
-              <div class="col-4 conf-info-section" style="padding-right: 5px;">
-                <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Секция</div>
+              <div class="col-12 conf-info-section" style="padding-right: 5px;">
+                <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Секции</div>
               </div>
-              <div class="col-4 conf-info-section" style="padding-left: 5px;">
-                <div style="padding: 10px" class="conf-section-title form-control  text-center text-white">Руководитель
-                </div>
-              </div>
-              <div class="col-4 conf-info-section" style="padding-left: 5px;">
-                <div style="padding: 10px" class="conf-section-title form-control  text-center text-white">Рецензент
-                </div>
-              </div>
-            </div>
-
-            <div class="row conf-info-section-item" [formGroup]="formSections" *ngFor="let section of this.sections">
-              <div class="col-4 conf-info-section" style="padding-right: 5px;">
-                <input [attr.disabled]="!isLeaderSection(section) ? true : null" type="text" class="form-control section-text text-center text-black"
-                  [value]="section.title" (change)="updateSections($event, 'org', section, null)">
-              </div>
-              <div class="col-4 conf-info-section">
-                <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
-                  <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
-                  data-bs-toggle="dropdown" aria-expanded="false">
-                  Изменить
-                  </button>
-                  <ul style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <li *ngFor="let user of this.currentAdmins">
-                          <div class="form-check align-items-center" style="width: 100%;">
-                              <input *ngIf="isMasterModeratorOfThisConference() ? this.currentUser.id != user.id : null" formControlName="sec{{section.title}}{{user.id}}" (change)="updateSections($event, 'user', section, user)" class="form-check-input" type="checkbox" id="confAdm{{section.title}}{{user.id}}"/>
-                              <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="confAdm{{section.title}}{{user.id}}">{{ user.firstName + " " + user.lastName }}</label>
-                          </div>
-                      </li>
-                  </ul>
-                </div>
-                <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;">
-                  <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
-                         [value]="section.leaders.length != 0 ? getUsersString(section.leaders) : 'Не назначен'" [readonly]="true">
-                </div>
-              </div>
-              <div class="col-4 conf-info-section">
-                <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;" class="dropdown">
-                  <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
-                          data-bs-toggle="dropdown" aria-expanded="false">
-                    Изменить
-                  </button>
-                  <ul style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li *ngFor="let user of this.reviewers">
-                      <div class="form-check align-items-center" style="width: 100%;">
-                        <input *ngIf="isMasterModeratorOfThisConference() ? this.currentUser.id != user.id : null" formControlName="secrev{{section.title}}{{user.id}}" (change)="updateSections($event, 'rev', section, user)" class="form-check-input" type="checkbox" id="secrev{{section.title}}{{user.id}}"/>
-                        <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="secrev{{section.title}}{{user.id}}">{{ user.firstName + " " + user.lastName }}</label>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" style="padding-left: 5px;">
-                  <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
-                         [value]="section.reviewers.length != 0 ? getUsersString(section.reviewers) : 'Не назначен'" [readonly]="true">
-                </div>
-              </div>
-            </div>
-            <div *ngIf="isMasterModeratorOfThisConference()" class="conf-info-section">
-              <div style="padding: 10px; cursor: pointer;"
-                class="conf-section-title form-control text-center text-white bg-dark" (click)="addRowForSection()">Добавить
-                секцию</div>
             </div>
           </div>
 
+          <div *ngIf="this.currentAdmins" formArrayName="sections">
+            <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i">
+              <div class="row conf-info-section">
+                <div class="col-6" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <input [readonly]="!isLeaderSection(i)" type="text" class="form-control section-text text-black" formControlName="title" placeholder="Название секции" id="floatingInput">
+                </div>
 
-          <div class="row" style="margin-top: 50px; margin-bottom: 5px;">
+                <div class="col-2">
+                  <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" class="dropdown">
+                    <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white text-center text-black dropdown-toggle" type="button" [id]="'dropdownMenuButtonLeaders' + i" data-bs-toggle="dropdown" aria-expanded="false">
+                      Руководители
+                    </button>
+                    <ul formArrayName="leaders" style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
+                      <li *ngFor="let user of leadSecArray(i).controls; let j = index" [formGroupName]="j">
+                        <div class="form-check align-items-center" style="width: 100%;">
+                          <input *ngIf="isMasterModeratorOfThisConference() ? this.currentUser.id != user.get('id')?.value : null" formControlName="selected" class="form-check-input" type="checkbox" [id]="'leader' + i + j"/>
+                          <label class="form-check-label" style="width: 100%; margin-top: 3px;" [for]="'leader' + i + j">
+                            {{ user.get('name')?.value }}
+                          </label>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;">
+                    <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
+                           [value]="countLeadSecArray(i) !== 0 ? getStringLeadSecArray(i) : 'Не назначен'" [readonly]="true">
+                  </div>
+                </div>
+
+                <div class="col-2">
+                  <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" class="dropdown">
+                    <button style="height: 47px; width: 100%; border: #8C99B9 solid 1px;" data-bs-auto-close="outside" class="btn bg-white text-center text-black dropdown-toggle" type="button" [id]="'dropdownMenuButtonLeaders' + i" data-bs-toggle="dropdown" aria-expanded="false">
+                      Рецензенты
+                    </button>
+                    <ul formArrayName="reviewers" style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
+                      <li *ngFor="let user of reviewSecArray(i).controls; let j = index" [formGroupName]="j">
+                        <div class="form-check align-items-center" style="width: 100%;">
+                          <input formControlName="selected" class="form-check-input" type="checkbox" [id]="'reviewer' + i + j"/>
+                          <label class="form-check-label" style="width: 100%; margin-top: 3px;" [for]="'reviewer' + i + j">
+                            {{ user.get('name')?.value }}
+                          </label>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;">
+                    <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
+                           [value]="countReviewSecArray(i) !== 0 ? getStringReviewSecArray(i) : 'Не назначен'" [readonly]="true">
+                  </div>
+                </div>
+
+                <div *ngIf="!section.get('title')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="section.get('title')?.value === ''" (click)="disableSection(i)">Сохранить</button>
+                </div>
+                <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isLeaderSection(i) ? true : null" (click)="enableSection(i)">Изменить</button>
+                </div>
+                <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeSection(i)">Удалить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 50px; margin-bottom: 0px;">
             <div class="row conf-info-section-item">
               <div class="col-12 conf-info-section" style="padding-right: 5px;">
                 <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Критерии оценивания</div>
               </div>
             </div>
-
-            <div class="row conf-info-section-item" *ngFor="let tag of this.tags">
-              <div class="col-12 conf-info-section" style="padding-right: 5px;">
-                <input [disabled]="!isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
-                       [value]="tag" (change)="updateTags($event, tag)">
+          </div>
+          <div formArrayName="tags">
+            <div *ngFor="let tag of tags.controls; let i = index">
+              <div class="row"  [formGroupName]="i" >
+                <div class="col-10" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <input [readonly]="!isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-black" formControlName="name" placeholder="Название" id="floatingInput">
+                </div>
+                <div *ngIf="!tag.get('name')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="tag.get('name')?.value === ''" (click)="disableTag(i)">Сохранить</button>
+                </div>
+                <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="enableTag(i)">Изменить</button>
+                </div>
+                <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
+                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeTag(i)">Удалить</button>
+                </div>
               </div>
             </div>
-            <div *ngIf="isMasterModeratorOfThisConference()" class="conf-info-section">
-              <div style="padding: 10px; cursor: pointer;"
-                   class="conf-section-title form-control text-center text-white bg-dark" (click)="addRowForTag()">Добавить
-                критерий</div>
-            </div>
           </div>
-
 
           <div class="row align-items-center" style="margin-bottom: 10px;">
             <div class="col-4 conf-info-text text-black">
@@ -185,7 +195,6 @@
             </div>
           </div>
 
-          <!--<div class="konf-description text-black">Описание: {{conf.description}}</div>-->
         </div>
       </form>
     </div>
