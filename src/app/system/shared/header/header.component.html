@@ -109,7 +109,7 @@
           </div>
 
           <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('phone')?.invalid && formRegistration.get('phone')?.touched}">
-            <input type="phone" prefix="+7" mask=" (000) 000-0000" formControlName="phone" class="form-control rounded-3">
+            <input type="phone" prefix="+7 " mask="(000) 000-0000" formControlName="phone" class="form-control rounded-3">
             <label for="floatingInput">Номер телефона <span style="color: red;">*</span></label>
           </div>
 
