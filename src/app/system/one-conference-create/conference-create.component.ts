@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
 import {Section} from "../shared/model/section";
@@ -9,9 +9,9 @@ import {User} from "../shared/model/user";
 import {SectionDto} from "../shared/dto/section.dto";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
+import {UserBaseDto} from "../shared/dto/user.base.dto";
 
 @Component({
   selector: 'app-one-conference-create',
@@ -23,10 +23,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
 
   protected readonly conferenceStatusList = conferenceStatusList;
 
-  sectionsMap: Map<string, Section> = new Map;
-  sections: Section[] = [];
-  tags: string[] = [];
-
   currentConference!: Conference;
   currentConferenceId!: string;
 
@@ -37,7 +33,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   currentStatus: String = 'ON_HOLD';
 
   formCreateConference!: FormGroup;
-  formSections!: FormGroup;
   email!: string;
   role!: string;
 
@@ -81,9 +76,9 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       description: new FormControl('', [Validators.required]),
       date_start: new FormControl('', [Validators.required]),
       date_end: new FormControl('', [Validators.required]),
+      sections: this.formBuilder.array([this.createSection()]),
+      tags: this.formBuilder.array([this.createTag()]),
     })
-
-    this.formSections = this.formBuilder.group({})
   }
 
   loadAllData() {
@@ -91,172 +86,115 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       this.currentConferenceId = e;
 
       this.httpService.getTags().then((data) => {
-        this.tags = data;
-      })
-      this.httpService.getReviewers().then((data) => {
-        this.reviewers = data;
-      })
-      if (this.isAdmin()) {
-        this.httpService.getModerators().then((data) => {
-          this.admins = data;
-          data.forEach((admin) => {
-            this.formCreateConference.addControl("admin" + admin.id, new FormControl())
-          })
-
-          if (this.currentConferenceId) {
-            this.httpService.getConference(this.currentConferenceId).then((data) => {
-
-              this.currentConference = data;
-              this.currentAdmins = this.currentConference.admins
-              this.currentAdmins.forEach((admin) => {
-                this.formCreateConference.controls["admin" + admin.id].setValue(true);
+        this.fillTags(data);
+        this.httpService.getReviewers().then((data) => {
+          this.reviewers = data;
+          if (this.isAdmin()) {
+            this.httpService.getModerators().then((data) => {
+              this.admins = data;
+              data.forEach((admin) => {
+                this.formCreateConference.addControl("admin" + admin.id, new FormControl())
               })
 
-              this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
-              this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
-              this.formCreateConference.controls['description'].setValue(this.currentConference.description)
-              this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
-              this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-              this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
-              this.currentStatus = this.currentConference.status
-              this.createControlsForSections()
-              this.createControlsForTags()
+              if (this.currentConferenceId) {
+                this.httpService.getConference(this.currentConferenceId).then((data) => {
+
+                  this.currentConference = data;
+                  this.currentAdmins = this.currentConference.admins
+                  this.currentAdmins.forEach((admin) => {
+                    this.formCreateConference.controls["admin" + admin.id].setValue(true);
+                  })
+
+                  this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
+                  this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
+                  this.formCreateConference.controls['description'].setValue(this.currentConference.description)
+                  this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
+                  this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
+                  this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
+                  this.currentStatus = this.currentConference.status
+
+                  this.fillTags(this.currentConference.tags)
+                  this.fillSections(this.currentConference.sections)
+                }).catch(error => {
+                  let title = "Возникла непредвиденная ошибка";
+                  let description = 'Ошибка на стороне сервера';
+                  this.alertService.constructErrorAlert(error, title, description);
+                });
+              } else {
+                this.fillSections([])
+              }
             }).catch(error => {
               let title = "Возникла непредвиденная ошибка";
               let description = 'Ошибка на стороне сервера';
               this.alertService.constructErrorAlert(error, title, description);
-            });
-          }
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        })
-      } else {
-        if (this.currentConferenceId) {
-          this.httpService.getConference(this.currentConferenceId).then((data) => {
-            this.currentConference = data;
-            this.currentAdmins = this.currentConference.admins
-            this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
-            this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
-            this.formCreateConference.controls['description'].setValue(this.currentConference.description)
-            this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
-            this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
-            this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
-            this.currentStatus = this.currentConference.status
+            })
+          } else {
+            if (this.currentConferenceId) {
+              this.httpService.getConference(this.currentConferenceId).then((data) => {
+                this.currentConference = data;
+                this.currentAdmins = this.currentConference.admins
+                this.formCreateConference.controls['confName'].setValue(this.currentConference.title)
+                this.formCreateConference.controls['organization'].setValue(this.currentConference.organization)
+                this.formCreateConference.controls['description'].setValue(this.currentConference.description)
+                this.formCreateConference.controls['date_start'].setValue(this.currentConference.startDate)
+                this.formCreateConference.controls['date_end'].setValue(this.currentConference.endDate)
+                this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
+                this.currentStatus = this.currentConference.status
 
-            this.createControlsForSections()
-            this.createControlsForTags()
-          }).catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
-          });
-        }
-      }
+                this.fillTags(this.currentConference.tags)
+                this.fillSections(this.currentConference.sections)
+              }).catch(error => {
+                let title = "Возникла непредвиденная ошибка";
+                let description = 'Ошибка на стороне сервера';
+                this.alertService.constructErrorAlert(error, title, description);
+              });
+            } else {
+              this.fillSections([])
+            }
+          }
+        })
+      })
     });
   }
 
-  createControlsForSections() {
-    this.sections = this.currentConference.sections.sort((a, b) => Number(a.id) - Number(b.id))
-    this.updateControlsForSections()
-  }
-
-  createControlsForTags() {
-    let tagsConference = this.currentConference.tags;
-    if (tagsConference.length > 0) {
-      this.tags = tagsConference;
-    }
-  }
-
-  updateControlsForSections() {
-    this.sections.forEach((e) => {
-      this.sectionsMap.set(String(e.title), e)
-      if (this.currentAdmins && this.currentAdmins.length !== 0) {
-        this.currentAdmins.forEach((admin) => {
-          this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
-          this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
-        })
-      }
-      if (e.leaders && e.leaders.length !== 0) {
-        e.leaders.forEach((leader) => {
-          this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
-        })
-      }
-      if (this.reviewers && this.reviewers.length !== 0) {
-        this.reviewers.forEach((reviewers) => {
-          this.formSections.addControl("secrev" + e.title + "" + reviewers.id, new FormControl())
-          this.formSections.controls["secrev" + e.title + "" + reviewers.id].setValue(false)
-        })
-      }
-      if (e.reviewers && e.reviewers.length !== 0) {
-        e.reviewers.forEach((reviewer) => {
-          this.formSections.controls["secrev" + e.title + "" + reviewer.id].setValue(true)
-        })
-      }
-    })
-  }
-
-  createControlsForOneSection(title: string) {
-    this.sections.filter((e) => e.title === title).forEach((e) => {
-      if (this.currentAdmins && this.currentAdmins.length !== 0) {
-        this.currentAdmins.forEach((admin) => {
-          this.formSections.addControl("sec" + e.title + "" + admin.id, new FormControl())
-          this.formSections.controls["sec" + e.title + "" + admin.id].setValue(false)
-        })
-      }
-
-      if (e.leaders && e.leaders.length !== 0) {
-        e.leaders.forEach((leader) => {
-          this.formSections.controls["sec" + e.title + "" + leader.id].setValue(true)
-        })
-      }
-
-      if (this.reviewers && this.reviewers.length !== 0) {
-        this.reviewers.forEach((reviewers) => {
-          this.formSections.addControl("secrev" + e.title + "" + reviewers.id, new FormControl())
-          this.formSections.controls["secrev" + e.title + "" + reviewers.id].setValue(false)
-        })
-      }
-      if (e.reviewers && e.reviewers.length !== 0) {
-        e.reviewers.forEach((reviewer) => {
-          this.formSections.controls["secrev" + e.title + "" + reviewer.id].setValue(true)
-        })
-      }
-    })
-  }
-
-  removeControlsForSection(title: string) {
-    this.sections.filter((e) => e.title === title).forEach((e) => {
-      if (this.currentAdmins && this.currentAdmins.length !== 0) {
-        this.currentAdmins.forEach((admin) => {
-          this.formSections.removeControl("sec" + e.title + "" + admin.id)
-        })
-      }
-      if (this.reviewers && this.reviewers.length !== 0) {
-        this.reviewers.forEach((reviewers) => {
-          this.formSections.removeControl("secrev" + e.title + "" + reviewers.id)
-        })
-      }
-    })
-  }
-
   createConference() {
-    // обновление полей + добавление секций
     let sectionsDto: SectionDto[] = []
-    this.sections.forEach((e) => {
-      if (this.currentConference) {
-        let find = this.currentConference.sections.find((sec) => sec.id === e.id);
-        if (!find) {
-          // @ts-ignore
-          e.id = Number(0)
+    this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
+    .forEach((sectionControl) => {
+      const sectionGroup = sectionControl as FormGroup;
+      const id = sectionGroup.get('id')?.value;
+      const title = sectionGroup.get('title')?.value;
+      const leaders = sectionGroup.get('leaders') as FormArray;
+      const reviewers = sectionGroup.get('reviewers') as FormArray;
+
+      const leadersUserBase: UserBase[] = []
+      const reviewersUserBase: UserBase[] = []
+
+      leaders.controls.filter((leaderControl) => leaderControl.get('selected')?.value == true)
+      .forEach((leaderControl) => {
+        const id = leaderControl.get('id')?.value;
+        const find = this.currentAdmins.find((admin) => admin.id === id);
+        if (find) {
+          leadersUserBase.push(find)
         }
-      } else {
-        // @ts-ignore
-        e.id = Number(0)
-      }
-      sectionsDto.push(new SectionDto(e))
-    })
+      });
+
+      reviewers.controls.filter((reviewerControl) => reviewerControl.get('selected')?.value == true)
+      .forEach((reviewerControl) => {
+        const id = reviewerControl.get('id')?.value;
+        const find = this.reviewers.find((reviewer) => reviewer.id === id);
+        if (find) {
+          reviewersUserBase.push(find)
+        }
+      });
+
+      const section = new Section();
+      section.id = id || Number(0);
+      section.title = title;
+      section.leaders = leadersUserBase;
+      section.reviewers = reviewersUserBase;
+      sectionsDto.push(new SectionDto(section));
+    });
 
     let request = {
       "title": this.formCreateConference.value.confName,
@@ -266,7 +204,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       "endDate": this.formCreateConference.value.date_end,
       "status": this.currentStatus,
       "sections": sectionsDto,
-      "tags": this.tags
+      "tags": this.tags.controls.map((e) => e.value.name).filter((e) => e !== '').map((e) => e)
     };
 
     this.httpService.createConference(request).then((data) => {
@@ -300,15 +238,44 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   updateConference() {
     // обновление полей + добавление секций
     let sectionsDto: SectionDto[] = []
-    this.sections.forEach((e) => {
-      let find = this.currentConference.sections.find((sec) => sec.id === e.id);
-      if (!find) {
-        // @ts-ignore
-        e.id = Number(0)
-      }
-      sectionsDto.push(new SectionDto(e))
-    })
+    this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
+    .forEach((sectionControl) => {
+      const sectionGroup = sectionControl as FormGroup;
+      const id = sectionGroup.get('id')?.value;
+      const title = sectionGroup.get('title')?.value;
+      const leaders = sectionGroup.get('leaders') as FormArray;
+      const reviewers = sectionGroup.get('reviewers') as FormArray;
 
+      const leadersUserBase: UserBase[] = []
+      const reviewersUserBase: UserBase[] = []
+
+      leaders.controls.filter((leaderControl) => leaderControl.get('selected')?.value == true)
+      .forEach((leaderControl) => {
+        const id = leaderControl.get('id')?.value;
+        const find = this.currentAdmins.find((admin) => admin.id === id);
+        if (find) {
+          leadersUserBase.push(find)
+        }
+      });
+
+      reviewers.controls.filter((reviewerControl) => reviewerControl.get('selected')?.value == true)
+      .forEach((reviewerControl) => {
+        const id = reviewerControl.get('id')?.value;
+        const find = this.reviewers.find((reviewer) => reviewer.id === id);
+        if (find) {
+          reviewersUserBase.push(find)
+        }
+      });
+
+      const section = new Section();
+      section.id = id || Number(null);
+      section.title = title;
+      section.leaders = leadersUserBase;
+      section.reviewers = reviewersUserBase;
+      //@ts-ignore
+      section.conferenceId = Number(this.currentConferenceId);
+      sectionsDto.push(new SectionDto(section));
+    });
 
     let request = {
       "id": this.currentConferenceId,
@@ -319,11 +286,12 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       "endDate": this.formCreateConference.value.date_end,
       "status": this.currentStatus,
       "sections": sectionsDto,
-      "tags": this.tags
+      "tags": this.tags.controls.map((e) => e.value.name).filter((e) => e !== '').map((e) => e)
     };
 
     this.httpService.updateConference(this.currentConferenceId, request).then((data) => {
       this.isNameExists = false;
+      console.log(data)
       if (this.isAdmin()) {
         if (this.currentAdmins && this.currentAdmins.length !== 0) {
           let adminsDto: UserBaseDto[] = []
@@ -340,7 +308,8 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         }
       }
       this.toPage(`/conference/${data.id}`)
-    }).catch(error => {
+    })
+    .catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
       if (error.error['code'] == 'NAME_EXISTS') {
@@ -352,73 +321,17 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  updateSections(event: Event, name: string, section: Section, user: UserBase | null) {
-    this.sectionsMap.delete(section.title)
-    this.sectionsMap.delete(' ')
-    let org: string = '';
-    if (name === 'user' && user) {
-      section.leaders = []
-      if (this.currentAdmins && this.currentAdmins.length !== 0) {
-        this.currentAdmins.forEach((admin) => {
-          let value = this.formSections.controls[`sec${section.title}${admin.id}`].value;
-          if (value) {
-            section.leaders.push(admin);
-          }
-        })
-      }
-    }
-    if (name === 'rev' && user) {
-      section.reviewers = []
-      if (this.reviewers && this.reviewers.length !== 0) {
-        this.reviewers.forEach((reviewer) => {
-          let value = this.formSections.controls[`secrev${section.title}${reviewer.id}`].value;
-          if (value) {
-            section.reviewers.push(reviewer);
-          }
-        })
-      }
-    }
-    if (name === 'org') {
-      org = (event.target as HTMLInputElement).value;
-      this.removeControlsForSection(section.title)
-      section.title = org
-    }
-    this.sectionsMap.set(section.title, section)
-    this.sections = []
-    for (let value of this.sectionsMap.values()) {
-      this.sections.push(value)
-    }
-
-    if (name === 'org') {
-      this.createControlsForOneSection(section.title)
-    }
-    this.sections = this.sections.sort((a, b) => Number(a.id) - Number(b.id))
-    console.log(this.sections)
-  }
-
-  updateTags(event: Event, tag: string) {
-    let number = this.tags.findIndex((value, index, array) => {
-      return value === tag
-    });
-    this.tags[number] = (event.target as HTMLInputElement).value;
-    console.log(number, this.tags)
-  }
-
   updateAdmin() {
     const admins: UserBase[] = []
     this.admins.forEach((admin) => {
       let value = this.formCreateConference.controls[`admin${admin.id}`].value;
       if (value) {
         admins.push(admin);
-      } else {
-        this.sections.forEach((sec) => {
-          sec.leaders = sec.leaders.filter((lead) => lead.id !== admin.id)
-        })
       }
     })
 
-    this.currentAdmins = admins
-    this.updateControlsForSections()
+    this.currentAdmins = admins;
+    this.updateControlsLeaders()
   }
 
   updateStatus(event: Event) {
@@ -427,26 +340,184 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     this.currentStatus = status ? status : 'ON_HOLD';
   }
 
-  addRowForSection() {
-    let section: Section = new Section();
-    let lastId: bigint = BigInt(0)
-    if (this.sections.length > 0) {
-      lastId = this.sections[this.sections.length - 1].id;
-    }
-    section.id = BigInt(Number(lastId) + 1)
-    section.title = '';
-    section.leaders = [];
-    this.sectionsMap.set(' ', section)
-    this.sections = []
-    for (let value of this.sectionsMap.values()) {
-      this.sections.push(value)
-    }
-    this.sections = this.sections.sort((a, b) => Number(a.id) - Number(b.id))
+  get sections(): FormArray {
+    return this.formCreateConference.get('sections') as FormArray;
   }
 
-  addRowForTag() {
-    if (this.tags[this.tags.length - 1] !== '') {
-      this.tags.push('')
+  leadSecArray(sectionIndex: number): FormArray {
+    return (this.sections.at(sectionIndex).get('leaders') as FormArray);
+  }
+
+  reviewSecArray(sectionIndex: number): FormArray {
+    return (this.sections.at(sectionIndex).get('reviewers') as FormArray);
+  }
+
+  createUserControl(user: UserBase, isSelected: boolean): FormGroup {
+    return this.formBuilder.group({
+      id: [user.id],
+      name: [user.firstName + ' ' + user.lastName],
+      fullName: [user.firstName + ' ' + user.lastName + (user.middleName !== '' ? " " + user.middleName : '')],
+      selected: [isSelected]
+    });
+  }
+
+  createSection(section: Section = new Section()): FormGroup {
+    const formGroup = this.formBuilder.group({
+      id: [section.id],
+      title: section.title != null ? [section.title] : [''],
+      leaders: this.formBuilder.array([]),
+      reviewers: this.formBuilder.array([]),
+    });
+
+    if (this.currentAdmins) {
+      const leadersArray = formGroup.get('leaders') as FormArray;
+      this.currentAdmins.forEach((leader) => {
+        let isSelected = false;
+        if (section.leaders) {
+          isSelected = section.leaders.some(l => l.id === leader.id);
+        }
+        const formControl = this.createUserControl(leader, isSelected)
+        if (section.title == null) {
+          formControl.get('selected')?.enable()
+        } else {
+          formControl.get('selected')?.disable()
+        }
+        leadersArray.push(formControl);
+      });
+    }
+    if (this.reviewers) {
+      const reviewersArray = formGroup.get('reviewers') as FormArray;
+      this.reviewers.forEach((reviewer) => {
+        let isSelected = false;
+        if (section.leaders) {
+          isSelected = section.reviewers.some(r => r.id === reviewer.id);
+        }
+        const formControl = this.createUserControl(reviewer, isSelected)
+        if (section.title == null) {
+          formControl.get('selected')?.enable()
+        } else {
+          formControl.get('selected')?.disable()
+        }
+        reviewersArray.push(formControl);
+      });
+    }
+
+    return formGroup;
+  }
+
+  updateControlsLeaders() {
+    this.sections.controls.forEach((sec, index) => {
+      const leadersArray = sec.get('leaders') as FormArray;
+      leadersArray.clear()
+      this.currentAdmins.forEach((leader) => {
+        let isSelected = false;
+        if (this.currentConference) {
+          const sectionUndef = this.currentConference.sections.at(index);
+          if (sectionUndef && sectionUndef.leaders) {
+            isSelected = sectionUndef.leaders.some(l => l.id === leader.id);
+          }
+        }
+        const leaderControl = this.createUserControl(leader, isSelected)
+        leadersArray.push(leaderControl);
+      });
+    });
+  }
+
+  fillSections(sections: Section[]) {
+    this.sections.clear();
+
+    sections.forEach((section) => {
+      const sectionGroup = this.createSection(section);
+      if (section.title !== '') {
+        sectionGroup.get('title')?.disable();
+      }
+      this.sections.push(sectionGroup);
+    });
+    if (this.sections.length < 5) {
+      this.sections.push(this.createSection());
+    }
+  }
+
+  disableSection(index: number) {
+    const section = this.sections.at(index);
+
+    section.get('title')?.disable();
+
+    const leadersArray = section.get('leaders') as FormArray;
+    leadersArray.controls.forEach(control => {
+      control.get('selected')?.disable();
+    });
+    const reviewersArray = section.get('reviewers') as FormArray;
+    reviewersArray.controls.forEach(control => {
+      control.get('selected')?.disable();
+    });
+
+    if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.length < 5) {
+      this.sections.push(this.createSection());
+    }
+  }
+
+  enableSection(index: number) {
+    const section = this.sections.at(index);
+    section.get('title')?.enable();
+    const leadersArray = section.get('leaders') as FormArray;
+    leadersArray.controls.forEach(control => {
+      control.get('selected')?.enable();
+    });
+    const reviewersArray = section.get('reviewers') as FormArray;
+    reviewersArray.controls.forEach(control => {
+      control.get('selected')?.enable();
+    });
+  }
+
+  removeSection(index: number) {
+    this.sections.removeAt(index);
+    if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.value.length === 4) {
+      this.sections.push(this.createSection());
+    }
+  }
+
+  get tags(): FormArray {
+    return this.formCreateConference.get('tags') as FormArray;
+  }
+
+  createTag(name: string = ''): FormGroup {
+    return this.formBuilder.group({
+      name: [name]
+    });
+  }
+
+  fillTags(tags: string[]) {
+    this.tags.clear();
+    tags.forEach((tag) => {
+      const formGroup = this.createTag(tag);
+      if (tag !== '') {
+        formGroup.get('name')?.disable();
+      }
+      this.tags.push(formGroup);
+    });
+    this.tags.push(this.createTag());
+  }
+
+  disableTag(index: number) {
+    const tag = this.tags.at(index);
+    if (tag.get('name')?.value !== '') {
+      tag.get('name')?.disable();
+      if (this.tags.at(this.tags.length - 1).get('name')?.value !== '' && this.tags.value.length < 5) {
+        this.tags.push(this.createTag());
+      }
+    }
+  }
+
+  enableTag(index: number) {
+    const tag = this.tags.at(index);
+    tag.get('name')?.enable();
+  }
+
+  removeTag(index: number) {
+    this.tags.removeAt(index);
+    if (this.tags.value.length === 4) {
+      this.tags.push(this.createTag());
     }
   }
 
@@ -477,22 +548,32 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
       if (this.currentAdmins && this.currentAdmins.length !== 0) {
         let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
         if (find && this.sections && this.sections.length !== 0) {
-          let length = this.sections.filter((sec) => sec.leaders.filter((lead) => lead.id === find?.id).length === 0).length;
-          return length === this.sections.length;
+          let length = this.sections.controls
+          .filter((control) => control.get('title')?.value !== '')
+          .filter((sec) => {
+            return (sec.get('leaders') as FormArray).controls
+            .filter((control) => control.get('selected')?.value == true)
+            .filter((control) => control.get('id')?.value === find?.id)
+                .length === 0
+          }).length;
+          return length === this.sections.controls
+          .filter((control) => control.get('title')?.value !== '')
+              .length;
         }
       }
     }
     return false;
   }
 
-  isLeaderSection(section: Section): boolean {
+  isLeaderSection(sectionIndex: number): boolean {
     if (!this.isMasterModeratorOfThisConference()) {
       let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
       if (find) {
-        let leaders = this.sections.find((sec) => sec.id === section.id)?.leaders.filter((lead) => lead.id === find?.id);
-        if (leaders) {
-          return leaders?.length > 0
-        }
+        const leaders = this.sections.at(sectionIndex).get('leaders') as FormArray;
+        const length = leaders.controls
+        .filter((control) => control.get('selected')?.value == true)
+        .filter((control) => control.get('id')?.value === find?.id).length;
+        return length > 0
       }
       return (this.role === 'MODERATOR' && find !== undefined) || this.role === 'ADMIN';
     } else {
@@ -500,8 +581,26 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getUsersString(users: UserBase[]) {
-    return users.map((u) => u.lastName + " " + u.firstName + (u.middleName !== '' ? " " + u.middleName : '')).join(", ")
+  countLeadSecArray(sectionIndex: number): number {
+    const leaders = this.sections.at(sectionIndex).get('leaders') as FormArray;
+    return leaders.controls.filter((control) => control.get('selected')?.value == true).length;
+  }
+
+  getStringLeadSecArray(sectionIndex: number) {
+    const leaders = this.sections.at(sectionIndex).get('leaders') as FormArray;
+    return leaders.controls.filter((control) => control.get('selected')?.value == true)
+    .map((control) => control.get('fullName')?.value).join(", ")
+  }
+
+  countReviewSecArray(sectionIndex: number): number {
+    const reviewers = this.sections.at(sectionIndex).get('reviewers') as FormArray;
+    return reviewers.controls.filter((control) => control.get('selected')?.value == true).length;
+  }
+
+  getStringReviewSecArray(sectionIndex: number) {
+    const reviewers = this.sections.at(sectionIndex).get('reviewers') as FormArray;
+    return reviewers.controls.filter((control) => control.get('selected')?.value == true)
+    .map((control) => control.get('fullName')?.value).join(", ")
   }
 
   toPage(link: string) {
