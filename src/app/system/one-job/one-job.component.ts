@@ -83,7 +83,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadAllData()
     const callback = () => {
       this.chatService.subscribeToJob(this.currentJobId, (message) => {
-        console.log('Received message for job:', message);
         this.currentComments.push(message);
       });
     };
