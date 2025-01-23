@@ -82,7 +82,7 @@
             </div>
           </div>
 
-          <div *ngIf="this.currentAdmins" formArrayName="sections">
+          <div formArrayName="sections">
             <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i">
               <div class="row conf-info-section">
                 <div class="col-6" style="padding-left: 0px; margin-bottom: 0px;">
