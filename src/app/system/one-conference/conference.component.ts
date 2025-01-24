@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {Section} from "../shared/model/section";
@@ -13,6 +13,7 @@ import {CommonModule} from "@angular/common";
 import {conferenceStatusMap} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-one-conference',
@@ -20,7 +21,7 @@ import {DateService} from "../shared/services/date.service";
   styleUrls: ['./conference.component.css'],
   imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
-export class ConferenceComponent implements OnInit, AfterViewInit {
+export class ConferenceComponent implements OnInit {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -34,8 +35,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   currentAdmins!: UserBase[];
 
   formAddJob!: FormGroup;
-  email!: string;
-  role!: string;
   currentUser!: User;
   currentUserJobId!: string;
 
@@ -45,30 +44,23 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-    if (email) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit() {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user && this.isModerator()) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('', [Validators.required]),
       authors: this.formBuilder.array([this.createAuthor()]),
@@ -90,6 +82,7 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
+        this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
         this.currentAdmins = this.currentConference.admins;
 
         if (this.isModerator()) {
@@ -102,14 +95,6 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
           });
         }
 
-        this.httpService.getSections(this.currentConferenceId).then((data) => {
-          this.sections = data.sort((a, b) => Number(a.id) - Number(b.id))
-        }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
-        })
-
         this.updateUserInfo()
 
       }).catch(error => {
@@ -121,40 +106,33 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
   }
 
   updateUserInfo() {
-    this.httpService.getUserInfo(this.email).then((data) => {
-      this.currentUser = data
-      this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
-      this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
-      this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
-      this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
-      this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
-      this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
+    this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
+    this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
+    this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
+    this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
+    this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
+    this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
 
-      this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
-        data.forEach((job) => {
-          if (String(job.conferenceId) === this.currentConferenceId) {
-            this.currentUserJobId = String(job.id)
-            return
-          }
-        })
-      }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+    this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
+      data.forEach((job) => {
+        if (String(job.conferenceId) === this.currentConferenceId) {
+          this.currentUserJobId = String(job.id)
+          return
+        }
       })
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
       this.alertService.constructErrorAlert(error, title, description);
-    })
+    });
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
+    return this.authService.hasRole('MODERATOR') || this.isAdmin();
   }
 
   isModeratorOfThisConference(): boolean {
@@ -163,13 +141,13 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
     }
     if (this.currentAdmins !== undefined && this.currentAdmins.length !== 0) {
       let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
-      return this.role === 'MODERATOR' && find !== undefined
+      return this.isModerator() && find !== undefined
     }
     return false;
   }
 
   isReviewer(): boolean {
-    return this.role === 'REVIEWER'
+    return this.authService.hasRole('REVIEWER')
   }
 
   get authors(): FormArray {
@@ -259,7 +237,11 @@ export class ConferenceComponent implements OnInit, AfterViewInit {
       "organization": this.formAddJob.value.organization,
     }
 
-    this.httpService.updateUserInfoByJob(requestUser).then((data) => {
+    this.httpService.updateUserInfoByJob(requestUser).then(() => {
+      return this.authService.getCurrentUser()
+    }).then((updatedUser) => {
+      // Данные обновлены, можно показать сообщение об успехе
+      this.alertService.success('Данные успешно обновлены');
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
@@ -7,6 +7,7 @@ import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-profile',
@@ -14,11 +15,9 @@ import {NgxMaskDirective} from "ngx-mask";
   styleUrl: './profile.component.css',
   imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
 })
-export class ProfileComponent implements OnInit, AfterViewInit {
+export class ProfileComponent implements OnInit {
 
   formProfile!: FormGroup;
-  email!: string;
-  role!: string;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
@@ -29,31 +28,23 @@ export class ProfileComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit() {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formProfile = this.formBuilder.group({
       firstName: new FormControl('',),
       lastName: new FormControl('',),
@@ -70,20 +61,30 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   loadAllData() {
-    this.route.params.pipe(map(p => p['id'])).subscribe(e => {
-      this.profileUserId = e;
+    let profId;
+    this.route.params.pipe(map(p => p['id'])).subscribe(e => profId = e);
+    if (this.isAdmin() && profId !== undefined) {
+      this.profileUserId = profId;
       this.httpService.getUserInfoById(this.profileUserId).then((data) => {
         this.profileUser = data
-        this.updateUserInfo()
+        this.updateUserInfoForm()
       }).catch(error => {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
       });
-    });
+    } else {
+      if (profId !== undefined) {
+        this.router.navigate(['/profile']);
+      } else {
+        this.profileUser = this.currentUser
+        this.profileUserId = String(this.currentUser.id)
+        this.updateUserInfoForm()
+      }
+    }
   }
 
-  updateUserInfo() {
+  updateUserInfoForm() {
     this.formProfile.controls['firstName'].setValue(this.profileUser.firstName)
     this.formProfile.controls['lastName'].setValue(this.profileUser.lastName)
     this.formProfile.controls['middleName'].setValue(this.profileUser.middleName)
@@ -97,13 +98,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.formProfile.controls['password'].setValue("***************")
   }
 
-
-  isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
-  }
-
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   allowToChange(): boolean {
@@ -145,7 +141,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   cancelProfile() {
     this.editProfile = false;
     this.formProfile.reset()
-    this.updateUserInfo()
+    this.updateUserInfoForm()
   }
 
   saveProfile() {
@@ -174,7 +170,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.profileUser.rincId = this.formProfile.value.rincId
     this.profileUser.telegramUserName = this.formProfile.value.telegram
 
-    this.httpService.updateUserInfo(requestUser).then((data) => {
+    this.httpService.updateUserInfo(requestUser).then(() => {
+      return this.authService.getCurrentUser()
+    }).then((updatedUser) => {
+      this.alertService.success('Данные успешно обновлены');
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
@@ -182,7 +181,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     });
     this.editProfile = false;
     this.formProfile.reset()
-    this.updateUserInfo()
+    this.updateUserInfoForm()
   }
 
   toPage(link: string) {

@@ -47,6 +47,10 @@ export const appRoutes: Routes = [
     component: UsersComponent
   },
   {
+    path: 'profile',
+    component: ProfileComponent
+  },
+  {
     path: 'profile/:id',
     component: ProfileComponent
   },

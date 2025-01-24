@@ -15,6 +15,7 @@ import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-one-conference',
@@ -38,8 +39,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   formAddJob!: FormGroup;
   formReview!: FormGroup;
   formComment!: FormGroup;
-  email!: string;
-  role!: string;
   currentUser!: User;
 
   existReviewByCurrentUser: boolean = false;
@@ -50,7 +49,8 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
               private route: ActivatedRoute,
               private httpService: HttpService,
               private alertService: AlertService,
-              private chatService: ChatService) {
+              private chatService: ChatService,
+              private authService: AuthService) {
   }
 
   private timer: any;
@@ -66,21 +66,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 1000);
   }
 
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
   ngAfterViewInit() {
-    this.loadAllData()
     const callback = () => {
       this.chatService.subscribeToJob(this.currentJobId, (message) => {
         this.currentComments.push(message);
@@ -103,10 +89,18 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('',),
       authors: this.formBuilder.array([]),
@@ -153,7 +147,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             this.existReviewByCurrentUser = true;
             this.reviewByCurrentUser = find;
             this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
-            console.log(find)
           }
         }
 
@@ -204,15 +197,15 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
+    return this.authService.hasRole('MODERATOR') || this.isAdmin();
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   isReviewer(): boolean {
-    return this.role === 'REVIEWER';
+    return this.authService.hasRole('REVIEWER');
   }
 
   updateMark(tag: string, mark: number) {
@@ -220,11 +213,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   saveReview() {
-    console.log(this.model)
     let request: ReviewDto = new ReviewDto()
     request.setReviews(this.model)
     request.setText(this.formReview.value.text)
-    console.log(JSON.stringify(request))
     this.httpService.reviewJob(this.currentJobId, request).then((data) => {
       this.existReviewByCurrentUser = true
       let review: Review = new Review();

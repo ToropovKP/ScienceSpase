@@ -10,6 +10,7 @@ import {IftaLabelModule} from "primeng/iftalabel";
 import {InputTextModule} from "primeng/inputtext";
 import {PasswordModule} from "primeng/password";
 import {ButtonModule} from "primeng/button";
+import {AuthService} from "../services/auth.service";
 
 @Component({
   selector: 'app-header',
@@ -27,23 +28,37 @@ export class HeaderComponent implements OnInit {
   userBlockedReg: boolean = false;
   userExists: boolean = false;
 
-  role!: string;
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
   currentUser!: User;
-  loggedStatus: boolean = false;
 
-  public showRegStatus!: User;
+  showRegStatus!: User;
 
   constructor(private router: Router,
               private formBuilder: FormBuilder,
               private httpService: HttpService,
-              private alertService: AlertService
+              private alertService: AlertService,
+              private authService: AuthService
   ) {
 
   }
 
   ngOnInit() {
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+      }
+    });
+
+    this.authService.getCurrentUser()
+    .catch((error) => {
+      console.error('Failed to load user data', error);
+    });
+
+    this.initializeForms();
+  }
+
+  initializeForms() {
     this.formRegistration = this.formBuilder.group({
       firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
       lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -83,15 +98,14 @@ export class HeaderComponent implements OnInit {
       this.invalidLogin = false
       this.userBlockedLogin = false
       this.closeModalLogIn.nativeElement.click()
-      sessionStorage.setItem("email", email);
       sessionStorage.setItem("token", data.access_token);
-      sessionStorage.setItem("role", data.role);
-      this.role = data.role;
-      this.httpService.getUserInfo(email).then((data) => {
-        this.currentUser = data;
-        //todo убрать и заменить на вызов апи в других местах
-        sessionStorage.setItem("user_info", JSON.stringify(data));
-      });
+
+      return this.authService.getCurrentUser()
+    }).then((user) => {
+      if (user) {
+        this.currentUser = user;
+      }
+
       this.loading = false;
       this.loginForm.reset();
       this.router.navigate(["/conferences"]);
@@ -148,28 +162,17 @@ export class HeaderComponent implements OnInit {
   }
 
   checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.loggedStatus = true;
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-      this.role = role ? role : '';
-      return true;
-    } else {
-      this.loggedStatus = false;
-      return false;
-    }
+    return this.authService.getUserInfo() != null;
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   logout() {
     this.httpService.logout().then(() => {
       sessionStorage.clear()
+      this.authService.clearData()
     });
   }
 

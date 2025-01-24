@@ -6,9 +6,9 @@
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')" *ngIf="loggedStatus"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('jobs')" *ngIf="loggedStatus && !isAdmin()"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="loggedStatus && isAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
+        <li (click)="toPage('conferences')" *ngIf="checkLogin()"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
+        <li (click)="toPage('jobs')" *ngIf="checkLogin() && !isAdmin()"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
+        <li (click)="toPage('all-users')" *ngIf="checkLogin() && isAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
       </ul>
 
       <div class="text-end" *ngIf="!checkLogin()">
@@ -23,7 +23,7 @@
         </a>
 
         <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser">
-          <li><a class="dropdown-item" type="button" (click)="toPage('profile/' + this.currentUser.id)">Профиль</a></li>
+          <li><a class="dropdown-item" type="button" (click)="toPage('profile')">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" [routerLink]="['']" (click)="logout()">Выход</a></li>
         </ul>

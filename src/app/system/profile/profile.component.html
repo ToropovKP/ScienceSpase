@@ -8,7 +8,7 @@
             Email: {{this.profileUser.email}}
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.isAdmin()">
           <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('MODERATOR')">
             <a>Назначить администратором</a>
           </div>
@@ -16,7 +16,7 @@
             <a>Назначить участником</a>
           </div>
         </div>
-        <div class="col-4" style="padding-left: 0px;" *ngIf="this.currentUser.role == 'ADMIN'">
+        <div class="col-4" style="padding-left: 0px;" *ngIf="this.isAdmin()">
           <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
             <a>Заблокировать</a>
           </div>

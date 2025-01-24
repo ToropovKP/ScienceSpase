@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
@@ -12,6 +12,7 @@ import {UserBase} from "../shared/model/user.base";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-one-conference-create',
@@ -19,7 +20,7 @@ import {UserBaseDto} from "../shared/dto/user.base.dto";
   styleUrls: ['./conference-create.component.css'],
   imports: [ReactiveFormsModule, CommonModule]
 })
-export class ConferenceCreateComponent implements OnInit, AfterViewInit {
+export class ConferenceCreateComponent implements OnInit {
 
   protected readonly conferenceStatusList = conferenceStatusList;
 
@@ -33,9 +34,6 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   currentStatus: String = 'ON_HOLD';
 
   formCreateConference!: FormGroup;
-  email!: string;
-  role!: string;
-
   currentUser!: User;
 
   isNameExists: boolean = false;
@@ -44,31 +42,23 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit() {
-    if (!this.checkLogin() || !this.isModerator()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user && this.isModerator()) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formCreateConference = this.formBuilder.group({
       confName: new FormControl('', [Validators.required, Validators.minLength(4)]),
       confStatus: new FormControl('', [Validators.required]),
@@ -82,6 +72,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   loadAllData() {
+    this.currentUser = this.authService.getUserInfo()!;
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
       this.currentConferenceId = e;
 
@@ -522,11 +513,11 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
+    return this.authService.hasRole('MODERATOR') || this.isAdmin();
   }
 
   isModeratorOfThisConference(): boolean {
@@ -535,7 +526,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
     }
     if (this.currentAdmins && this.currentAdmins.length !== 0) {
       let find = this.currentAdmins.find((admin) => admin.id === this.currentUser.id);
-      return this.role === 'MODERATOR' && find !== undefined
+      return this.isModerator() && find !== undefined
     }
     return false;
   }
@@ -575,7 +566,7 @@ export class ConferenceCreateComponent implements OnInit, AfterViewInit {
         .filter((control) => control.get('id')?.value === find?.id).length;
         return length > 0
       }
-      return (this.role === 'MODERATOR' && find !== undefined) || this.role === 'ADMIN';
+      return (this.authService.hasRole('MODERATOR') && find !== undefined) || this.isAdmin();
     } else {
       return true
     }

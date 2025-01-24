@@ -68,9 +68,9 @@ export class HttpService {
     return await firstValueFrom(this.http.get<User>(`${baseUrl}/api/v1/user?id=${id}`, this.httpOptions));
   }
 
-  async getUserInfo(email: string): Promise<User> {
+  async getCurrentUser(): Promise<User> {
     this.updateHeaders();
-    return await firstValueFrom(this.http.get<User>(`${baseUrl}/api/v1/user?email=${email}`, this.httpOptions));
+    return await firstValueFrom(this.http.get<User>(`${baseUrl}/api/v1/user/current`, this.httpOptions));
   }
 
   async changeUserRole(id: string, role: string): Promise<boolean> {

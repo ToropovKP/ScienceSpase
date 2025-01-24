@@ -1,10 +1,11 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
 import {userRoleMap, userStatusMap} from "../../app.constants";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-users',
@@ -12,45 +13,27 @@ import {CommonModule} from "@angular/common";
   styleUrls: ['./users.component.css'],
   imports: [CommonModule]
 })
-export class UsersComponent implements OnInit, AfterViewInit {
+export class UsersComponent implements OnInit {
 
   protected readonly userStatusMap = userStatusMap;
   protected readonly userRoleMap = userRoleMap;
 
   users: User[] = [];
 
-  email!: string;
-  role!: string;
-
   constructor(private router: Router,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-
-  checkLogin(): boolean {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      return true;
-    } else {
-      this.email = '';
-      this.role = '';
-      return false;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit(): void {
-    if (!this.checkLogin() || !this.isAdmin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (!user) {
+        this.router.navigate(['']);
+      } else {
+        this.loadAllData()
+      }
+    });
   }
 
   loadAllData() {
@@ -68,7 +51,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   toPage(link: string) {
