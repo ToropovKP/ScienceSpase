@@ -55,7 +55,6 @@ export class ProfileComponent implements OnInit {
       academicTitle: new FormControl('',),
       orcId: new FormControl('',),
       rincId: new FormControl('',),
-      telegram: new FormControl('',),
       password: new FormControl('',),
     })
   }
@@ -94,7 +93,6 @@ export class ProfileComponent implements OnInit {
     this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
     this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
     this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
-    this.formProfile.controls['telegram'].setValue(this.profileUser.telegramUserName)
     this.formProfile.controls['password'].setValue("***************")
   }
 
@@ -176,7 +174,6 @@ export class ProfileComponent implements OnInit {
       "academicTitle": this.formProfile.value.academicTitle,
       "orcId": this.formProfile.value.orcId,
       "rincId": this.formProfile.value.rincId,
-      "telegramUserName": this.formProfile.value.telegram,
     }
 
     this.profileUser.firstName = this.formProfile.value.firstName
@@ -188,7 +185,6 @@ export class ProfileComponent implements OnInit {
     this.profileUser.academicTitle = this.formProfile.value.academicTitle
     this.profileUser.orcId = this.formProfile.value.orcId
     this.profileUser.rincId = this.formProfile.value.rincId
-    this.profileUser.telegramUserName = this.formProfile.value.telegram
 
     this.httpService.updateUserInfo(requestUser).then(() => {
       return this.authService.getCurrentUser()

@@ -6,7 +6,6 @@ export class User {
   private _middleName!: string;
   private _phone!: string;
   private _email!: string;
-  private _telegramUserName!: string;
   private _organization!: string;
   private _academicDegree!: string;
   private _academicTitle!: string;
@@ -113,14 +112,6 @@ export class User {
 
   set email(value: string) {
     this._email = value;
-  }
-
-  get telegramUserName(): string {
-    return this._telegramUserName;
-  }
-
-  set telegramUserName(value: string) {
-    this._telegramUserName = value;
   }
 
   get role(): string {
