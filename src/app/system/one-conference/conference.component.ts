@@ -50,7 +50,7 @@ export class ConferenceComponent implements OnInit {
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
-      if (user && this.isModerator()) {
+      if (user) {
         this.currentUser = user;
         this.initializeForms();
         this.loadAllData()
@@ -189,16 +189,28 @@ export class ConferenceComponent implements OnInit {
   }
 
   checkUsers() {
-    this.toPage(`/conference/${this.currentConferenceId}/jobs`);
+    if (this.currentUser.verified) {
+      this.toPage(`/conference/${this.currentConferenceId}/jobs`);
+    } else {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+    }
   }
 
   editConference() {
-    this.toPage(`/conference/${this.currentConferenceId}/edit`);
+    if (this.currentUser.verified) {
+      this.toPage(`/conference/${this.currentConferenceId}/edit`);
+    } else {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+    }
   }
 
   addJob() {
-    this.addingJob = true;
-    this.updateUserInfo()
+    if (this.currentUser.verified) {
+      this.addingJob = true;
+      this.updateUserInfo()
+    } else {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+    }
   }
 
   openJob() {
@@ -227,6 +239,11 @@ export class ConferenceComponent implements OnInit {
   }
 
   createJob() {
+    if (!this.currentUser.verified) {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      return;
+    }
+
     let requestUser = {
       "id": this.currentUser.id,
       "phone": this.formAddJob.value.phone,
@@ -240,8 +257,7 @@ export class ConferenceComponent implements OnInit {
     this.httpService.updateUserInfoByJob(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      // Данные обновлены, можно показать сообщение об успехе
-      this.alertService.success('Данные успешно обновлены');
+      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';

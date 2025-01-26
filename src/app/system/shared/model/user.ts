@@ -14,6 +14,7 @@ export class User {
   private _rincId!: string;
   private _role!: string;
   private _status!: string;
+  private _verified!: boolean;
 
   constructor() {
   }
@@ -128,6 +129,10 @@ export class User {
 
   set role(value: string) {
     this._role = value;
+  }
+
+  get verified(): boolean {
+    return this._verified;
   }
 
   get fullName() {

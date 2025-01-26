@@ -110,6 +110,26 @@ export class ProfileComponent implements OnInit {
     return String(this.currentUser.id) === this.profileUserId;
   }
 
+  sendRepeatLink() {
+    this.httpService.sendRepeatLink().then((data) => {
+      if (data) {
+        this.alertService.constructSuccessAlert('Успешно', 'Письмо отправлено');
+        return null;
+      } else {
+        this.alertService.constructWarnAlert('Ошибка', 'Ваш аккаунт уже подтвержден');
+        return this.authService.getCurrentUser();
+      }
+    }).then((user) => {
+      if (user) {
+        this.currentUser = user;
+      }
+    }).catch(error => {
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
+    });
+  }
+
   changeRole(role: string) {
     this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
       if (data) {
@@ -173,7 +193,7 @@ export class ProfileComponent implements OnInit {
     this.httpService.updateUserInfo(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      this.alertService.success('Данные успешно обновлены');
+      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';

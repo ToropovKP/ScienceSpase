@@ -57,6 +57,14 @@ export class ConferencesComponent implements OnInit {
     return this.authService.hasRole('ADMIN');
   }
 
+  createConference() {
+    if (this.currentUser.verified) {
+      this.toPage('/conferences/create');
+    } else {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+    }
+  }
+
   openConf(id: bigint): void {
     this.router.navigate([`/conference/${id}`]);
   }

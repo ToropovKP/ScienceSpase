@@ -28,7 +28,8 @@
       </div>
 
       <div class="row konf-information rounded-3">
-
+        <span *ngIf="showButtonsToChange() && !this.profileUser.verified" class="text-bg-danger bg-opacity-75 w-50">Подтвердите аккаунт, перейдя по ссылке в письме</span>
+        <span *ngIf="showButtonsToChange() && !this.profileUser.verified" class="w-50 text-black">Не пришло письмо? <a (click)="sendRepeatLink()" class="link-primary" style="cursor: pointer">Нажмите здесь, для повторной отправки</a></span>
         <div style="margin-top: 20px; padding: 0px;">
           <form [formGroup]="formProfile">
             <div class="row" style="margin-left: 0px;">

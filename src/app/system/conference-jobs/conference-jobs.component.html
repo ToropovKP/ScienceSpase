@@ -46,6 +46,10 @@
             </div>
           </div>
 
+          <div *ngIf="!this.jobs || this.jobs.length === 0" class="text-center text-black" style="font-size: 30px; margin-top: 30px">
+            Нет добавленных статей
+          </div>
+
           <div class="row conf-info-section-item" *ngFor="let job of this.jobs">
             <div *ngIf="!isReviewer()" class="col-3 conf-info-section">
               <div class="jobs-list-text text-center text-black">{{ job.userName }}</div>

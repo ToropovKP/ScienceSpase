@@ -1,0 +1,29 @@
+<section id="verify-account">
+  <div class="container">
+
+    <div class="main">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
+        <div class="d-inline-flex align-items-center col-10">
+          <div class="text-black" style="font-size: 20px; margin-left: 10px;">
+            Подтверждение аккаунта
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!this.currentUser" class="row verify-div rounded-3 text-black">
+        <div *ngIf="!verified" class="text-bg-warning bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
+          Необходимо сначала авторизоваться
+        </div>
+      </div>
+
+      <div *ngIf="this.currentUser" class="row verify-div rounded-3 text-black">
+        <div *ngIf="verified" class="text-bg-success bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
+          Ваш аккаунт успешно подтвержден!
+        </div>
+        <div *ngIf="!verified" class="text-bg-warning bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
+          Ваш аккаунт неподтвержден! Ссылка устарела, попробуйте <a (click)="sendRepeatLink()" class="link-primary" style="cursor: pointer">снова</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

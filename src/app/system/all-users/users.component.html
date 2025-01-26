@@ -56,10 +56,14 @@
           </div>
         </div>
 
-        <div class="d-flex justify-content-center" *ngIf="this.users.length == 0">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
+<!--        <div class="d-flex justify-content-center" *ngIf="this.users.length == 0">-->
+<!--          <div class="spinner-border" role="status">-->
+<!--            <span class="visually-hidden">Loading...</span>-->
+<!--          </div>-->
+<!--        </div>-->
+
+        <div *ngIf="!this.users || this.users.length === 0" class="text-center text-black" style="font-size: 30px; margin-top: 30px">
+          Нет зарегистрированных пользователей
         </div>
 
         <div class="row conf-info-section-item" *ngFor="let user of this.users">

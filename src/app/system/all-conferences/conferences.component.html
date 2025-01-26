@@ -31,11 +31,15 @@
         </div>
 
         <div class="d-inline-flex align-items-center justify-content-end col-2">
-          <button *ngIf="isAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="toPage('conferences/create')">+</button>
+          <button *ngIf="isAdmin()" type="button" class="btn btn-pref-add text-white rounded-3" (click)="createConference()">+</button>
         </div>
       </div>
 
-      <div class="row konf-list rounded-3">
+      <div *ngIf="!this.conferences || this.conferences.length === 0" class="text-center" style="font-size: 30px; margin-top: 50px">
+        Нет конференций
+      </div>
+
+      <div *ngIf="this.conferences && this.conferences.length > 0" class="row konf-list rounded-3">
         <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let conf of this.conferences">
           <div class="konf-item w-100 justify-content-center rounded-3">
             <div class="img-info-conf rounded-3">

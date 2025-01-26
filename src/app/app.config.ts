@@ -18,7 +18,12 @@ export function initializeApp(authService: AuthService, router: Router): () => P
     try {
       await authService.getCurrentUser();
     } catch (error) {
-      router.navigate(['']);
+      const currentPath = window.location.pathname;
+      console.log(currentPath)
+      const publicPaths = ['/verify-email', '/restore-password'];
+      if (!publicPaths.includes(currentPath)) {
+        await router.navigate(['']);
+      }
     }
   };
 }

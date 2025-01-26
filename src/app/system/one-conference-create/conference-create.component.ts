@@ -149,6 +149,11 @@ export class ConferenceCreateComponent implements OnInit {
   }
 
   createConference() {
+    if (!this.currentUser.verified) {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      return;
+    }
+
     let sectionsDto: SectionDto[] = []
     this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
     .forEach((sectionControl) => {
@@ -227,7 +232,11 @@ export class ConferenceCreateComponent implements OnInit {
   }
 
   updateConference() {
-    // обновление полей + добавление секций
+    if (!this.currentUser.verified) {
+      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      return;
+    }
+
     let sectionsDto: SectionDto[] = []
     this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
     .forEach((sectionControl) => {

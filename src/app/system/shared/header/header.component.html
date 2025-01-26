@@ -17,6 +17,12 @@
 
       </div>
 
+      <div class="text-end" *ngIf="checkLogin()">
+        <span *ngIf="!this.currentUser.verified" class="text-bg-danger" style="margin-right: 10px">
+          Неподтвержден
+        </span>
+      </div>
+
       <div class="dropdown text-end" *ngIf="checkLogin()">
         <a href="#" type="button" class="dropdown-toggle d-block text-white text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
           {{this.currentUser.firstName + ' ' + this.currentUser.lastName}}
@@ -67,6 +73,7 @@
           </div>
           <p-button class="w-100 btn-login" label="Вход" type="submit" [fluid]="true" [loading]="loading" (click)="login()" [disabled]="loginForm.invalid"/>
 <!--          <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>-->
+          <small class="text-muted text-center" style="padding-left: 25%;">Забыли пароль? <a class="link-primary" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#windowRestore">Восстановить</a></small>
         </form>
       </div>
     </div>
@@ -90,13 +97,6 @@
             <input type="fullName" class="form-control rounded-3" formControlName="lastName">
             <label for="floatingInput">Фамилия <span style="color: red;">*</span></label>
           </div>
-<!--          <span class="text-black" *ngIf="formRegistration.get('lastName')?.invalid && formRegistration.get('lastName')?.touched">-->
-<!--            <span *ngIf="formRegistration.get('lastName')?.errors?.['required']">Дата рождения не может быть пустой</span>-->
-<!--            <span *ngIf="formRegistration.get('lastName')?.errors?.['minlength'] && formRegistration.get('lastName')?.errors?.['minlength']['requiredLength']">-->
-<!--         Дата рождения должна быть больше {{ formRegistration.get('lastName')?.errors?.['minlength']['requiredLength'] }}-->
-<!--              символов. Сейчас {{ formRegistration.get('lastName')?.errors?.['minlength']['actualLength'] }}.-->
-<!--            </span>-->
-<!--          </span>-->
 
           <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('firstName')?.invalid && formRegistration.get('firstName')?.touched}">
             <input type="fullName" class="form-control rounded-3" formControlName="firstName">
@@ -118,20 +118,20 @@
             <label for="floatingInput">Email <span style="color: red;">*</span></label>
           </div>
 
-          <div class="form-floating mb-3">
-            <input type="organization" class="form-control rounded-3" formControlName="organization">
-            <label for="floatingInput">Аффилиация (организация) </label>
-          </div>
+<!--          <div class="form-floating mb-3">-->
+<!--            <input type="organization" class="form-control rounded-3" formControlName="organization">-->
+<!--            <label for="floatingInput">Аффилиация (организация) </label>-->
+<!--          </div>-->
 
-          <div class="form-floating mb-3">
-            <input type="academicDegree" class="form-control rounded-3" formControlName="academicDegree">
-            <label for="floatingInput">Ученая степень</label>
-          </div>
+<!--          <div class="form-floating mb-3">-->
+<!--            <input type="academicDegree" class="form-control rounded-3" formControlName="academicDegree">-->
+<!--            <label for="floatingInput">Ученая степень</label>-->
+<!--          </div>-->
 
-          <div class="form-floating mb-3">
-            <input type="academicTitle" class="form-control rounded-3" formControlName="academicTitle">
-            <label for="floatingInput">Ученое звание</label>
-          </div>
+<!--          <div class="form-floating mb-3">-->
+<!--            <input type="academicTitle" class="form-control rounded-3" formControlName="academicTitle">-->
+<!--            <label for="floatingInput">Ученое звание</label>-->
+<!--          </div>-->
 
           <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('password')?.invalid && formRegistration.get('password')?.touched}">
             <input type="password" class="form-control rounded-3" formControlName="password">
@@ -141,7 +141,9 @@
             <input type="password" class="form-control rounded-3" formControlName="confirmedPassword">
             <label for="floatingInput">Подтверждение пароля <span style="color: red;">*</span></label>
           </div>
-
+          <span *ngIf="formRegistration.errors?.['passwordMismatch'] && formRegistration.touched" style="color: #D80000; padding-bottom: 10px">
+            Пароли не совпадают
+          </span>
 
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="userBlockedReg">Пользователь с таким email заблокирован</span>
@@ -156,22 +158,29 @@
   </div>
 </div>
 
-<!--
- FORM CODE
-<div class="modal fade" id="windowCode" tabindex="-1" aria-labelledby="windowCode" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" id="code">
-    <div class="modal-content" id="background__code">
-      <h5 class="modal-title">Регистрация</h5>
-      <form [formGroup]="formCode">
-          <div class="form-group col-7">
-            <label>Введите код высланный на ваш e-mail</label>
-            <input type="code" formControlName="code" class="input__modal"/>
+
+<div class="modal fade modal-signin" (keyup.enter)="pressBtn('buttonRestore')" id="windowRestore" tabindex="-1" aria-labelledby="windowRestore" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" id="restore">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header p-4 pt-4 pb-4 border-bottom-0">
+        <h2 class="fw-bold mb-0" style="color: #2D2D2D;">Восстановление пароля</h2>
+        <button type="button" #closeModalRestore class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4 pb-3 pt-0">
+        <form [formGroup]="formRestore" (keyup.enter)="pressBtn('button__code')">
+
+          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('formRestore')?.invalid && formRestore.get('email')?.touched}">
+            <input type="email" class="form-control rounded-3" formControlName="email">
+            <label for="floatingInput">Почта <span style="color: red;">*</span></label>
           </div>
-        <button type="submit" id="button__code" data-bs-dismiss="modal">
-          Зарегистрироваться
-        </button>
-      </form>
+
+          <div class="text-center" style="color: #D80000; padding-bottom: 10px">
+            <span *ngIf="restoreEmailNotExist">Пользователя с таким email не существует</span>
+          </div>
+          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="restorePassword()" [disabled]="formRestore.invalid">Восстановить</button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
--->

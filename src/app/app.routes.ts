@@ -8,6 +8,8 @@ import {JobsComponent} from "./system/jobs/jobs.component";
 import {OneJobComponent} from "./system/one-job/one-job.component";
 import {UsersComponent} from "./system/all-users/users.component";
 import {ProfileComponent} from "./system/profile/profile.component";
+import {VerifyAccountComponent} from "./system/verify-account/verify-account.component";
+import {RestorePasswordComponent} from "./system/restore-account/restore-password.component";
 
 export const appRoutes: Routes = [
   {
@@ -53,6 +55,14 @@ export const appRoutes: Routes = [
   {
     path: 'profile/:id',
     component: ProfileComponent
+  },
+  {
+    path: 'verify-email',
+    component: VerifyAccountComponent
+  },
+  {
+    path: 'restore-password',
+    component: RestorePasswordComponent
   },
   {
     path: '**',

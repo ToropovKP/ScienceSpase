@@ -30,7 +30,7 @@ export class HttpService {
   // /auth
 
   private updateHeaders() {
-    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', `Bearer ${sessionStorage.getItem('token')}`);
+    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', `Bearer ${localStorage.getItem('token')}`);
   }
 
   async login(request: object): Promise<LoginResponse> {
@@ -46,6 +46,26 @@ export class HttpService {
 
   async registration(request: object): Promise<User> {
     return await firstValueFrom(this.http.post<User>(`${baseUrl}/api/v1/user/create`, request, this.httpOptions));
+  }
+
+  async verifyAccount(token: string): Promise<boolean> {
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/verify?token=${token}`, {}, this.httpOptions));
+  }
+
+  async sendRepeatLink(): Promise<boolean> {
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/send-verify-link`, {}, this.httpOptions));
+  }
+
+  async changePasswordByRestore(token: string, request: object): Promise<boolean> {
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/change-password?token=${token}`, request, this.httpOptions));
+  }
+
+  async restorePassword(token: string): Promise<boolean> {
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/restore-password?token=${token}`, {}, this.httpOptions));
+  }
+
+  async sendRestorePasswordLink(email: string): Promise<boolean> {
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/send-restore-link?email=${email}`, {}, this.httpOptions));
   }
 
   async getUsers(): Promise<User[]> {
@@ -178,7 +198,7 @@ export class HttpService {
 
   async uploadFiles(formData: FormData): Promise<UploadResponse[]> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${sessionStorage.getItem('token')}`, // Добавляем токен, если нужен
+      Authorization: `Bearer ${localStorage.getItem('token')}`, // Добавляем токен, если нужен
       Accept: 'application/json',
     });
     return await firstValueFrom(this.http.post<UploadResponse[]>(`${baseUrl}/api/v1/files/uploadMultipleFiles`, formData, {

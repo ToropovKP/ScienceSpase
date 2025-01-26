@@ -31,7 +31,11 @@
         </div>
       </div>
 
-      <div class="row konf-list rounded-3">
+      <div *ngIf="!this.jobs || this.jobs.length === 0" class="text-center" style="font-size: 30px; margin-top: 50px">
+        Нет добавленных статей
+      </div>
+
+      <div *ngIf="this.jobs && this.jobs.length > 0" class="row konf-list rounded-3">
         <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let job of this.jobs">
 
           <div class="konf-item rounded-3">
