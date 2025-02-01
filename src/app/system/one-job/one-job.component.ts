@@ -95,7 +95,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
         this.initializeForms();
         this.loadAllData()
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       }
     });
   }
@@ -165,6 +165,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
+        if (error.status == '500') {
+          this.router.navigate(['not-found']);
+        }
       })
     });
   }

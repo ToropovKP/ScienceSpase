@@ -52,12 +52,10 @@ export class ConferenceComponent implements OnInit {
     this.authService.currentUser$.subscribe((user) => {
       if (user) {
         this.currentUser = user;
-        this.initializeForms();
-        this.loadAllData()
-      } else {
-        this.router.navigate(['']);
       }
     });
+    this.initializeForms();
+    this.loadAllData()
   }
 
   initializeForms() {
@@ -96,16 +94,21 @@ export class ConferenceComponent implements OnInit {
         }
 
         this.updateUserInfo()
-
       }).catch(error => {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
+        if (error.status == '400') {
+          this.router.navigate(['not-found']);
+        }
       });
     });
   }
 
   updateUserInfo() {
+    if (!this.currentUser) {
+      return;
+    }
     this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
     this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
     this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
@@ -136,6 +139,9 @@ export class ConferenceComponent implements OnInit {
   }
 
   isModeratorOfThisConference(): boolean {
+    if (!this.currentUser) {
+      return false;
+    }
     if (this.isAdmin()) {
       return true;
     }
@@ -189,26 +195,32 @@ export class ConferenceComponent implements OnInit {
   }
 
   checkUsers() {
-    if (this.currentUser.verified) {
+    if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/jobs`);
-    } else {
+    } else if (!this.currentUser) {
+      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+    } else if (!this.currentUser.verified) {
       this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
     }
   }
 
   editConference() {
-    if (this.currentUser.verified) {
+    if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/edit`);
-    } else {
+    } else if (!this.currentUser) {
+      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+    } else if (!this.currentUser.verified) {
       this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
     }
   }
 
   addJob() {
-    if (this.currentUser.verified) {
+    if (this.currentUser && this.currentUser.verified) {
       this.addingJob = true;
       this.updateUserInfo()
-    } else {
+    } else if (!this.currentUser) {
+      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+    } else if (!this.currentUser.verified) {
       this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
     }
   }
@@ -239,7 +251,10 @@ export class ConferenceComponent implements OnInit {
   }
 
   createJob() {
-    if (!this.currentUser.verified) {
+    if (!this.currentUser) {
+      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      return;
+    } else if (!this.currentUser.verified) {
       this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
       return;
     }

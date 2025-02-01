@@ -14,19 +14,34 @@ const maskConfig: Partial<NgxMaskConfig> = {
 };
 
 export function initializeApp(authService: AuthService, router: Router): () => Promise<any> {
-  return async () => {
-    try {
-      await authService.getCurrentUser();
-    } catch (error) {
-      const currentPath = window.location.pathname;
-      console.log(currentPath)
-      const publicPaths = ['/verify-email', '/restore-password'];
-      if (!publicPaths.includes(currentPath)) {
-        await router.navigate(['']);
-      }
-    }
+  return () => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        try {
+          authService.getCurrentUser().finally(resolve);
+        } catch (error) {
+          const currentPath = window.location.pathname;
+          console.log(currentPath)
+          const publicPaths = ['/verify-email', '/restore-password'];
+          if (!publicPaths.includes(currentPath)) {
+            router.navigate(['']).finally(resolve);
+          } else {
+            resolve();
+          }
+        }
+      }, 500)
+    })
   };
 }
+
+const channel = new BroadcastChannel('auth-channel');
+channel.postMessage({token: localStorage.getItem('token')});
+
+channel.onmessage = (event) => {
+  if (event.data.token) {
+    localStorage.setItem('token', event.data.token);
+  }
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [

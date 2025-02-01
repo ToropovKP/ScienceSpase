@@ -36,7 +36,7 @@ export class JobsComponent implements OnInit {
         this.currentUser = user;
         this.loadAllData()
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       }
     });
   }

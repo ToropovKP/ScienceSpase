@@ -53,7 +53,7 @@ export class ConferenceCreateComponent implements OnInit {
         this.initializeForms();
         this.loadAllData()
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       }
     });
   }
@@ -110,6 +110,9 @@ export class ConferenceCreateComponent implements OnInit {
                   let title = "Возникла непредвиденная ошибка";
                   let description = 'Ошибка на стороне сервера';
                   this.alertService.constructErrorAlert(error, title, description);
+                  if (error.status == '400') {
+                    this.router.navigate(['not-found']);
+                  }
                 });
               } else {
                 this.fillSections([])
@@ -138,6 +141,9 @@ export class ConferenceCreateComponent implements OnInit {
                 let title = "Возникла непредвиденная ошибка";
                 let description = 'Ошибка на стороне сервера';
                 this.alertService.constructErrorAlert(error, title, description);
+                if (error.status == '400') {
+                  this.router.navigate(['not-found']);
+                }
               });
             } else {
               this.fillSections([])

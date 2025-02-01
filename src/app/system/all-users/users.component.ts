@@ -29,7 +29,7 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       if (!user) {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       } else {
         this.loadAllData()
       }

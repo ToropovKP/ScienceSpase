@@ -2,11 +2,11 @@
   <div class="container">
     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
       <a [routerLink]="['']"  class="logo__link d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-        <img class="icon bi me-2" height="65" src="../../../../assets/pictures/header/nnstu.svg">
+        <img class="icon bi me-2" height="65" src="/assets/pictures/header/nnstu.svg">
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')" *ngIf="checkLogin()"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
+        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
         <li (click)="toPage('jobs')" *ngIf="checkLogin() && !isAdmin()"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
         <li (click)="toPage('all-users')" *ngIf="checkLogin() && isAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
       </ul>
@@ -31,7 +31,7 @@
         <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser">
           <li><a class="dropdown-item" type="button" (click)="toPage('profile')">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" [routerLink]="['']" (click)="logout()">Выход</a></li>
+          <li><a class="dropdown-item" type="button" (click)="logout()">Выход</a></li>
         </ul>
       </div>
     </div>
@@ -49,30 +49,20 @@
 
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="loginForm">
-
           <p-iftalabel>
             <input pInputText id="email" formControlName="email" autocomplete="off" class="w-100 mb-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" />
-            <label for="email">Email <span style="color: red;">*</span></label>
+            <label for="email">Почта <span style="color: red;">*</span></label>
           </p-iftalabel>
 
           <p-iftalabel>
             <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password" inputId="password" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
             <label for="password">Пароль <span style="color: red;">*</span></label>
           </p-iftalabel>
-<!--          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}">-->
-<!--            <input type="email" class="form-control rounded-3" formControlName="email" id="floatingInput">-->
-<!--            <label for="floatingInput">Email <span style="color: red;">*</span></label>-->
-<!--          </div>-->
-<!--          <div class="form-floating mb-3" [ngClass]="{'has-error': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}">-->
-<!--            <input type="password" class="form-control rounded-3" formControlName="password" id="floatingPassword">-->
-<!--            <label for="floatingPassword">Пароль <span style="color: red;">*</span></label>-->
-<!--          </div>-->
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
             <span *ngIf="userBlockedLogin">Пользователь заблокирован</span>
           </div>
           <p-button class="w-100 btn-login" label="Вход" type="submit" [fluid]="true" [loading]="loading" (click)="login()" [disabled]="loginForm.invalid"/>
-<!--          <button class="w-100 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="login()" [disabled]="loginForm.invalid">Вход</button>-->
           <small class="text-muted text-center" style="padding-left: 25%;">Забыли пароль? <a class="link-primary" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#windowRestore">Восстановить</a></small>
         </form>
       </div>
@@ -92,66 +82,65 @@
 
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="formRegistration" (keyup.enter)="pressBtn('button__code')">
+          <p-iftalabel class="mb-3">
+            <input pInputText id="lastName" formControlName="lastName" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('lastName')?.invalid && formRegistration.get('lastName')?.touched}" />
+            <label for="lastName">Фамилия <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('lastName')?.invalid && formRegistration.get('lastName')?.touched}">
-            <input type="fullName" class="form-control rounded-3" formControlName="lastName">
-            <label for="floatingInput">Фамилия <span style="color: red;">*</span></label>
-          </div>
+          <p-iftalabel class="mb-3">
+            <input pInputText id="firstName" formControlName="firstName" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('firstName')?.invalid && formRegistration.get('firstName')?.touched}" />
+            <label for="firstName">Имя <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('firstName')?.invalid && formRegistration.get('firstName')?.touched}">
-            <input type="fullName" class="form-control rounded-3" formControlName="firstName">
-            <label for="floatingInput">Имя <span style="color: red;">*</span></label>
-          </div>
+          <p-iftalabel class="mb-3">
+            <input pInputText id="middleName" formControlName="middleName" autocomplete="off" [fluid]="true" />
+            <label for="middleName">Отчество </label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3">
-            <input type="fullName" class="form-control rounded-3" formControlName="middleName">
-            <label for="floatingInput">Отчество </label>
-          </div>
+          <p-iftalabel class="mb-3">
+            <input pInputText prefix="+7 " mask="(000) 000-0000" id="phone" formControlName="phone" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('phone')?.invalid && formRegistration.get('phone')?.touched}" />
+            <label for="phone">Номер телефона <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('phone')?.invalid && formRegistration.get('phone')?.touched}">
-            <input type="phone" prefix="+7 " mask="(000) 000-0000" formControlName="phone" class="form-control rounded-3">
-            <label for="floatingInput">Номер телефона <span style="color: red;">*</span></label>
-          </div>
+          <p-iftalabel class="mb-3">
+            <input pInputText id="email" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('email')?.invalid && formRegistration.get('email')?.touched}" />
+            <label for="email">Почта <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('email')?.invalid && formRegistration.get('email')?.touched}">
-            <input type="email" class="form-control rounded-3" formControlName="email">
-            <label for="floatingInput">Email <span style="color: red;">*</span></label>
-          </div>
+<!--          <p-iftalabel class="mb-3">-->
+<!--            <input pInputText id="organization" formControlName="organization" autocomplete="off" [fluid]="true" />-->
+<!--            <label for="organization">Аффилиация (организация) </label>-->
+<!--          </p-iftalabel>-->
 
-<!--          <div class="form-floating mb-3">-->
-<!--            <input type="organization" class="form-control rounded-3" formControlName="organization">-->
-<!--            <label for="floatingInput">Аффилиация (организация) </label>-->
-<!--          </div>-->
+<!--          <p-iftalabel class="mb-3">-->
+<!--            <input pInputText id="academicDegree" formControlName="academicDegree" autocomplete="off" [fluid]="true" />-->
+<!--            <label for="academicDegree">Ученая степень </label>-->
+<!--          </p-iftalabel>-->
 
-<!--          <div class="form-floating mb-3">-->
-<!--            <input type="academicDegree" class="form-control rounded-3" formControlName="academicDegree">-->
-<!--            <label for="floatingInput">Ученая степень</label>-->
-<!--          </div>-->
+<!--          <p-iftalabel class="mb-3">-->
+<!--            <input pInputText id="academicTitle" formControlName="academicTitle" autocomplete="off" [fluid]="true" />-->
+<!--            <label for="academicTitle">Ученое звание </label>-->
+<!--          </p-iftalabel>-->
 
-<!--          <div class="form-floating mb-3">-->
-<!--            <input type="academicTitle" class="form-control rounded-3" formControlName="academicTitle">-->
-<!--            <label for="floatingInput">Ученое звание</label>-->
-<!--          </div>-->
+          <p-iftalabel class="mb-3">
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password" inputId="password" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
+            <label for="password">Пароль <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('password')?.invalid && formRegistration.get('password')?.touched}">
-            <input type="password" class="form-control rounded-3" formControlName="password">
-            <label for="floatingInput">Пароль <span style="color: red;">*</span></label>
-          </div>
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('confirmedPassword')?.invalid && formRegistration.get('confirmedPassword')?.touched}">
-            <input type="password" class="form-control rounded-3" formControlName="confirmedPassword">
-            <label for="floatingInput">Подтверждение пароля <span style="color: red;">*</span></label>
-          </div>
-          <span *ngIf="formRegistration.errors?.['passwordMismatch'] && formRegistration.touched" style="color: #D80000; padding-bottom: 10px">
-            Пароли не совпадают
-          </span>
+          <p-iftalabel class="mb-3">
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="confirmedPassword" inputId="password" formControlName="confirmedPassword" class="w-100 mt-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('confirmedPassword')?.invalid && loginForm.get('confirmedPassword')?.touched}"/>
+            <label for="confirmedPassword">Подтверждение пароля <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
+            <span class="text-center" *ngIf="formRegistration.errors?.['passwordMismatch'] && formRegistration.touched">
+              Пароли не совпадают
+            </span>
             <span *ngIf="userBlockedReg">Пользователь с таким email заблокирован</span>
             <span *ngIf="userExists">Пользователь с таким email уже зарегистрирован</span>
           </div>
-          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid">Регистрация</button>
+          <p-button class="w-100 btn-login" label="Регистрация" type="submit" [fluid]="true" [loading]="loading" (click)="registration()" *ngIf="!showRegStatus" [disabled]="formRegistration.invalid"/>
           <small class="text-muted"><span style="color: red;">*</span> Нажимая зарегистрироваться, вы соглашаетесь с <a href="">правилами</a></small>
-
         </form>
       </div>
     </div>
@@ -169,16 +158,15 @@
 
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="formRestore" (keyup.enter)="pressBtn('button__code')">
-
-          <div class="form-floating mb-3" [ngClass]="{'has-error': formRegistration.get('formRestore')?.invalid && formRestore.get('email')?.touched}">
-            <input type="email" class="form-control rounded-3" formControlName="email">
-            <label for="floatingInput">Почта <span style="color: red;">*</span></label>
-          </div>
+          <p-iftalabel class="mb-3">
+            <input pInputText id="email" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRestore.get('email')?.invalid && formRestore.get('email')?.touched}" />
+            <label for="email">Почта <span style="color: red;">*</span></label>
+          </p-iftalabel>
 
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="restoreEmailNotExist">Пользователя с таким email не существует</span>
           </div>
-          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" style="background-color: #33486E;" type="submit" (click)="restorePassword()" [disabled]="formRestore.invalid">Восстановить</button>
+          <p-button class="w-100 btn-login" label="Восстановить" type="submit" [fluid]="true" [loading]="loading" (click)="restorePassword()" [disabled]="formRestore.invalid"/>
         </form>
       </div>
     </div>

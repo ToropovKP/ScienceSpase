@@ -1,9 +1,9 @@
-#personal-account__client {
-  background: url(../../../assets/pictures/home/pattern.svg);
+#container__main {
+  background: url(/assets/pictures/home/pattern.svg);
 }
 
 .main {
-  background: url(../../../assets/pictures/home/page.svg);
+  background: url(/assets/pictures/home/page.svg);
   padding: 110px 35px 0px 35px;
   box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
   min-height: 100vh;

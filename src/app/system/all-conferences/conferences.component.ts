@@ -34,11 +34,9 @@ export class ConferencesComponent implements OnInit {
     this.authService.currentUser$.subscribe((user) => {
       if (user) {
         this.currentUser = user;
-        this.loadAllData()
-      } else {
-        this.router.navigate(['']);
       }
     });
+    this.loadAllData()
   }
 
   loadAllData() {
@@ -58,9 +56,11 @@ export class ConferencesComponent implements OnInit {
   }
 
   createConference() {
-    if (this.currentUser.verified) {
+    if (this.currentUser && this.currentUser.verified) {
       this.toPage('/conferences/create');
-    } else {
+    } else if (!this.currentUser) {
+      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+    } else if (!this.currentUser.verified) {
       this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
     }
   }

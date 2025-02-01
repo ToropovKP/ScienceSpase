@@ -1,4 +1,4 @@
-<section id="conference">
+<section id="container__main">
   <div class="container">
 
     <div *ngIf="currentConference.id !== undefined" class="main">
@@ -24,7 +24,7 @@
         <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isModeratorOfThisConference()">Количество участников: {{this.countUsers}}</span></div>
         <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isModeratorOfThisConference() || isReviewer()" (click)="checkUsers()">Перейти к списку участников</a></div>
 
-        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length != 0">
+        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length !== 0">
           <div class="col-6 conf-info-section" style="padding-right: 5px;">
             <div class="conf-section-title text-center text-white rounded-3">Секция</div>
           </div>
@@ -44,17 +44,17 @@
           </div>
         </div>
 
-        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.currentConference.tags.length != 0">
-          <div class="col-12 conf-info-section" style="padding-right: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Критерии оценивания</div>
-          </div>
+<!--        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.currentConference.tags.length != 0">-->
+<!--          <div class="col-12 conf-info-section" style="padding-right: 5px;">-->
+<!--            <div class="conf-section-title text-center text-white rounded-3">Критерии оценивания</div>-->
+<!--          </div>-->
 
-          <div class="row conf-info-section-item" *ngFor="let tag of this.currentConference.tags">
-            <div class="col-12 d-inline-flex conf-info-section" style="padding-right: 5px;">
-              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{tag}}</div></div>
-            </div>
-          </div>
-        </div>
+<!--          <div class="row conf-info-section-item" *ngFor="let tag of this.currentConference.tags">-->
+<!--            <div class="col-12 d-inline-flex conf-info-section" style="padding-right: 5px;">-->
+<!--              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{tag}}</div></div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
           <div class="conf-info-text text-black rounded-3" style="margin: 0px;">{{this.currentConference.description}}</div>
@@ -174,8 +174,6 @@
 
           </div>
         </div>
-
-        <!--<div class="konf-description text-black">Описание: {{conf.description}}</div>-->
       </div>
     </div>
   </div>

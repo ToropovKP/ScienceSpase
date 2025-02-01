@@ -137,6 +137,7 @@ export class HeaderComponent implements OnInit {
   }
 
   registration(): void {
+    this.loading = true;
     let request = {
       "firstName": this.formRegistration.value.firstName,
       "lastName": this.formRegistration.value.lastName,
@@ -149,6 +150,7 @@ export class HeaderComponent implements OnInit {
       "password": this.formRegistration.value.password
     };
     this.httpService.registration(request).then((data) => {
+      this.loading = false;
       this.alertService.constructSuccessAlert('Регистрация прошла успешно', 'На вашу почту отправлено письмо с подтверждением');
       this.userExists = false;
       this.userBlockedReg = false;
@@ -159,6 +161,7 @@ export class HeaderComponent implements OnInit {
       this.login()
       this.formRegistration.reset();
     }).catch(error => {
+      this.loading = false;
       if (error.error['code'] === 'USER_EXISTS') {
         this.userExists = true;
         this.userBlockedReg = false;
@@ -174,6 +177,7 @@ export class HeaderComponent implements OnInit {
   }
 
   restorePassword(): void {
+    this.loading = true;
     let email: string = this.formRestore.value.email;
     this.httpService.sendRestorePasswordLink(email).then((data) => {
       if (data) {
@@ -183,6 +187,7 @@ export class HeaderComponent implements OnInit {
       } else {
         this.restoreEmailNotExist = true;
       }
+      this.loading = false;
       this.formRestore.reset();
     }).catch((error) => {
       this.loading = false;
@@ -204,6 +209,7 @@ export class HeaderComponent implements OnInit {
     this.httpService.logout().then(() => {
       localStorage.clear()
       this.authService.clearData()
+      this.toPage('')
     });
   }
 

@@ -8,12 +8,15 @@ import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {passwordMatchValidator} from "../../app.component";
+import {Button} from "primeng/button";
+import {IftaLabel} from "primeng/iftalabel";
+import {Password} from "primeng/password";
 
 @Component({
   selector: 'app-restore-password',
   templateUrl: './restore-password.component.html',
   styleUrls: ['./restore-password.component.css'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Button, IftaLabel, Password]
 })
 export class RestorePasswordComponent implements OnInit {
 
@@ -60,7 +63,10 @@ export class RestorePasswordComponent implements OnInit {
     })
   }
 
+  loading: boolean = false;
+
   sendNewPassword() {
+    this.loading = true;
     let request = {
       "password": this.formRestore.value.password
     };
@@ -71,7 +77,9 @@ export class RestorePasswordComponent implements OnInit {
       } else {
         this.alertService.constructWarnAlert('Ошибка', 'Не удалось обновить пароль');
       }
+      this.loading = false;
     }).catch(error => {
+      this.loading = false;
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
       this.alertService.constructErrorAlert(error, title, description);

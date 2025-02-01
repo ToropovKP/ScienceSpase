@@ -39,7 +39,7 @@ export class ProfileComponent implements OnInit {
         this.initializeForms();
         this.loadAllData()
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       }
     });
   }

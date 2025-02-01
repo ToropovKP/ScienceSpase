@@ -29,9 +29,9 @@ export class VerifyAccountComponent implements OnInit {
     this.authService.currentUser$.subscribe((user) => {
       if (user) {
         this.currentUser = user;
-        this.loadAllData()
       }
     });
+    this.loadAllData()
   }
 
   loadAllData() {

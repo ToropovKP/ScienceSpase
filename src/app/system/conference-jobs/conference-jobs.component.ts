@@ -48,7 +48,7 @@ export class ConferenceJobsComponent implements OnInit {
         this.currentUser = user;
         this.loadAllData()
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['not-found']);
       }
     });
   }
@@ -60,7 +60,7 @@ export class ConferenceJobsComponent implements OnInit {
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
         if (!this.isModeratorOfThisConferenceOrReviewer()) {
-          this.router.navigate(['']);
+          this.router.navigate(['not-found']);
         }
 
         this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
@@ -103,6 +103,9 @@ export class ConferenceJobsComponent implements OnInit {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
+        if (error.status == '500') {
+          this.router.navigate(['not-found']);
+        }
       });
     });
   }
