@@ -16,12 +16,16 @@ import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {ToastModule} from "primeng/toast";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule],
+  providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -50,7 +54,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
               private httpService: HttpService,
               private alertService: AlertService,
               private chatService: ChatService,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private confirmationService: ConfirmationService,
+              private messageService: MessageService) {
   }
 
   private timer: any;
@@ -262,16 +268,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  deleteJob() {
-    this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    })
-    this.toPage(`/conference/${this.currentJob.conferenceId}`);
-  }
-
   createComment() {
     const message = {
       "jobId": this.currentJobId,
@@ -283,6 +279,38 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     this.chatService.sendMessage(`/app/send`, message);
     this.formComment.reset()
+  }
+
+  confirmDelete(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите удалить статью?<br>Все связанные с ней данные и файлы будут удалены.',
+      header: 'Подтверждение',
+      closable: true,
+      closeOnEscape: true,
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Удалить',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        })
+        this.toPage(`/conference/${this.currentJob.conferenceId}`);
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статья удалена', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
   }
 
   toPage(link: string) {

@@ -1,6 +1,7 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast />
+    <p-confirm-popup />
     <div *ngIf="profileUser !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-4">
@@ -9,18 +10,18 @@
           </div>
         </div>
         <div class="col-4" style="padding-left: 0px;" *ngIf="this.isAdmin()">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="changeRole('MODERATOR')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MEMBER'" (click)="confirmRole($event)">
             <a>Назначить администратором</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MODERATOR'" (click)="changeRole('MEMBER')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role == 'MODERATOR'" (click)="confirmRole($event)">
             <a>Назначить участником</a>
           </div>
         </div>
         <div class="col-4" style="padding-left: 0px;" *ngIf="this.isAdmin()">
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="changeStatus('BANNED')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'ACTIVE'" (click)="confirmStatus($event)">
             <a>Заблокировать</a>
           </div>
-          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'BANNED'" (click)="changeStatus('ACTIVE')">
+          <div style="background-color: #212529;" class="users-list-text-btn text-center rounded-3 text-white" *ngIf="this.profileUser.role != 'ADMIN' && this.profileUser.status == 'BANNED'" (click)="confirmStatus($event)">
             <a>Разблокировать</a>
           </div>
         </div>

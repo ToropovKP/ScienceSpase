@@ -1,6 +1,7 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast />
+    <p-confirm-dialog />
     <div *ngIf="currentJob.id !== undefined" class="main">
       <div class="row d-flex align-items-center konf-pref rounded-3">
         <div class="d-inline-flex align-items-center col-8">
@@ -227,7 +228,7 @@
 
           </div>
           <div class="col-4 conf-info-text text-black text-center">
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.isUserJob()" (click)="deleteJob()">Удалить</button>
+            <button type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.isUserJob()" (click)="confirmDelete($event)">Удалить</button>
           </div>
           <div class="col-4 conf-info-text text-black text-end">
 

@@ -8,12 +8,16 @@ import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 import {AuthService} from "../shared/services/auth.service";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmPopupModule} from "primeng/confirmpopup";
+import {ToastModule} from "primeng/toast";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule],
+  providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit {
 
@@ -29,7 +33,9 @@ export class ProfileComponent implements OnInit {
               private route: ActivatedRoute,
               private httpService: HttpService,
               private alertService: AlertService,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private confirmationService: ConfirmationService,
+              private messageService: MessageService) {
   }
 
   ngOnInit() {
@@ -128,30 +134,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  changeRole(role: string) {
-    this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
-      if (data) {
-        this.profileUser.role = role
-      }
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    });
-  }
-
-  changeStatus(status: string) {
-    this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
-      if (data) {
-        this.profileUser.status = status
-      }
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    });
-  }
-
   changeProfile() {
     this.editProfile = true;
   }
@@ -198,6 +180,70 @@ export class ProfileComponent implements OnInit {
     this.editProfile = false;
     this.formProfile.reset()
     this.updateUserInfoForm()
+  }
+
+  confirmRole(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите изменить роль?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Применить',
+        severity: 'danger'
+      },
+      accept: () => {
+        let role = this.profileUser.role == 'MEMBER' ? 'MODERATOR' : 'MEMBER';
+        this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
+          if (data) {
+            this.profileUser.role = role
+          }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Роль изменена', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
+  }
+
+  confirmStatus(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите изменить статус?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Применить',
+        severity: 'danger'
+      },
+      accept: () => {
+        let status = this.profileUser.status == 'ACTIVE' ? 'BANNED' : 'ACTIVE';
+        this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
+          if (data) {
+            this.profileUser.status = status
+          }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статус изменен', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
   }
 
   toPage(link: string) {
