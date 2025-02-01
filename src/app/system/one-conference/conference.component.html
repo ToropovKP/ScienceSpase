@@ -120,8 +120,8 @@
                 <input type="text" mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
                        id="floatingInput">
               </div>
-              <div class="col-4" style="padding-left: 0px;">
-                <label class="second-text text-black" for="floatingInput">РИНЦ ID </label>
+              <div class="col-4" style="padding-left: 0px;"[ngClass]="{'has-error': formAddJob.get('rincId')?.invalid && formAddJob.get('rincId')?.touched}">
+                <label class="second-text text-black" for="floatingInput">РИНЦ ID (Author ID) <span style="color: red;">*</span></label>
                 <input type="text" mask="0000-0000" placeholder="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
                        id="floatingInput">
               </div>

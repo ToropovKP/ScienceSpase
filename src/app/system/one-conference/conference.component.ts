@@ -68,7 +68,7 @@ export class ConferenceComponent implements OnInit {
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
-      rincId: new FormControl('',),
+      rincId: new FormControl('', [Validators.required, Validators.minLength(8)]),
       section: new FormControl('',),
       files: new FormControl('', [Validators.required]),
     })
