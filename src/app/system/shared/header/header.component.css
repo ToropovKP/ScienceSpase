@@ -63,14 +63,19 @@
     order: 2;
   }
 
+  .nav-links li {
+    list-style-type: none;
+  }
+
   .nav-links {
     position: fixed;
-    top: 100px;
+    top: 80px;
     left: 0;
     right: 0;
     background: #343a40;
     padding: 1rem;
     flex-direction: column;
+    text-align: center;
     gap: 1rem;
     display: none;
   }
