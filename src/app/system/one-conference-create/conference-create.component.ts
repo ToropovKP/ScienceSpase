@@ -71,6 +71,10 @@ export class ConferenceCreateComponent implements OnInit {
     })
   }
 
+  loadingConference: boolean = true;
+  loadingSections: boolean = true;
+  loadingTags: boolean = true;
+
   loadAllData() {
     this.currentUser = this.authService.getUserInfo()!;
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
@@ -104,6 +108,7 @@ export class ConferenceCreateComponent implements OnInit {
                   this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
                   this.currentStatus = this.currentConference.status
 
+                  this.loadingConference = false;
                   this.fillTags(this.currentConference.tags)
                   this.fillSections(this.currentConference.sections)
                 }).catch(error => {
@@ -115,6 +120,7 @@ export class ConferenceCreateComponent implements OnInit {
                   }
                 });
               } else {
+                this.loadingConference = false;
                 this.fillSections([])
               }
             }).catch(error => {
@@ -135,6 +141,7 @@ export class ConferenceCreateComponent implements OnInit {
                 this.formCreateConference.controls['confStatus'].setValue(conferenceStatusMap[this.currentConference.status])
                 this.currentStatus = this.currentConference.status
 
+                this.loadingConference = false;
                 this.fillTags(this.currentConference.tags)
                 this.fillSections(this.currentConference.sections)
               }).catch(error => {
@@ -146,6 +153,7 @@ export class ConferenceCreateComponent implements OnInit {
                 }
               });
             } else {
+              this.loadingConference = false;
               this.fillSections([])
             }
           }
@@ -442,6 +450,8 @@ export class ConferenceCreateComponent implements OnInit {
     if (this.sections.length < 5) {
       this.sections.push(this.createSection());
     }
+
+    this.loadingSections = false;
   }
 
   disableSection(index: number) {
@@ -503,6 +513,8 @@ export class ConferenceCreateComponent implements OnInit {
       this.tags.push(formGroup);
     });
     this.tags.push(this.createTag());
+
+    this.loadingTags = false;
   }
 
   disableTag(index: number) {
