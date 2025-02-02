@@ -58,7 +58,7 @@
           </button>
         </div>
 
-        <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+        <div *ngIf="checkLogin()" class="d-flex flex-column flex-md-row align-items-center gap-2">
           <div class="order-2 order-md-1">
             <div class="text-end">
               <span *ngIf="!currentUser.verified"
