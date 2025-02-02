@@ -216,4 +216,10 @@ export class HeaderComponent implements OnInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
+
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 }

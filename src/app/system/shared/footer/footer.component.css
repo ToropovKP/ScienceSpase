@@ -1,68 +1,21 @@
-.nav {
-  z-index: 1000;
-  margin-top: 2px;
-}
-
-.fixed-top {
-  box-shadow: #000 0px 0px 25px;
-}
-
 .head-text {
   font-size: 22px;
   white-space: nowrap;
   margin: 0 15px;
 }
 
-.logo__link {
-  color: #fff;
-  font-weight: 900;
-  text-decoration: none;
-  height: 55px;
-}
+@media (max-width: 992px) {
+  .head-text {
+    font-size: 18px;
+    white-space: normal;
+    margin: 10px 0;
+  }
 
-.logo__link span {
-  display: block;
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: uppercase;
-  width: 100px;
-}
+  .nav-link {
+    padding: 8px;
+  }
 
-.modal {
-  background: rgba(0, 0, 0, .4);
-  backdrop-filter: blur(7px);
-}
-
-#login {
-  width: 516px;
-  height: 414px;
-  padding: 10px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.modal-title {
-  width: 100%;
-  text-align: center;
-  font-weight: 700;
-  margin-top: 70px;
-  font-size: 41px;
-  color: var(--accent);
-}
-
-.form-group {
-  width: 375px;
-  margin-left: 72px;
-}
-
-.form-group label {
-  margin-top: 12px;
-}
-
-#registration {
-  width: 516px;
-  min-height: 507px;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 200px;
+  img.icon {
+    height: 25px !important;
+  }
 }

@@ -1,38 +1,89 @@
-<header class="p-3 bg-dark text-white fixed-top" >
+<header class="p-3 bg-dark text-white fixed-top">
   <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <a [routerLink]="['']"  class="logo__link d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-        <img class="icon bi me-2" height="65" src="/assets/pictures/header/nnstu.svg">
-      </a>
-
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li (click)="toPage('conferences')"><a class="nav-link px-2 text-white head-text">Конференции</a></li>
-        <li (click)="toPage('jobs')" *ngIf="checkLogin() && !isAdmin()"><a class="nav-link px-2 text-white head-text">Мои статьи</a></li>
-        <li (click)="toPage('all-users')" *ngIf="checkLogin() && isAdmin()"><a class="nav-link px-2 text-white head-text">Пользователи</a></li>
-      </ul>
-
-      <div class="text-end" *ngIf="!checkLogin()">
-        <button type="button" (click)="clearBooleans()" data-bs-toggle="modal" data-bs-target="#windowLogIn" class="btn btn-outline-light me-2">Вход</button>
-        <button type="button" (click)="clearBooleans()" data-bs-target="#windowRegistration" data-bs-toggle="modal" class="btn btn-warning">Регистрация</button>
-
-      </div>
-
-      <div class="text-end" *ngIf="checkLogin()">
-        <span *ngIf="!this.currentUser.verified" class="text-bg-danger" style="margin-right: 10px">
-          Неподтвержден
-        </span>
-      </div>
-
-      <div class="dropdown text-end" *ngIf="checkLogin()">
-        <a href="#" type="button" class="dropdown-toggle d-block text-white text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-          {{this.currentUser.firstName + ' ' + this.currentUser.lastName}}
+    <div class="d-flex flex-wrap align-items-center justify-content-between">
+      <!-- Логотип и десктопные ссылки -->
+      <div class="d-flex align-items-center">
+        <a [routerLink]="['']" class="logo__link">
+          <img class="icon me-2" height="65" src="/assets/pictures/header/nnstu.svg" alt="Логотип">
         </a>
 
-        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser">
-          <li><a class="dropdown-item" type="button" (click)="toPage('profile')">Профиль</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" type="button" (click)="logout()">Выход</a></li>
-        </ul>
+        <!-- Десктопные ссылки -->
+        <div class="desktop-nav">
+          <ul class="nav mb-0">
+            <li class="nav-item" (click)="toPage('conferences')">
+              <a class="nav-link px-2 text-white head-text">Конференции</a>
+            </li>
+            <li class="nav-item" (click)="toPage('jobs')" *ngIf="checkLogin() && !isAdmin()">
+              <a class="nav-link px-2 text-white head-text">Мои статьи</a>
+            </li>
+            <li class="nav-item" (click)="toPage('all-users')" *ngIf="checkLogin() && isAdmin()">
+              <a class="nav-link px-2 text-white head-text">Пользователи</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <!-- Мобильное меню -->
+        <div class="mobile-nav">
+          <button class="navbar-toggler" type="button" (click)="toggleMobileMenu()">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="nav-links" [class.active]="isMobileMenuOpen">
+            <!-- Повтор ссылок для мобильной версии -->
+            <li class="nav-item" (click)="toPage('conferences'); isMobileMenuOpen = false">
+              <a class="nav-link text-white head-text">Конференции</a>
+            </li>
+            <li class="nav-item" (click)="toPage('jobs'); isMobileMenuOpen = false" *ngIf="checkLogin() && !isAdmin()">
+              <a class="nav-link text-white head-text">Мои статьи</a>
+            </li>
+            <li class="nav-item" (click)="toPage('all-users'); isMobileMenuOpen = false" *ngIf="checkLogin() && isAdmin()">
+              <a class="nav-link text-white head-text">Пользователи</a>
+            </li>
+          </div>
+        </div>
+
+        <!-- Оригинальные элементы справа -->
+        <div class="text-end" *ngIf="!checkLogin()">
+          <button (click)="clearBooleans()"
+                  type="button" class="btn btn-outline-light me-2"
+                  data-bs-toggle="modal" data-bs-target="#windowLogIn">
+            Вход
+          </button>
+          <button (click)="clearBooleans()"
+                  type="button" class="btn btn-warning"
+                  data-bs-toggle="modal" data-bs-target="#windowRegistration">
+            Регистрация
+          </button>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+          <div class="order-2 order-md-1">
+            <div class="text-end">
+              <span *ngIf="!currentUser.verified"
+                    class="badge bg-danger me-md-2 mb-2 mb-md-0">
+                Неподтвержден
+              </span>
+            </div>
+          </div>
+
+          <div class="dropdown order-1 order-md-2">
+            <a class="dropdown-toggle text-white text-decoration-none head-text d-inline-flex align-items-center"
+               data-bs-toggle="dropdown"
+               style="max-width: 200px">
+              <span >
+                {{currentUser.firstName}} {{currentUser.lastName}}
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" (click)="toPage('profile')">Профиль</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" (click)="logout()">Выход</a></li>
+            </ul>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

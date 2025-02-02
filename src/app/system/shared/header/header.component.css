@@ -1,3 +1,4 @@
+/* Общие стили */
 .nav {
   z-index: 1000;
   margin-top: 2px;
@@ -9,6 +10,7 @@
 
 .head-text {
   font-size: 22px;
+  /*font-weight: 900;*/
 }
 
 .logo__link {
@@ -16,51 +18,112 @@
   font-weight: 900;
   text-decoration: none;
   height: 55px;
+  display: flex;
+  align-items: center;
 }
 
-.logo__link span {
-  display: block;
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: uppercase;
-  width: 100px;
+/* Десктопная навигация */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-left: 2rem;
 }
 
+/* Мобильное меню */
+.mobile-nav {
+  display: none;
+}
+
+/* Стили для бургер-иконки */
+.navbar-toggler {
+  /*border: 1px solid rgba(255,255,255,0.3) !important;*/
+  padding: 0.25rem 0.5rem !important;
+  order: 2; /* Переносим вправо */
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  width: 1.5em;
+  height: 1.5em;
+}
+
+@media (max-width: 992px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-nav {
+    display: block;
+  }
+
+  .navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+    order: 2;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 100px;
+    left: 0;
+    right: 0;
+    background: #343a40;
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    display: none;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .head-text {
+    font-size: 18px;
+  }
+
+  .dropdown-toggle {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+
+  .badge {
+    font-size: 14px;
+  }
+}
+
+/* Модальные окна */
 .modal {
   background: rgba(0, 0, 0, .4);
   backdrop-filter: blur(7px);
 }
 
-#login {
-  width: 516px;
-  height: 414px;
-  padding: 10px;
-  margin-right: auto;
-  margin-left: auto;
+.modal-content {
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
-.modal-title {
-  width: 100%;
-  text-align: center;
-  font-weight: 700;
-  margin-top: 70px;
-  font-size: 41px;
-  color: var(--accent);
+/* Кнопки */
+.btn-outline-light {
+  border-width: 2px;
+  font-weight: 500;
 }
 
-.form-group {
-  width: 375px;
-  margin-left: 72px;
+.btn-warning {
+  background: #ffc107;
+  border-color: #ffc107;
+  font-weight: 500;
 }
 
-.form-group label {
-  margin-top: 12px;
+/* Выпадающее меню */
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
 }
 
-#registration {
-  width: 516px;
-  min-height: 507px;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 200px;
-}
+/*.dropdown-item {*/
+/*  font-weight: 500;*/
+/*  padding: 0.75rem 1.5rem;*/
+/*}*/
