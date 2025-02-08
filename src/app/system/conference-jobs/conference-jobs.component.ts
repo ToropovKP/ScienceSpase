@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {conferenceStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
@@ -12,6 +12,7 @@ import {AlertService} from "../shared/services/alert.service";
 import {UserBase} from "../shared/model/user.base";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -19,7 +20,7 @@ import {DateService} from "../shared/services/date.service";
   styleUrls: ['./conference-jobs.component.css'],
   imports: [CommonModule]
 })
-export class ConferenceJobsComponent implements OnInit, AfterViewInit {
+export class ConferenceJobsComponent implements OnInit {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -33,40 +34,23 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
   currentSections!: Section[];
 
   currentUser!: User;
-  email!: string;
-  role!: string;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin(): boolean {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-      return true;
-    } else {
-      this.email = '';
-      this.role = '';
-      return false;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit(): void {
-    if (!this.checkLogin() || !this.isReviewerOrModerator()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user && this.isReviewerOrModerator()) {
+        this.currentUser = user;
+        this.loadAllData()
+      } else {
+        this.router.navigate(['not-found']);
+      }
+    });
   }
 
   loadAllData() {
@@ -76,7 +60,7 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
         if (!this.isModeratorOfThisConferenceOrReviewer()) {
-          this.router.navigate(['']);
+          this.router.navigate(['not-found']);
         }
 
         this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
@@ -119,16 +103,19 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
+        if (error.status == '500') {
+          this.router.navigate(['not-found']);
+        }
       });
     });
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
+    return this.authService.hasRole('MODERATOR') || this.isAdmin();
   }
 
   isMasterModeratorOfThisConference(): boolean {
@@ -153,31 +140,27 @@ export class ConferenceJobsComponent implements OnInit, AfterViewInit {
     }
     if (this.currentConference.admins !== undefined && this.currentConference.admins.length !== 0) {
       let find = this.currentConference.admins.find((admin) => admin.id === this.currentUser.id);
-
       if (!find) {
         let find1 = this.currentConference.sections.find((sec) => {
           if (sec.reviewers !== undefined && sec.reviewers.length !== 0) {
             let find2 = sec.reviewers.find((rev) => rev.id === this.currentUser.id);
-            return this.role === 'REVIEWER' && find2 !== undefined
+            return this.isReviewer() && find2 !== undefined
           }
           return false;
         });
-
         return find1 !== undefined;
       }
-
-      return this.role === 'MODERATOR'
+      return this.isModerator()
     }
-
     return false;
   }
 
   isReviewerOrModerator(): boolean {
-    return this.role === 'REVIEWER' || this.isModerator()
+    return this.authService.hasRole('REVIEWER') || this.isModerator()
   }
 
   isReviewer(): boolean {
-    return this.role === 'REVIEWER'
+    return this.authService.hasRole('REVIEWER')
   }
 
   openJob(id: string) {

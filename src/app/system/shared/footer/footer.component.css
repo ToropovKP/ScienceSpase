@@ -1,0 +1,21 @@
+.head-text {
+  font-size: 22px;
+  white-space: nowrap;
+  margin: 0 15px;
+}
+
+@media (max-width: 992px) {
+  .head-text {
+    font-size: 18px;
+    white-space: normal;
+    margin: 10px 0;
+  }
+
+  .nav-link {
+    padding: 8px;
+  }
+
+  img.icon {
+    height: 25px !important;
+  }
+}

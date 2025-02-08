@@ -1,5 +1,5 @@
-import {provideRouter, withInMemoryScrolling} from "@angular/router";
-import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
+import {provideRouter, Router, withInMemoryScrolling} from "@angular/router";
+import {APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideClientHydration, withEventReplay} from "@angular/platform-browser";
 import {appRoutes} from "./app.routes";
 import {provideHttpClient, withInterceptorsFromDi} from "@angular/common/http";
@@ -7,13 +7,50 @@ import {NgxMaskConfig, provideEnvironmentNgxMask} from "ngx-mask";
 import {provideAnimationsAsync} from "@angular/platform-browser/animations/async";
 import {providePrimeNG} from "primeng/config";
 import Aura from '@primeng/themes/aura';
+import {AuthService} from "./system/shared/services/auth.service";
 
 const maskConfig: Partial<NgxMaskConfig> = {
   validation: false,
 };
 
+export function initializeApp(authService: AuthService, router: Router): () => Promise<any> {
+  return () => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        try {
+          authService.getCurrentUser().finally(resolve);
+        } catch (error) {
+          const currentPath = window.location.pathname;
+          console.log(currentPath)
+          const publicPaths = ['/verify-email', '/restore-password'];
+          if (!publicPaths.includes(currentPath)) {
+            router.navigate(['']).finally(resolve);
+          } else {
+            resolve();
+          }
+        }
+      }, 500)
+    })
+  };
+}
+
+const channel = new BroadcastChannel('auth-channel');
+channel.postMessage({token: localStorage.getItem('token')});
+
+channel.onmessage = (event) => {
+  if (event.data.token) {
+    localStorage.setItem('token', event.data.token);
+  }
+};
+
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [AuthService, Router],
+      multi: true
+    },
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: false, //can true

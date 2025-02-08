@@ -20,7 +20,7 @@ export class ChatService {
         return;
       }
 
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const socket = new SockJS(this.baseUrl + '?token=' + token);
       this.stompClient = Stomp.over(socket);
 

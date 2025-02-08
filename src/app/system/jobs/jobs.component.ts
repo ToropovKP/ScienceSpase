@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Job} from "../shared/model/job";
 import {User} from "../shared/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -7,6 +7,7 @@ import {map} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
+import {AuthService} from "../shared/services/auth.service";
 
 @Component({
   selector: 'app-jobs',
@@ -14,50 +15,33 @@ import {CommonModule} from "@angular/common";
   styleUrls: ['./jobs.component.css'],
   imports: [CommonModule]
 })
-export class JobsComponent implements OnInit, AfterViewInit {
+export class JobsComponent implements OnInit {
 
   jobs: Job[] = [];
 
   currentConferenceId!: string;
   currentConference!: Conference;
   currentUser!: User;
-  email!: string;
-  role!: string;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin(): boolean {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      return true;
-    } else {
-      this.email = '';
-      this.role = '';
-      return false;
-    }
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService) {
   }
 
   ngOnInit(): void {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.loadAllData()
+      } else {
+        this.router.navigate(['not-found']);
+      }
+    });
   }
 
   loadAllData() {
-    let user_info: string | null = sessionStorage.getItem("user_info");
-    this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
     this.route.queryParams.pipe(map(e => e['conferenceId'])).subscribe(e => {
 
       this.currentConferenceId = e;
@@ -81,14 +65,6 @@ export class JobsComponent implements OnInit, AfterViewInit {
     })
   }
 
-  isModerator(): boolean {
-    return this.isAdmin() || this.role === 'MODERATOR';
-  }
-
-  isAdmin(): boolean {
-    return this.role === 'ADMIN';
-  }
-
   openJob(id: bigint) {
     this.toPage(`/jobs/${id}`)
   }
@@ -96,5 +72,4 @@ export class JobsComponent implements OnInit, AfterViewInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
-
 }

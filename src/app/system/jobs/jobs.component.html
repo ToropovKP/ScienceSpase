@@ -1,4 +1,4 @@
-<section id="jobs">
+<section id="container__main">
   <div class="container">
 
     <div class="main">
@@ -7,44 +7,27 @@
           <div class="text-black" style="font-size: 20px; margin-left: 10px;">
             Мои статьи {{this.currentConferenceId != undefined ? ' / ' + this.currentConference.title : ''}}
           </div>
-<!--          <div class="pref-search-text text-black">-->
-<!--            Поиск конференции-->
-<!--          </div>-->
-<!--          <input class="input-search rounded-3" type="text">-->
-<!--          <a href="#" class="pref-options">-->
-<!--            <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">-->
-<!--              <path d="M14.7778 4.44434L28.5555 4.44434" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <path d="M0.999985 28.5557L6.16665 28.5557" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <path d="M0.999977 4.44434L7.88887 4.44434" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <path d="M13.0555 28.5557L28.5555 28.5557" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <path d="M23.3889 16.5L28.5555 16.5" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <path d="M0.999977 16.5L16.5 16.5" stroke="#212529" stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <circle cx="11.3333" cy="4.44444" r="3.44444" transform="rotate(90 11.3333 4.44444)" stroke="#212529"-->
-<!--                      stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <circle cx="19.9444" cy="16.5001" r="3.44444" transform="rotate(90 19.9444 16.5001)" stroke="#212529"-->
-<!--                      stroke-width="1.5" stroke-linecap="round"/>-->
-<!--              <circle cx="9.6111" cy="28.5558" r="3.44444" transform="rotate(90 9.6111 28.5558)" stroke="#212529"-->
-<!--                      stroke-width="1.5" stroke-linecap="round"/>-->
-<!--            </svg>-->
-<!--          </a>-->
-<!--          <button type="button" class="btn btn-pref text-white rounded-3">Применить</button>-->
+<!--          Поиск  -->
         </div>
       </div>
 
-      <div class="row konf-list rounded-3">
+      <div *ngIf="!this.jobs || this.jobs.length === 0" class="text-center" style="font-size: 30px; margin-top: 50px">
+        Нет добавленных статей
+      </div>
+
+      <div *ngIf="this.jobs && this.jobs.length > 0" class="row konf-list rounded-3">
         <div class="col-md-3 konf-item-outer rounded-3" *ngFor="let job of this.jobs">
 
           <div class="konf-item rounded-3">
-            <div class="img-info-conf">
-              <img style="border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;" src="../../../assets/pictures/conf-images/demo-img.png" alt="">
-            </div>
+<!--            <div class="img-info-conf">-->
+<!--              <img style="border-radius: var(&#45;&#45;bs-border-radius-lg) var(&#45;&#45;bs-border-radius-lg) 0 0;" src="/assets/pictures/conf-images/demo-img.png" alt="">-->
+<!--            </div>-->
             <div class="general-info-conf">
               <div class="konf-name rounded-3">{{ job.title }}</div>
               <div class="konf-organization text-black">Конференция: {{ job.conferenceTitle }}</div>
             </div>
             <div class="second-info-conf" style="border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);">
               <div class="konf-description text-black">Автор: <span [style.color]="job.userId == currentUser.id ? 'green' : '#D80000'">{{ job.userName }}</span></div>
-<!--              <div class="konf-description text-black">Описание: {{ job.description }}</div>-->
               <div class="row justify-content-end">
                 <button type="button" class="btn btn-konf text-white px-1 rounded-3" (click)="openJob(job.id)">Открыть</button>
               </div>

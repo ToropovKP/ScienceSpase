@@ -6,7 +6,6 @@ export class User {
   private _middleName!: string;
   private _phone!: string;
   private _email!: string;
-  private _telegramUserName!: string;
   private _organization!: string;
   private _academicDegree!: string;
   private _academicTitle!: string;
@@ -14,6 +13,7 @@ export class User {
   private _rincId!: string;
   private _role!: string;
   private _status!: string;
+  private _verified!: boolean;
 
   constructor() {
   }
@@ -114,20 +114,16 @@ export class User {
     this._email = value;
   }
 
-  get telegramUserName(): string {
-    return this._telegramUserName;
-  }
-
-  set telegramUserName(value: string) {
-    this._telegramUserName = value;
-  }
-
   get role(): string {
     return this._role;
   }
 
   set role(value: string) {
     this._role = value;
+  }
+
+  get verified(): boolean {
+    return this._verified;
   }
 
   get fullName() {

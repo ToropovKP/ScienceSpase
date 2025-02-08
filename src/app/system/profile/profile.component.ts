@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
@@ -7,18 +7,21 @@ import {HttpService} from "../shared/services/http.service";
 import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
+import {AuthService} from "../shared/services/auth.service";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmPopupModule} from "primeng/confirmpopup";
+import {ToastModule} from "primeng/toast";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule],
+  providers: [ConfirmationService, MessageService]
 })
-export class ProfileComponent implements OnInit, AfterViewInit {
+export class ProfileComponent implements OnInit {
 
   formProfile!: FormGroup;
-  email!: string;
-  role!: string;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
@@ -29,31 +32,25 @@ export class ProfileComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService) {
-  }
-
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
-  ngAfterViewInit() {
-    this.loadAllData()
+              private alertService: AlertService,
+              private authService: AuthService,
+              private confirmationService: ConfirmationService,
+              private messageService: MessageService) {
   }
 
   ngOnInit() {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['not-found']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formProfile = this.formBuilder.group({
       firstName: new FormControl('',),
       lastName: new FormControl('',),
@@ -64,26 +61,35 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       academicTitle: new FormControl('',),
       orcId: new FormControl('',),
       rincId: new FormControl('',),
-      telegram: new FormControl('',),
       password: new FormControl('',),
     })
   }
 
   loadAllData() {
-    this.route.params.pipe(map(p => p['id'])).subscribe(e => {
-      this.profileUserId = e;
+    let profId;
+    this.route.params.pipe(map(p => p['id'])).subscribe(e => profId = e);
+    if (this.isAdmin() && profId !== undefined) {
+      this.profileUserId = profId;
       this.httpService.getUserInfoById(this.profileUserId).then((data) => {
         this.profileUser = data
-        this.updateUserInfo()
+        this.updateUserInfoForm()
       }).catch(error => {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
       });
-    });
+    } else {
+      if (profId !== undefined) {
+        this.router.navigate(['/profile']);
+      } else {
+        this.profileUser = this.currentUser
+        this.profileUserId = String(this.currentUser.id)
+        this.updateUserInfoForm()
+      }
+    }
   }
 
-  updateUserInfo() {
+  updateUserInfoForm() {
     this.formProfile.controls['firstName'].setValue(this.profileUser.firstName)
     this.formProfile.controls['lastName'].setValue(this.profileUser.lastName)
     this.formProfile.controls['middleName'].setValue(this.profileUser.middleName)
@@ -93,17 +99,11 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
     this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
     this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
-    this.formProfile.controls['telegram'].setValue(this.profileUser.telegramUserName)
     this.formProfile.controls['password'].setValue("***************")
   }
 
-
-  isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
-  }
-
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   allowToChange(): boolean {
@@ -114,22 +114,18 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     return String(this.currentUser.id) === this.profileUserId;
   }
 
-  changeRole(role: string) {
-    this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
+  sendRepeatLink() {
+    this.httpService.sendRepeatLink().then((data) => {
       if (data) {
-        this.profileUser.role = role
+        this.alertService.constructSuccessAlert('Успешно', 'Письмо отправлено');
+        return null;
+      } else {
+        this.alertService.constructWarnAlert('Ошибка', 'Ваш аккаунт уже подтвержден');
+        return this.authService.getCurrentUser();
       }
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    });
-  }
-
-  changeStatus(status: string) {
-    this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
-      if (data) {
-        this.profileUser.status = status
+    }).then((user) => {
+      if (user) {
+        this.currentUser = user;
       }
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
@@ -145,7 +141,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   cancelProfile() {
     this.editProfile = false;
     this.formProfile.reset()
-    this.updateUserInfo()
+    this.updateUserInfoForm()
   }
 
   saveProfile() {
@@ -160,7 +156,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       "academicTitle": this.formProfile.value.academicTitle,
       "orcId": this.formProfile.value.orcId,
       "rincId": this.formProfile.value.rincId,
-      "telegramUserName": this.formProfile.value.telegram,
     }
 
     this.profileUser.firstName = this.formProfile.value.firstName
@@ -172,9 +167,11 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.profileUser.academicTitle = this.formProfile.value.academicTitle
     this.profileUser.orcId = this.formProfile.value.orcId
     this.profileUser.rincId = this.formProfile.value.rincId
-    this.profileUser.telegramUserName = this.formProfile.value.telegram
 
-    this.httpService.updateUserInfo(requestUser).then((data) => {
+    this.httpService.updateUserInfo(requestUser).then(() => {
+      return this.authService.getCurrentUser()
+    }).then((updatedUser) => {
+      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
       let description = 'Ошибка на стороне сервера';
@@ -182,7 +179,71 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     });
     this.editProfile = false;
     this.formProfile.reset()
-    this.updateUserInfo()
+    this.updateUserInfoForm()
+  }
+
+  confirmRole(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите изменить роль?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Применить',
+        severity: 'danger'
+      },
+      accept: () => {
+        let role = this.profileUser.role == 'MEMBER' ? 'MODERATOR' : 'MEMBER';
+        this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
+          if (data) {
+            this.profileUser.role = role
+          }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Роль изменена', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
+  }
+
+  confirmStatus(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите изменить статус?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Применить',
+        severity: 'danger'
+      },
+      accept: () => {
+        let status = this.profileUser.status == 'ACTIVE' ? 'BANNED' : 'ACTIVE';
+        this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
+          if (data) {
+            this.profileUser.status = status
+          }
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        });
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статус изменен', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
   }
 
   toPage(link: string) {

@@ -15,12 +15,17 @@ import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
+import {AuthService} from "../shared/services/auth.service";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {ToastModule} from "primeng/toast";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule],
+  providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -38,8 +43,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   formAddJob!: FormGroup;
   formReview!: FormGroup;
   formComment!: FormGroup;
-  email!: string;
-  role!: string;
   currentUser!: User;
 
   existReviewByCurrentUser: boolean = false;
@@ -50,7 +53,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
               private route: ActivatedRoute,
               private httpService: HttpService,
               private alertService: AlertService,
-              private chatService: ChatService) {
+              private chatService: ChatService,
+              private authService: AuthService,
+              private confirmationService: ConfirmationService,
+              private messageService: MessageService) {
   }
 
   private timer: any;
@@ -66,21 +72,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 1000);
   }
 
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
-
-    if (email !== null) {
-      this.email = email;
-      this.role = role ? role : '';
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-    }
-    return email !== null;
-  }
-
   ngAfterViewInit() {
-    this.loadAllData()
     const callback = () => {
       this.chatService.subscribeToJob(this.currentJobId, (message) => {
         this.currentComments.push(message);
@@ -103,10 +95,18 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    if (!this.checkLogin()) {
-      this.router.navigate(['']);
-    }
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.initializeForms();
+        this.loadAllData()
+      } else {
+        this.router.navigate(['not-found']);
+      }
+    });
+  }
 
+  initializeForms() {
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('',),
       authors: this.formBuilder.array([]),
@@ -153,7 +153,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             this.existReviewByCurrentUser = true;
             this.reviewByCurrentUser = find;
             this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
-            console.log(find)
           }
         }
 
@@ -172,6 +171,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
         let title = "Возникла непредвиденная ошибка";
         let description = 'Ошибка на стороне сервера';
         this.alertService.constructErrorAlert(error, title, description);
+        if (error.status == '500') {
+          this.router.navigate(['not-found']);
+        }
       })
     });
   }
@@ -204,15 +206,15 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isModerator(): boolean {
-    return this.role === 'MODERATOR' || this.isAdmin();
+    return this.authService.hasRole('MODERATOR') || this.isAdmin();
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   isReviewer(): boolean {
-    return this.role === 'REVIEWER';
+    return this.authService.hasRole('REVIEWER');
   }
 
   updateMark(tag: string, mark: number) {
@@ -220,11 +222,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   saveReview() {
-    console.log(this.model)
     let request: ReviewDto = new ReviewDto()
     request.setReviews(this.model)
     request.setText(this.formReview.value.text)
-    console.log(JSON.stringify(request))
     this.httpService.reviewJob(this.currentJobId, request).then((data) => {
       this.existReviewByCurrentUser = true
       let review: Review = new Review();
@@ -268,16 +268,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  deleteJob() {
-    this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
-    }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
-    })
-    this.toPage(`/conference/${this.currentJob.conferenceId}`);
-  }
-
   createComment() {
     const message = {
       "jobId": this.currentJobId,
@@ -289,6 +279,38 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     this.chatService.sendMessage(`/app/send`, message);
     this.formComment.reset()
+  }
+
+  confirmDelete(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Вы уверены, что хотите удалить статью?<br>Все связанные с ней данные и файлы будут удалены.',
+      header: 'Подтверждение',
+      closable: true,
+      closeOnEscape: true,
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Удалить',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
+        }).catch(error => {
+          let title = "Возникла непредвиденная ошибка";
+          let description = 'Ошибка на стороне сервера';
+          this.alertService.constructErrorAlert(error, title, description);
+        })
+        this.toPage(`/conference/${this.currentJob.conferenceId}`);
+        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статья удалена', life: 3000});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
+      }
+    });
   }
 
   toPage(link: string) {

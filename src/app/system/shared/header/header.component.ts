@@ -10,6 +10,8 @@ import {IftaLabelModule} from "primeng/iftalabel";
 import {InputTextModule} from "primeng/inputtext";
 import {PasswordModule} from "primeng/password";
 import {ButtonModule} from "primeng/button";
+import {AuthService} from "../services/auth.service";
+import {passwordMatchValidator} from "../../../app.component";
 
 @Component({
   selector: 'app-header',
@@ -22,43 +24,66 @@ export class HeaderComponent implements OnInit {
 
   @ViewChild('closeModalLogIn') closeModalLogIn!: ElementRef
   @ViewChild('closeModalReg') closeModalReg!: ElementRef
+  @ViewChild('closeModalRestore') closeModalRestore!: ElementRef
   invalidLogin: boolean = false;
   userBlockedLogin: boolean = false;
   userBlockedReg: boolean = false;
   userExists: boolean = false;
+  restoreEmailNotExist: boolean = false;
 
-  role!: string;
   loginForm!: FormGroup;
   formRegistration!: FormGroup;
+  formRestore!: FormGroup;
   currentUser!: User;
-  loggedStatus: boolean = false;
 
-  public showRegStatus!: User;
+  showRegStatus!: User;
 
   constructor(private router: Router,
               private formBuilder: FormBuilder,
               private httpService: HttpService,
-              private alertService: AlertService
+              private alertService: AlertService,
+              private authService: AuthService
   ) {
 
   }
 
   ngOnInit() {
-    this.formRegistration = this.formBuilder.group({
-      firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
-      lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
-      middleName: new FormControl('', []),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      organization: new FormControl('', []),
-      academicDegree: new FormControl('', []),
-      academicTitle: new FormControl('', []),
-      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-      confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)])
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+      }
     });
+
+    this.authService.getCurrentUser()
+    .catch((error) => {
+      console.error('Failed to load user data', error);
+    });
+
+    this.initializeForms();
+  }
+
+  initializeForms() {
+    this.formRegistration = this.formBuilder.group({
+          firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+          lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+          middleName: new FormControl('', []),
+          phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
+          email: new FormControl('', [Validators.required, Validators.email]),
+          organization: new FormControl('', []),
+          academicDegree: new FormControl('', []),
+          academicTitle: new FormControl('', []),
+          password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+          confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)])
+        },
+        {
+          validators: passwordMatchValidator
+        });
     this.loginForm = this.formBuilder.group({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    })
+    this.formRestore = this.formBuilder.group({
+      email: new FormControl('', [Validators.required, Validators.email]),
     })
   }
 
@@ -71,6 +96,7 @@ export class HeaderComponent implements OnInit {
     this.userBlockedLogin = false
     this.userExists = false;
     this.userBlockedReg = false;
+    this.restoreEmailNotExist = false;
   }
 
   loading: boolean = false
@@ -83,15 +109,14 @@ export class HeaderComponent implements OnInit {
       this.invalidLogin = false
       this.userBlockedLogin = false
       this.closeModalLogIn.nativeElement.click()
-      sessionStorage.setItem("email", email);
-      sessionStorage.setItem("token", data.access_token);
-      sessionStorage.setItem("role", data.role);
-      this.role = data.role;
-      this.httpService.getUserInfo(email).then((data) => {
-        this.currentUser = data;
-        //todo убрать и заменить на вызов апи в других местах
-        sessionStorage.setItem("user_info", JSON.stringify(data));
-      });
+      localStorage.setItem("token", data.access_token);
+
+      return this.authService.getCurrentUser()
+    }).then((user) => {
+      if (user) {
+        this.currentUser = user;
+      }
+
       this.loading = false;
       this.loginForm.reset();
       this.router.navigate(["/conferences"]);
@@ -112,6 +137,7 @@ export class HeaderComponent implements OnInit {
   }
 
   registration(): void {
+    this.loading = true;
     let request = {
       "firstName": this.formRegistration.value.firstName,
       "lastName": this.formRegistration.value.lastName,
@@ -124,6 +150,8 @@ export class HeaderComponent implements OnInit {
       "password": this.formRegistration.value.password
     };
     this.httpService.registration(request).then((data) => {
+      this.loading = false;
+      this.alertService.constructSuccessAlert('Регистрация прошла успешно', 'На вашу почту отправлено письмо с подтверждением');
       this.userExists = false;
       this.userBlockedReg = false;
       this.closeModalReg.nativeElement.click()
@@ -133,6 +161,7 @@ export class HeaderComponent implements OnInit {
       this.login()
       this.formRegistration.reset();
     }).catch(error => {
+      this.loading = false;
       if (error.error['code'] === 'USER_EXISTS') {
         this.userExists = true;
         this.userBlockedReg = false;
@@ -147,33 +176,50 @@ export class HeaderComponent implements OnInit {
     })
   }
 
-  checkLogin() {
-    let email: string | null = sessionStorage.getItem("email");
-    let role: string | null = sessionStorage.getItem("role");
+  restorePassword(): void {
+    this.loading = true;
+    let email: string = this.formRestore.value.email;
+    this.httpService.sendRestorePasswordLink(email).then((data) => {
+      if (data) {
+        this.alertService.constructSuccessAlert('Успешно', 'Письмо с инструкцией отправлено на почту');
+        this.restoreEmailNotExist = false;
+        this.closeModalRestore.nativeElement.click()
+      } else {
+        this.restoreEmailNotExist = true;
+      }
+      this.loading = false;
+      this.formRestore.reset();
+    }).catch((error) => {
+      this.loading = false;
+      let title = "Возникла непредвиденная ошибка";
+      let description = 'Ошибка на стороне сервера';
+      this.alertService.constructErrorAlert(error, title, description);
+    });
+  }
 
-    if (email !== null) {
-      this.loggedStatus = true;
-      let user_info: string | null = sessionStorage.getItem("user_info");
-      this.currentUser = user_info !== null ? JSON.parse(user_info) : new User();
-      this.role = role ? role : '';
-      return true;
-    } else {
-      this.loggedStatus = false;
-      return false;
-    }
+  checkLogin() {
+    return this.authService.getUserInfo() != null;
   }
 
   isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.authService.hasRole('ADMIN');
   }
 
   logout() {
     this.httpService.logout().then(() => {
-      sessionStorage.clear()
+      localStorage.clear()
+      this.authService.clearData()
+      this.toPage('')
     });
   }
 
   toPage(link: string) {
     this.router.navigate([link]);
+  }
+
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 }

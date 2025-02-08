@@ -1,0 +1,24 @@
+<section id="container__main">
+  <div class="container">
+
+    <div class="main">
+      <div class="row d-flex align-items-center konf-pref rounded-3">
+        <div class="d-inline-flex align-items-center col-10">
+          <div class="text-black" style="font-size: 20px; margin-left: 10px;">
+            Подтверждение аккаунта
+          </div>
+        </div>
+      </div>
+
+      <div class="row verify-div rounded-3 text-black">
+        <div *ngIf="verified" class="text-bg-success bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
+          Ваш аккаунт успешно подтвержден!
+        </div>
+        <div *ngIf="!verified" class="text-bg-warning bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
+          Ссылка устарела. <span *ngIf="this.currentUser">Попробуйте <a (click)="sendRepeatLink()" class="link-primary" style="cursor: pointer">снова</a> </span>
+          <span *ngIf="!this.currentUser">Обновите страницу или войдите в аккаунт и отправьте новую </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

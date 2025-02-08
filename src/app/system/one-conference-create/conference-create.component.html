@@ -1,4 +1,4 @@
-<section id="conference">
+<section id="container__main">
   <div class="container">
 
     <div class="main">
@@ -35,7 +35,12 @@
         </div>
 
         <div class="rounded-3 row konf-information" style="padding-right: 5px;">
-          <div class="row" style="margin-bottom: 20px; margin-top: -15px;">
+          <div *ngIf="loadingConference" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+          </div>
+          <div *ngIf="!loadingConference" class="row" style="margin-bottom: 20px; margin-top: -15px;">
             <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;" [ngClass]="{'has-error': (formCreateConference.get('confName')?.invalid && formCreateConference.get('confName')?.touched || this.isNameExists)}">
               <label class="main-text" for="floatingInput">Название конференции <span
                   style="color: red;">*</span></label>
@@ -82,7 +87,13 @@
             </div>
           </div>
 
-          <div formArrayName="sections">
+          <div *ngIf="loadingSections" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingSections" formArrayName="sections">
             <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i">
               <div class="row conf-info-section">
                 <div class="col-6" style="padding-left: 0px; margin-bottom: 0px;">
@@ -157,7 +168,12 @@
               </div>
             </div>
           </div>
-          <div formArrayName="tags">
+          <div *ngIf="loadingTags" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+          </div>
+          <div *ngIf="!loadingTags" formArrayName="tags">
             <div *ngFor="let tag of tags.controls; let i = index">
               <div class="row"  [formGroupName]="i" >
                 <div class="col-10" style="padding-left: 0px; margin-bottom: 0px;">

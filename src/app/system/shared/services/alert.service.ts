@@ -13,7 +13,6 @@ export class AlertService {
     keepAfterRouteChange: true
   };
 
-  // enable subscribing to alerts observable
   onAlert(id = this.defaultId): Observable<Alert> {
     return this.subject.asObservable().pipe(filter(x => x && x.id === id));
   }
@@ -27,14 +26,33 @@ export class AlertService {
     const message = `${title}:\n\n`
         + `Код ошибки: ${error.status}\n\n`
         + JSON.stringify(messageJson, undefined, 2)
-    this.create(message);
+    this.createError(message);
   }
 
-  create(message: string) {
+  constructWarnAlert(title: string, description: string) {
+    const message = `${title}:\n\n`
+        + description
+    this.createWarn(message);
+  }
+
+  constructSuccessAlert(title: string, description: string) {
+    const message = `${title}:\n\n`
+        + description
+    this.createSuccess(message);
+  }
+
+  createSuccess(message: string) {
+    this.success(message, this.options);
+  }
+
+  createWarn(message: string) {
+    this.warn(message, this.options);
+  }
+
+  createError(message: string) {
     this.error(message, this.options);
   }
 
-  // convenience methods
   success(message: string, options?: AlertOptions) {
     this.alert(new Alert({...options, type: AlertType.Success, message}));
   }
