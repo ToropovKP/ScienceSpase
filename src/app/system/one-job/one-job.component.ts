@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs";
@@ -7,7 +7,6 @@ import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
 import {HttpResponse} from "@angular/common/http";
 import {Comment} from "../shared/model/comment";
-import {AlertService} from "../shared/services/alert.service";
 import {Conference} from "../shared/model/conference";
 import {ReviewDto} from "../shared/dto/review.dto";
 import {CommonModule} from "@angular/common";
@@ -19,12 +18,14 @@ import {AuthService} from "../shared/services/auth.service";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToastModule} from "primeng/toast";
+import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
+import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe],
   providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -52,45 +53,22 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
               private chatService: ChatService,
               private authService: AuthService,
               private confirmationService: ConfirmationService,
               private messageService: MessageService) {
   }
 
-  private timer: any;
-  private isPaused = false;
-  private scrollInterval: any;
+  @ViewChild('chatContainer', {static: false}) chatContainerRef!: ElementRef<HTMLElement>;
 
-  @HostListener('window:wheel', ['$event'])
-  onWheelEvent(event: WheelEvent): void {
-    this.isPaused = true;
-    clearTimeout(this.timer);
-    this.timer = window.setTimeout(() => {
-      this.isPaused = false;
-    }, 1000);
-  }
+  private scrollTimeout: any;
+  private isUserScrolling = false;
+  private readonly SCROLL_THRESHOLD = 100;
 
   ngAfterViewInit() {
-    const callback = () => {
-      this.chatService.subscribeToJob(this.currentJobId, (message) => {
-        this.currentComments.push(message);
-      });
-    };
-    this.chatService.connect().then(callback).catch((error) => {
-      console.error('Failed to connect to WebSocket:', error);
-    });
-
+    this.initChatConnection();
     if (!this.isReviewer()) {
-      this.scrollInterval = window.setInterval(() => {
-        if (!this.isPaused) {
-          const box = document.getElementById('chat-box');
-          if (box) {
-            box.scrollTop = box.scrollHeight;
-          }
-        }
-      }, 500);
+      this.startScrollManagement();
     }
   }
 
@@ -130,16 +108,64 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
+    clearTimeout(this.scrollTimeout);
     this.chatService.disconnect();
-    if (this.scrollInterval) {
-      clearInterval(this.scrollInterval);
-    }
-    if (this.timer) {
-      clearTimeout(this.timer);
+  }
+
+  private initChatConnection() {
+    this.chatService.connect().then(() => {
+      this.chatService.subscribeToJob(this.currentJobId, (message) => {
+        this.currentComments = [...this.currentComments, message];
+        this.scheduleScrollCheck();
+      });
+    }).catch(console.error);
+  }
+
+  private startScrollManagement() {
+    setTimeout(() => {
+      this.setupScrollListeners();
+      this.scrollToBottom();
+    }, 100);
+  }
+
+  private setupScrollListeners() {
+    const container = this.chatContainerRef?.nativeElement;
+    if (!container) return;
+
+    container.addEventListener('scroll', () => {
+      const {scrollTop, scrollHeight, clientHeight} = container;
+      this.isUserScrolling = scrollHeight - (scrollTop + clientHeight) > this.SCROLL_THRESHOLD;
+    });
+  }
+
+  private scheduleScrollCheck() {
+    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = setTimeout(() => {
+      this.scrollToBottomIfNeeded();
+    }, 50);
+  }
+
+  private scrollToBottomIfNeeded() {
+    if (!this.isUserScrolling) {
+      this.scrollToBottom();
     }
   }
 
+  private scrollToBottom() {
+    const container = this.chatContainerRef?.nativeElement;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  loadingJob: boolean = true;
+  loadingConference: boolean = true;
+
   loadAllData() {
+    //TODO как-то запретить переходить сюда не админам и не владельцу
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
       this.currentJobId = e;
 
@@ -158,20 +184,29 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.httpService.getConference(String(data.conferenceId)).then((conf) => {
           this.currentConference = conf;
+          this.loadingConference = false;
+        }).catch(error => {
+          this.loadingConference = false;
         });
 
         this.httpService.getJobComments(this.currentJobId).then((data) => {
           this.currentComments = data
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Ошибка на стороне сервера',
+            life: 3000
+          });
         })
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
-        if (error.status == '500') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+        if (error.status == '404') {
           this.router.navigate(['not-found']);
         }
       })
@@ -194,10 +229,15 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       this.formAddJob.controls['orcId'].setValue(this.jobUser.orcId)
       this.formAddJob.controls['rincId'].setValue(this.jobUser.rincId)
       this.formAddJob.controls['section'].setValue(this.currentJob.sectionTitle)
+      this.loadingJob = false;
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
+      this.loadingJob = false;
     })
   }
 
@@ -251,9 +291,12 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     this.httpService.downloadFile(fileName, String(this.currentJob.id)).then(response => {
       this.processDownloadFile(response)
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось скачать файл',
+        life: 3000
+      });
     });
   }
 
@@ -299,13 +342,16 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       accept: () => {
         this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
+          this.toPage(`/conference/${this.currentJob.conferenceId}`);
+          this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статья удалена', life: 3000});
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Не удалось удалить работу',
+            life: 3000
+          });
         })
-        this.toPage(`/conference/${this.currentJob.conferenceId}`);
-        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статья удалена', life: 3000});
       },
       reject: () => {
         this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});

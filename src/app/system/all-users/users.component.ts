@@ -3,15 +3,19 @@ import {User} from "../shared/model/user";
 import {userRoleMap, userStatusMap} from "../../app.constants";
 import {Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
+import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, ToastModule, FirstWordPipe, ShortNamePipe],
+  providers: [MessageService]
 })
 export class UsersComponent implements OnInit {
 
@@ -22,27 +26,34 @@ export class UsersComponent implements OnInit {
 
   constructor(private router: Router,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
-      if (!user) {
-        this.router.navigate(['not-found']);
-      } else {
+      if (user) {
         this.loadAllData()
+      } else {
+        this.router.navigate(['not-found']);
       }
     });
   }
 
+  loadingData: boolean = true;
+
   loadAllData() {
     this.httpService.getUsers().then((data) => {
       this.users = data
+      this.loadingData = false;
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
+      this.loadingData = false;
     });
   }
 

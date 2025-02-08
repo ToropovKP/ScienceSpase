@@ -5,12 +5,39 @@
 }
 
 .fixed-top {
-  box-shadow: #000 0px 0px 25px;
+  box-shadow: #000 0 0 25px;
 }
 
 .head-text {
   font-size: 22px;
-  /*font-weight: 900;*/
+  align-items: center !important;
+  line-height: 1.2;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
+.desktop-name {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  vertical-align: baseline; /* Исправление обрезки снизу */
+}
+
+.bi-person-fill {
+  font-size: 1.2rem;
+  margin-right: 0.3rem;
+  vertical-align: text-top; /* Выравнивание иконки */
+}
+
+.text-truncate {
+  display: inline-flex !important;
+  vertical-align: middle;
 }
 
 .logo__link {
@@ -48,7 +75,7 @@
   height: 1.5em;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 768px) {
   .desktop-nav {
     display: none;
   }
@@ -86,11 +113,14 @@
 
   .head-text {
     font-size: 18px;
+    padding: 6px 12px; /* Единые отступы */
+    background: rgba(255, 255, 255, 0.1); /* Фон для плашки */
+    border-radius: 4px;
   }
 
   .dropdown-toggle {
     padding: 8px 12px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
   }
 
@@ -102,7 +132,7 @@
 /* Модальные окна */
 .modal {
   background: rgba(0, 0, 0, .4);
-  backdrop-filter: blur(7px);
+  /*backdrop-filter: blur(7px);*/
 }
 
 .modal-content {
@@ -125,7 +155,7 @@
 /* Выпадающее меню */
 .dropdown-menu {
   border: none;
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
 }
 
 /*.dropdown-item {*/

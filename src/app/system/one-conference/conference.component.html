@@ -1,179 +1,247 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast />
     <div *ngIf="currentConference.id !== undefined" class="main">
-      <div class="row d-flex align-items-center konf-pref rounded-3">
-        <div class="d-inline-flex align-items-center col-8">
-          <div class="conf-name-adress text-black">
-            Конференции / {{this.currentConference.title}}
-          </div>
+      <!-- Заголовок и статус -->
+      <div class="header-container">
+        <div class="title-flex-wrapper">
+          <h1 class="conference-title">
+            {{currentConference.title}}
+          </h1>
+          <span class="status-badge"
+                      [ngClass]="{
+                  'bg-success': currentConference.status === 'ACTIVE',
+                  'bg-danger': currentConference.status === 'CLOSED',
+                  'bg-warning': currentConference.status === 'ON_HOLD'
+                }">
+            {{ conferenceStatusMap[currentConference.status] }}
+          </span>
         </div>
-<!--        <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isAdminAbsolute()" style="height: 17px; font-size: 20px;">-->
-<!--          {{this.currentConferenceAdmin.firstName != null ? "Администратор: "+ this.currentConferenceAdmin.firstName : ''}}-->
-<!--        </div>-->
       </div>
 
-
-      <div class="row konf-information rounded-3">
-
-        <div class="col-12 conf-title text-black">{{this.currentConference.title}}</div>
-        <div class="col-4 conf-info-text text-black">Организация: {{this.currentConference.organization}}</div>
-        <div class="col-4 conf-info-text text-black text-center">Дата начала: {{DateService.formatDate(this.currentConference.startDate)}}</div>
-        <div class="col-4 conf-info-text text-black text-end">Дата завершения: {{DateService.formatDate(this.currentConference.endDate)}}</div>
-        <div class="col-4 conf-info-text text-black ">Статус: <span [style.color]="this.currentConference.status == 'ACTIVE' ? 'green' : this.currentConference.status == 'CLOSED' ? '#D80000' : '#B76E00'">{{ conferenceStatusMap[this.currentConference.status] }}</span></div>
-        <div class="col-4 conf-info-text text-black text-center"><span *ngIf="isModeratorOfThisConference()">Количество участников: {{this.countUsers}}</span></div>
-        <div class="col-4 conf-info-text conf-btn-users-list text-black text-end"><a *ngIf="isModeratorOfThisConference() || isReviewer()" (click)="checkUsers()">Перейти к списку участников</a></div>
-
-        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.sections.length !== 0">
-          <div class="col-6 conf-info-section" style="padding-right: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Секция</div>
-          </div>
-          <div class="col-6 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Руководитель</div>
-          </div>
-
-
-          <div class="row conf-info-section-item" *ngFor="let section of this.sections">
-            <div class="col-6 d-inline-flex conf-info-section" style="padding-right: 5px;">
-              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{section.title}}</div></div>
-            </div>
-            <div class="col-6 d-inline-flex conf-info-section" style="padding-left: 5px;">
-              <div class="section-text text-center w-100 d-flex justify-content-center align-items-center text-black rounded-3">
-                {{section.leaders.length != 0 ? getLeadersString(section.leaders) : "Не назначен"}}</div>
+      <!-- Основная информация -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title d-flex align-items-center">
+                <i class="bi bi-building me-2"></i>Организация
+              </h5>
+              <p class="card-text">{{currentConference.organization}}</p>
             </div>
           </div>
         </div>
 
-<!--        <div class="row conf-info-section-item" style="margin-top: 10px;" *ngIf="this.currentConference.tags.length != 0">-->
-<!--          <div class="col-12 conf-info-section" style="padding-right: 5px;">-->
-<!--            <div class="conf-section-title text-center text-white rounded-3">Критерии оценивания</div>-->
-<!--          </div>-->
-
-<!--          <div class="row conf-info-section-item" *ngFor="let tag of this.currentConference.tags">-->
-<!--            <div class="col-12 d-inline-flex conf-info-section" style="padding-right: 5px;">-->
-<!--              <div class="section-text w-100 d-flex justify-content-center align-items-center text-black rounded-3"><div>{{tag}}</div></div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-
-        <div *ngIf="!this.addingJob" class="col-12 section-text conf-desc rounded-3" style="margin-top: 10px;">
-          <div class="conf-info-text text-black rounded-3" style="margin: 0px;">{{this.currentConference.description}}</div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title d-flex align-items-center">
+                <i class="bi bi-calendar-range me-2"></i>Даты проведения
+              </h5>
+              <p class="card-text">
+                {{DateService.formatDate(currentConference.startDate)}} —
+                {{DateService.formatDate(currentConference.endDate)}}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div *ngIf="this.addingJob" style="margin-top: 20px; padding: 0px;">
-          <!-- Загрузка через проводник и перетаскиванием -->
-          <form [formGroup]="formAddJob">
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('title')?.invalid && formAddJob.get('title')?.touched}">
-                <label class="second-text strong text-black" for="floatingInput">Название <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="title"
-                  id="floatingInput">
+        <div class="col-md-4" *ngIf="isModeratorOfThisConference() || isReviewer()">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title d-flex align-items-center">
+                <i class="bi bi-people me-2"></i>Участники
+              </h5>
+              <p class="card-text">
+                <span *ngIf="isModeratorOfThisConference()">{{countUsers}}</span>
+                <a *ngIf="isModeratorOfThisConference() || isReviewer()"
+                   (click)="checkUsers()"
+                   class="btn btn-link p-0 ms-2">
+                  Список участников <i class="bi bi-arrow-right"></i>
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Секции -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <div *ngFor="let section of sections" class="list-group-item d-flex align-items-center py-3">
+              <div class="flex-grow-1">
+                <h6 class="mb-1">{{section.title}}</h6>
+                <small class="text-muted">
+                  Руководитель: {{section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен'}}
+                </small>
               </div>
             </div>
-            <div>
-              <div formArrayName="authors">
-                <div *ngFor="let author of authors.controls; let i = index">
-                  <div class="row" style="margin-left: 0px;" [formGroupName]="i" >
-                    <div class="col-3" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput">Соавтор {{i+1}}</label>
-                      <input type="text" class="form-control author-text text-black" formControlName="fullName" placeholder="ФИО" id="floatingInput">
-                    </div>
-                    <div class="col-3" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput"></label>
-                      <input type="text" class="form-control author-text text-black" formControlName="organization" placeholder="Организация">
-                    </div>
-                    <div class="col-3" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput"></label>
-                      <input type="text" class="form-control author-text text-black" formControlName="email" placeholder="Почта">
-                    </div>
-                    <div *ngIf="!author.get('fullName')?.disabled" class="col-3" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput"></label>
-                      <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" (click)="disableAuthor(i)">Сохранить</button>
-                    </div>
-                    <div *ngIf="author.get('fullName')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput"></label>
-                      <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" (click)="enableAuthor(i)">Изменить</button>
-                    </div>
-                    <div *ngIf="author.get('fullName')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 20px;">
-                      <label class="second-text strong text-black" for="floatingInput"></label>
-                      <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" (click)="removeAuthor(i)">Удалить</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Описание -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{currentConference.description}}</p>
+        </div>
+      </div>
+
+      <!-- Форма добавления работы -->
+      <div *ngIf="addingJob" class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-file-earmark-plus me-2"></i>Добавление работы</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formAddJob" class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Название работы <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="title" required [maxlength]="100">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Аннотация <span class="text-danger">*</span></label>
+              <textarea class="form-control" rows="3" formControlName="description" required [maxlength]="1000"></textarea>
+            </div>
+
+            <!-- Секция соавторов -->
+            <div class="col-12">
+              <h6 class="mb-3">Соавторы</h6>
+              <div formArrayName="authors" class="row g-3">
+                <div *ngFor="let author of authors.controls; let i = index" [formGroupName]="i" class="col-12">
+                  <div class="card mb-2">
+                    <div class="card-body py-2">
+                      <div class="row g-2">
+                        <div class="col-md-4">
+                          <input type="text" class="form-control" placeholder="ФИО" formControlName="fullName" [maxlength]="100">
+                        </div>
+                        <div class="col-md-3">
+                          <input type="text" class="form-control" placeholder="Организация" formControlName="organization" [maxlength]="100">
+                        </div>
+                        <div class="col-md-3">
+                          <input type="email" class="form-control" placeholder="Email" formControlName="email" [maxlength]="20">
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                          <button *ngIf="!author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary" (click)="disableAuthor(i)">
+                            Сохранить
+                          </button>
+                          <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary" (click)="enableAuthor(i)">
+                            Изменить
+                          </button>
+                          <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-danger" (click)="removeAuthor(i)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+<!--              <button class="btn btn-sm btn-primary mt-2" (click)="addAuthor()">-->
+<!--                <i class="bi bi-plus-circle me-2"></i>Добавить соавтора-->
+<!--              </button>-->
             </div>
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-12" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('description')?.invalid && formAddJob.get('description')?.touched}">
-                <label class="second-text strong text-black" for="floatingInput">Аннотация <span style="color: red;">*</span></label>
-                <textarea type="text" class="bg-white form-control section-area text-black" formControlName="description"
-                          id="floatingInput"></textarea>
+
+            <div class="row g-3">
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true" mask="+0 (000) 000-0000" [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
               </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">ORCID <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="orcId" required [showMaskTyped]="true" mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000" [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">РИНЦ ID (Author ID)</label>
+                <input type="text" class="form-control" formControlName="rincId" [showMaskTyped]="true" mask="0000-0000" placeholder="0000-0000">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Организация <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="organization" required [maxlength]="100" [ngClass]="{'has-error': formAddJob.get('organization')?.invalid && formAddJob.get('organization')?.touched}">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Ученая степень</label>
+                <input type="text" class="form-control" formControlName="academicDegree" [maxlength]="100">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Ученое звание</label>
+                <input type="text" class="form-control" formControlName="academicTitle" [maxlength]="100">
+              </div>
+
             </div>
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
-                <label class="second-text text-black" for="floatingInput">Телефон <span style="color: red;">*</span></label>
-                <input type="text" mask="+0 (000) 000-0000" class="bg-white form-control section-text text-black" formControlName="phone"
-                  id="floatingInput">
-              </div>
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
-                <label class="second-text text-black" for="floatingInput">ORCID <span style="color: red;">*</span></label>
-                <input type="text" mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000" class="bg-white form-control section-text text-black" formControlName="orcId"
-                       id="floatingInput">
-              </div>
-              <div class="col-4" style="padding-left: 0px;"[ngClass]="{'has-error': formAddJob.get('rincId')?.invalid && formAddJob.get('rincId')?.touched}">
-                <label class="second-text text-black" for="floatingInput">РИНЦ ID (Author ID) <span style="color: red;">*</span></label>
-                <input type="text" mask="0000-0000" placeholder="0000-0000" class="bg-white form-control section-text text-black" formControlName="rincId"
-                       id="floatingInput">
-              </div>
-            </div>
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;" [ngClass]="{'has-error': formAddJob.get('organization')?.invalid && formAddJob.get('organization')?.touched}">
-                <label class="second-text text-black" for="floatingInput">Организация <span style="color: red;">*</span></label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="organization"
-                  id="floatingInput">
-              </div>
-              <div class="col-4" style="padding-left: 0px;">
-                <label class="second-text text-black" for="floatingInput">Ученая степень</label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="academicDegree"
-                  id="floatingInput">
-              </div>
-              <div class="col-4" style="padding-left: 0px;">
-                <label class="second-text text-black" for="floatingInput">Ученое звание</label>
-                <input type="text" class="bg-white form-control section-text text-black" formControlName="academicTitle"
-                  id="floatingInput">
-              </div>
-            </div>
-            <div class="row" style="margin-left: 0px;">
-              <div class="col-4" style="padding-left: 0px; margin-bottom: 20px;">
-                <label class="second-text text-black" for="floatingInput">Секция <span style="color: red;">*</span></label>
-                <select class="bg-white form-control section-text text-black text-center" style="height: 47px; padding: 10px; margin-top: 15px;"
-                        formControlName="section" (change)="updateSection($event)">
-                  <option class="text-center" selected [ngValue]="undefined" style="font-size: 16px;">Выберите</option>
+
+            <div class="col-12 row g-2">
+              <div class="col-md-4">
+                <label class="form-label">Секция <span class="text-danger">*</span></label>
+                <select class="form-control" formControlName="section" (change)="updateSection($event)">
+                  <option [ngValue]="undefined">Выберите</option>
                   <option *ngFor="let section of sections">{{ section.title }}</option>
                 </select>
               </div>
             </div>
-            <div class="input-group">
-              <input formControlName="files" class="bg-white form-control section-text text-black" type="file" accept=".docx,.doc,.pdf" multiple (change)="onSelectedFiles($event)" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+            <div class="mb-3">
+              <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
+              <input type="file"
+                     class="form-control"
+                     formControlName="files"
+                     accept=".docx,.pdf"
+                     multiple
+                     (change)="onSelectedFiles($event)"
+                     [ngClass]="{'has-error': formAddJob.get('files')?.invalid && formAddJob.get('files')?.touched}">
+              <div class="form-text">Допустимые форматы: DOCX, PDF</div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" (click)="cancelJob()">Отмена</button>
+              <button type="submit"
+                      class="btn btn-primary"
+                      [disabled]="formAddJob.invalid || savingJob"
+                      (click)="createJob()">
+                <span *ngIf="!savingJob">Сохранить работу</span>
+                <span *ngIf="savingJob">
+                  <span class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"></span>
+                  Сохранение...
+                </span>
+              </button>
             </div>
           </form>
-
         </div>
+      </div>
 
-        <div class="row align-items-center" style="margin-bottom: 20px; margin-top: 10px;">
-          <div class="col-4 conf-info-text text-black">
+      <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
+        <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && !addingJob"
+                class="btn btn-primary px-4"
+                (click)="addJob()">
+          <i class="bi bi-plus-lg me-2"></i>Добавить работу
+        </button>
 
-          </div>
-          <div class="col-4 conf-info-text text-black text-center">
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="addJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && !this.addingJob">Добавить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="openJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && this.currentUserJobId != null  && !this.addingJob">Посмотреть работы</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" (click)="editConference()" *ngIf="isModeratorOfThisConference() && !this.addingJob">Изменить</button>
-            <button type="button" class="form-control rounded-3 btn btn-pref text-white" [disabled]="formAddJob.invalid" (click)="createJob()" *ngIf="!isAdmin() && this.currentConference.status == 'ACTIVE' && this.addingJob">Сохранить</button>
-          </div>
-          <div class="col-4 conf-info-text text-black text-end">
+        <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null && !addingJob"
+                class="btn btn-outline-primary px-4"
+                (click)="openJob()">
+          <i class="bi bi-files me-2"></i>Мои работы
+        </button>
 
-          </div>
-        </div>
+        <button *ngIf="isModeratorOfThisConference() && !addingJob"
+                class="btn btn-warning px-4"
+                (click)="editConference()">
+          <i class="bi bi-pencil-square me-2"></i>Редактировать
+        </button>
       </div>
     </div>
   </div>

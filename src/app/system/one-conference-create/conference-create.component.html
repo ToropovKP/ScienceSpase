@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast />
     <div class="main">
       <form [formGroup]="formCreateConference">
         <div class="row d-flex align-items-center konf-pref rounded-3" style="padding: 0px;">
@@ -42,13 +42,12 @@
           </div>
           <div *ngIf="!loadingConference" class="row" style="margin-bottom: 20px; margin-top: -15px;">
             <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;" [ngClass]="{'has-error': (formCreateConference.get('confName')?.invalid && formCreateConference.get('confName')?.touched || this.isNameExists)}">
-              <label class="main-text" for="floatingInput">Название конференции <span
+              <label class="main-text">Название конференции <span
                   style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="confName"
-                     id="floatingInput">
+              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="confName">
             </div>
             <div class="col-2 conf-title text-black" style="padding: 0px;">
-              <label class="main-text" for="floatingInput">Статус <span style="color: red;">*</span></label>
+              <label class="main-text">Статус <span style="color: red;">*</span></label>
               <select [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" class="form-control section-text text-black text-center" style="height: 47px; padding: 10px;"
                       formControlName="confStatus" (change)="updateStatus($event)">
                 <option selected [ngValue]="undefined" style="font-size: 16px; color: black;">Выберите</option>
@@ -56,26 +55,22 @@
               </select>
             </div>
             <div class="col-4" style="padding-left: 0px;" [ngClass]="{'has-error': formCreateConference.get('organization')?.invalid && formCreateConference.get('organization')?.touched}">
-              <label class="second-text" for="floatingInput">Организация <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="organization"
-                     id="floatingInput">
+              <label class="second-text">Организация <span style="color: red;">*</span></label>
+              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="organization">
             </div>
             <div class="col-4 text-center" [ngClass]="{'has-error': formCreateConference.get('date_start')?.invalid && formCreateConference.get('date_start')?.touched}">
-              <label class="second-text" for="floatingInput">Дата начала <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_start"
-                     id="floatingInput">
+              <label class="second-text">Дата начала <span style="color: red;">*</span></label>
+              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_start">
             </div>
             <div class="col-4 text-end" style="padding-right: 0px;" [ngClass]="{'has-error': formCreateConference.get('date_end')?.invalid && formCreateConference.get('date_end')?.touched}">
-              <label class="second-text" for="floatingInput">Дата завершения <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_end"
-                     id="floatingInput">
+              <label class="second-text">Дата завершения <span style="color: red;">*</span></label>
+              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_end">
             </div>
 
             <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;" [ngClass]="{'has-error': formCreateConference.get('description')?.invalid && formCreateConference.get('description')?.touched}">
-              <label class="second-text" for="floatingInput">Описание <span style="color: red;">*</span></label>
+              <label class="second-text">Описание <span style="color: red;">*</span></label>
               <textarea [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" style="white-space: pre-wrap; min-height: 250px;" rows="10" type="text"
-                        class="form-control section-area text-black" formControlName="description"
-                        id="floatingInput"></textarea>
+                        class="form-control section-area text-black" formControlName="description"></textarea>
             </div>
           </div>
 
@@ -97,8 +92,8 @@
             <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i">
               <div class="row conf-info-section">
                 <div class="col-6" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
-                  <input [readonly]="!isLeaderSection(i)" type="text" class="form-control section-text text-black" formControlName="title" placeholder="Название секции" id="floatingInput">
+                  <label class="second-text strong text-black"></label>
+                  <input [readonly]="!isLeaderSection(i)" type="text" class="form-control section-text text-black" formControlName="title" placeholder="Название секции">
                 </div>
 
                 <div class="col-2">
@@ -146,15 +141,15 @@
                 </div>
 
                 <div *ngIf="!section.get('title')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="section.get('title')?.value === ''" (click)="disableSection(i)">Сохранить</button>
                 </div>
                 <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isLeaderSection(i) ? true : null" (click)="enableSection(i)">Изменить</button>
                 </div>
                 <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeSection(i)">Удалить</button>
                 </div>
               </div>
@@ -177,19 +172,19 @@
             <div *ngFor="let tag of tags.controls; let i = index">
               <div class="row"  [formGroupName]="i" >
                 <div class="col-10" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
-                  <input [readonly]="!isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-black" formControlName="name" placeholder="Название" id="floatingInput">
+                  <label class="second-text strong text-black"></label>
+                  <input [readonly]="!isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-black" formControlName="name" placeholder="Название">
                 </div>
                 <div *ngIf="!tag.get('name')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="tag.get('name')?.value === ''" (click)="disableTag(i)">Сохранить</button>
                 </div>
                 <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="enableTag(i)">Изменить</button>
                 </div>
                 <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black" for="floatingInput"></label>
+                  <label class="second-text strong text-black"></label>
                   <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeTag(i)">Удалить</button>
                 </div>
               </div>

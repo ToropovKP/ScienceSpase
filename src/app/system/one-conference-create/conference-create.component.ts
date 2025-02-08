@@ -9,16 +9,18 @@ import {User} from "../shared/model/user";
 import {SectionDto} from "../shared/dto/section.dto";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-one-conference-create',
   templateUrl: './conference-create.component.html',
   styleUrls: ['./conference-create.component.css'],
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule, ToastModule],
+  providers: [MessageService]
 })
 export class ConferenceCreateComponent implements OnInit {
 
@@ -42,7 +44,7 @@ export class ConferenceCreateComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
@@ -112,10 +114,13 @@ export class ConferenceCreateComponent implements OnInit {
                   this.fillTags(this.currentConference.tags)
                   this.fillSections(this.currentConference.sections)
                 }).catch(error => {
-                  let title = "Возникла непредвиденная ошибка";
-                  let description = 'Ошибка на стороне сервера';
-                  this.alertService.constructErrorAlert(error, title, description);
-                  if (error.status == '400') {
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Возникла непредвиденная ошибка',
+                    detail: 'Ошибка на стороне сервера',
+                    life: 3000
+                  });
+                  if (error.status == '404') {
                     this.router.navigate(['not-found']);
                   }
                 });
@@ -124,9 +129,12 @@ export class ConferenceCreateComponent implements OnInit {
                 this.fillSections([])
               }
             }).catch(error => {
-              let title = "Возникла непредвиденная ошибка";
-              let description = 'Ошибка на стороне сервера';
-              this.alertService.constructErrorAlert(error, title, description);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Возникла непредвиденная ошибка',
+                detail: 'Ошибка на стороне сервера',
+                life: 3000
+              });
             })
           } else {
             if (this.currentConferenceId) {
@@ -145,10 +153,13 @@ export class ConferenceCreateComponent implements OnInit {
                 this.fillTags(this.currentConference.tags)
                 this.fillSections(this.currentConference.sections)
               }).catch(error => {
-                let title = "Возникла непредвиденная ошибка";
-                let description = 'Ошибка на стороне сервера';
-                this.alertService.constructErrorAlert(error, title, description);
-                if (error.status == '400') {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Возникла непредвиденная ошибка',
+                  detail: 'Ошибка на стороне сервера',
+                  life: 3000
+                });
+                if (error.status == '404') {
                   this.router.navigate(['not-found']);
                 }
               });
@@ -164,7 +175,12 @@ export class ConferenceCreateComponent implements OnInit {
 
   createConference() {
     if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
@@ -227,27 +243,40 @@ export class ConferenceCreateComponent implements OnInit {
         this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
         })
         .catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Не удалось назначить модераторов',
+            life: 3000
+          });
         });
       }
       this.toPage(`/conference/${data.id}`)
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
+      let description = 'Не удалось сохранить конференцию';
       if (error.error['code'] === 'NAME_EXISTS') {
         title = 'Возникла ошибка при сохранении'
         description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: title,
+        detail: description,
+        life: 3000
+      });
     });
   }
 
   updateConference() {
     if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
@@ -315,9 +344,12 @@ export class ConferenceCreateComponent implements OnInit {
           this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
           })
           .catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Не удалось назначить модераторов',
+              life: 3000
+            });
           });
         }
       }
@@ -325,13 +357,18 @@ export class ConferenceCreateComponent implements OnInit {
     })
     .catch(error => {
       let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      if (error.error['code'] == 'NAME_EXISTS') {
+      let description = 'Не удалось сохранить конференцию';
+      if (error.error['code'] === 'NAME_EXISTS') {
         title = 'Возникла ошибка при сохранении'
         description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: title,
+        detail: description,
+        life: 3000
+      });
     });
   }
 

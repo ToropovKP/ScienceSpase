@@ -3,199 +3,145 @@
 }
 
 .main {
-  background: url(/assets/pictures/home/page.svg);
-  padding: 110px 35px 0px 35px;
-  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  background-color: #e3e3e3;
+  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.conf-name-adress {
-  font-size: 20px;
-  margin-left: 10px;
+/* Общие стили */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #8C99B9;
+  border-radius: 0.5rem;
 }
 
-.konf-information {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 20px;
+.card-header {
+  background: #8C99B9 !important;
+  color: white !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
-.conf-title {
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+.form-control {
+  border: 1px solid #8C99B9;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem;
 }
 
-.conf-info-text {
-  font-size: 20px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+.form-control:read-only {
+  background-color: #f8f9fa;
 }
 
-.conf-btn-users-list a {
-  color: #8C99B9;
-  text-decoration: dotted underline;
-  cursor: pointer;
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  transition: opacity 0.2s;
 }
 
-.conf-section-title {
-  padding: 13px;
-  height: 47px;
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+/* Стили чата */
+.chat-container {
+  height: 400px; /* Фиксированная высота обязательна! */
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  padding: 10px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 8px;
+}
+
+.alert-secondary {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.alert-primary {
   background-color: #8C99B9;
+  color: white;
+  border: none;
 }
 
-.conf-info-section-item {
-  display: contents;
+.title-text {
+  word-break: break-word; /* Перенос слов при необходимости */
+  overflow-wrap: anywhere; /* Экстренный перенос длинных слов */
+  display: block;
+  line-height: 1.3;
+  color: #33486e;
+  font-weight: 600;
 }
 
-.conf-info-section {
-  font-size: 20px !important;
-  font-weight: 400 !important;
-  margin-bottom: 10px;
-  padding: 0px;
+/* Стили для брейдкрамба */
+.breadcrumb-text {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
 
-.section-text {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 47px;
+.breadcrumb-text span {
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
 }
 
-.section-area {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 80px;
-  min-height: 200px;
-  white-space: pre-wrap;
+/* Адаптивность */
+@media (max-width: 768px) {
+  .card-header h5 {
+    font-size: 1.1rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .chat-container {
+    max-height: 300px;
+  }
+
+  .title-text {
+    font-size: 1.5rem;
+  }
+
+  .breadcrumb-text span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Ограничение до 2 строк */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
-.conf-desc {
-  padding: 20px;
-  min-height: 300px;
-  background: rgb(255, 255, 255, 0.3);
+@media (min-width: 768px) {
+  .title-text {
+    font-size: 1.75rem;
+    word-break: normal;
+  }
+
+  .breadcrumb-text {
+    font-size: 1rem;
+  }
+
+  .breadcrumb-text span {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
 }
 
-.konf-name {
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  margin-bottom: 20px;
+/* Радио-кнопки */
+.form-check-input:checked {
   background-color: #8C99B9;
-  padding: 10px;
+  border-color: #7e8bab;
 }
 
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
-}
-
-.input-search {
-  height: 47px;
-  margin-left: 20px;
-  width: 20vw;
-  min-width: 100px;
-  background: rgba(255, 255, 255, 0.5);
-  border: #8C99B9 solid 1px;
-}
-
-.pref-options {
-  margin-left: 20px;
-}
-
-.btn-pref {
-  background-color: #212529;
-  height: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
-}
-
-.btn-pref-add {
-  background-color: #212529;
-  height: 47px;
-  width: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
-}
-
-.konf-item {
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: 0;
-  padding: 0px;
-  position: relative;
-
-}
-
-.konf-item-outer {
-  z-index: 0;
-  padding: 6px;
-  position: relative;
-}
-
-.img-info-conf img {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  border-bottom: 0px;
-}
-
-.general-info-conf {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  padding: 10px;
-}
-
-.konf-organization {
-  font-size: 20px !important;
-  font-weight: 500 !important;
-  margin-bottom: 25px;
-}
-
-.second-info-conf {
-  border: #8C99B9 solid 1px;
-  border-top: 0px;
-  padding: 10px;
-}
-
-.btn-konf {
-  background-color: #212529;
-  height: 36px;
-  max-width: 100px;
-  border-radius: 0;
-  font-size: 16px;
-  margin: 20px 10px 3px 0px;
-}
-
-.konf-status {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  bottom: 30px;
-}
-
-.konf-timeDate {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-}
-
-.jobs-radio-group {
-  display: flex;
-  align-items: center; /* Центровка по вертикали */
-  gap: 10px; /* Промежуток между кнопками */
-}
-
-.jobs-radio-group label {
-  display: flex;
-  flex-direction: column; /* Расположить текст под кнопками */
-  align-items: center; /* Центровка кнопок и текста */
-  font-size: 14px; /* Размер шрифта */
-}
-
-.jobs-radio-group input[type="radio"] {
-  margin-bottom: 5px; /* Отступ между кнопкой и текстом */
+/* Иконки */
+.bi {
+  font-size: 1.1em;
+  vertical-align: middle;
 }

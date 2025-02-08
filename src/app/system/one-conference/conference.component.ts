@@ -7,19 +7,21 @@ import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
 import {conferenceStatusMap} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule],
+  providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit {
 
@@ -44,7 +46,7 @@ export class ConferenceComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
@@ -68,8 +70,8 @@ export class ConferenceComponent implements OnInit {
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
-      rincId: new FormControl('', [Validators.required, Validators.minLength(8)]),
-      section: new FormControl('',),
+      rincId: new FormControl('', /*[Validators.required, Validators.minLength(8)]*/),
+      section: new FormControl('', [Validators.required]),
       files: new FormControl('', [Validators.required]),
     })
   }
@@ -87,18 +89,24 @@ export class ConferenceComponent implements OnInit {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
           }).catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Ошибка на стороне сервера',
+              life: 3000
+            });
           });
         }
 
         this.updateUserInfo()
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
-        if (error.status == '400') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+        if (error.status == '404') {
           this.router.navigate(['not-found']);
         }
       });
@@ -124,9 +132,12 @@ export class ConferenceComponent implements OnInit {
         }
       })
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
     });
   }
 
@@ -194,13 +205,29 @@ export class ConferenceComponent implements OnInit {
     }
   }
 
+  // addAuthor() {
+  //   if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
+  //     this.authors.push(this.createAuthor());
+  //   }
+  // }
+
   checkUsers() {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/jobs`);
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
   }
 
@@ -208,9 +235,19 @@ export class ConferenceComponent implements OnInit {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/edit`);
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
   }
 
@@ -219,10 +256,29 @@ export class ConferenceComponent implements OnInit {
       this.addingJob = true;
       this.updateUserInfo()
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
+  }
+
+  cancelJob() {
+    this.addingJob = false;
+    this.formAddJob.reset();
+    this.authors.clear();
+    const control = this.formAddJob.controls['authors'] as FormArray;
+    control.clear()
+    control.push(this.createAuthor())
   }
 
   openJob() {
@@ -246,22 +302,33 @@ export class ConferenceComponent implements OnInit {
         }
       }
     }
-
-    console.log(this.files.reduce((prev, cur, ind) => `${prev} ${cur.name}`, ''))
   }
+
+  savingJob: boolean = false;
 
   createJob() {
     if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
       return;
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
+    this.savingJob = true;
     let requestUser = {
       "id": this.currentUser.id,
-      "phone": this.formAddJob.value.phone,
+      "phone": '7' + this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,
       "orcId": this.formAddJob.value.orcId,
@@ -272,11 +339,19 @@ export class ConferenceComponent implements OnInit {
     this.httpService.updateUserInfoByJob(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Данные успешно обновлены',
+        life: 3000
+      });
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось обновить профиль',
+        life: 3000
+      });
     });
 
     const authorsDtos: AuthorDto[] = [];
@@ -313,19 +388,42 @@ export class ConferenceComponent implements OnInit {
       })
       formData.append("jobId", String(data?.id));
 
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Работа создана',
+        life: 3000
+      });
+
       this.httpService.uploadFiles(formData).then((data) => {
         this.toPage(`/conference/${this.currentConference.id}`)
         this.addingJob = false;
+        this.savingJob = false;
         this.formAddJob.reset()
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Файлы загружены',
+          life: 3000
+        });
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось загрузить файлы',
+          life: 3000
+        });
+        this.savingJob = false;
       });
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось создать работу',
+        life: 3000
+      });
+      this.savingJob = false;
     });
   }
 

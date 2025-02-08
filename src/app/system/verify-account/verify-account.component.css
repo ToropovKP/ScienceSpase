@@ -3,20 +3,67 @@
 }
 
 .main {
-  background: url(/assets/pictures/home/page.svg);
-  padding: 110px 35px 0px 35px;
-  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  background-color: #e3e3e3;
+  box-shadow: 0 0 5rem rgba(0, 0, 0, 0.5);
+  padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  /*border: 1px solid #8C99B9;*/
+  border-radius: 0.5rem !important;
 }
 
-.verify-div {
-  background-color: rgba(255, 255, 255, 0.5);
-  padding: 20px;
+.card-header {
+  background: #8C99B9 !important;
+  padding: 1rem;
+}
+
+.alert {
+  border: none;
+  border-radius: 0 0 0.5rem 0.5rem !important;
+}
+
+.alert-success {
+  background: rgba(25, 135, 84, 0.15);
+}
+
+.alert-success .bi-check-circle-fill {
+  color: #198754;
+}
+
+.alert-warning {
+  background: rgba(255, 193, 7, 0.15);
+}
+
+.alert-warning .bi-exclamation-triangle-fill {
+  color: #ffc107;
+}
+
+.btn {
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #8C99B9;
+  border-color: #7e8bab;
+}
+
+.btn-primary:hover {
+  background: #7e8bab;
+}
+
+@media (max-width: 768px) {
+  .alert {
+    padding: 1.5rem !important;
+  }
+
+  .alert i {
+    font-size: 1.75rem !important;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

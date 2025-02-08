@@ -3,123 +3,59 @@
 }
 
 .main {
-  background: url(/assets/pictures/home/page.svg);
-  padding: 110px 35px 0px 35px;
-  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  background-color: #e3e3e3;
+  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
+.conf-list {
+  scrollbar-width: thin;
+  scrollbar-color: #8C99B9 transparent;
 }
 
-.input-search {
-  height: 47px;
-  margin-left: 20px;
-  width: 20vw;
-  min-width: 100px;
-  background: rgba(255, 255, 255, 0.5);
-  border: #8C99B9 solid 1px;
+.conf-item {
+  border-radius: 0.5rem !important;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.pref-options {
-  margin-left: 20px;
+.conf-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.1);
 }
 
-.btn-pref {
-  background-color: #212529;
-  height: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
+.card-header {
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  padding: 1rem;
+  background: #8C99B9 !important;
+  color: white !important;
 }
 
-.btn-pref-add {
-  background-color: #212529;
-  height: 47px;
-  width: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
+.card-body {
+  padding: 1.25rem;
 }
 
-.konf-list {
-  background-color: rgba(255, 255, 255, 0.5);
-  padding: 3px;
+.organization-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: calc(100% - 30px); /* Учитываем ширину иконки */
+  hyphens: auto; /* Автоматические переносы для поддерживающих браузеров */
 }
 
-.konf-item {
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: 0;
-  padding: 0px;
-  position: relative;
+/* Для лучшего отображения в flex-контейнере */
+.d-flex.align-items-center.gap-2 {
+  align-items: flex-start; /* Перенос строк в начале текста */
 }
 
-.konf-item-outer {
-  z-index: 0;
-  padding: 6px;
-  position: relative;
+.bi-building {
+  flex-shrink: 0; /* Фиксируем размер иконки */
+  margin-top: 2px; /* Выравнивание по базовой линии */
 }
 
-.img-info-conf img {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  border-bottom: 0px;
+.card-footer {
+  padding-bottom: 0.75rem !important;
 }
 
-.general-info-conf {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  padding: 10px;
-}
-
-.konf-name {
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  line-height: 35px;
-  margin-bottom: 20px;
-  background-color: #8C99B9;
-  padding: 10px;
-}
-
-.konf-organization {
-  font-size: 20px !important;
-  font-weight: 500 !important;
-  line-height: 30px;
-  margin-bottom: 10px;
-}
-
-.second-info-conf {
-  border: #8C99B9 solid 1px;
-  border-top: 0px;
-  padding: 10px;
-}
-
-.btn-konf {
-  background-color: #212529;
-  height: 36px;
-  max-width: 100px;
-  border-radius: 0;
-  font-size: 16px;
-  margin: 20px 10px 3px 0px;
-}
-
-.konf-status {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  bottom: 30px;
-}
-
-.konf-timeDate {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-}
-
-.form-select {
-
+.btn-outline-primary {
+  transition: all 0.2s;
 }

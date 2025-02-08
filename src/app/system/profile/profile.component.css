@@ -3,215 +3,78 @@
 }
 
 .main {
-  background: url(/assets/pictures/home/page.svg);
-  padding: 110px 35px 0px 35px;
-  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  background-color: #e3e3e3;
+  box-shadow: 0 0 5rem rgba(0, 0, 0, 0.5);
+  padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.conf-name-adress {
-  font-size: 20px;
-  margin-left: 10px;
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #8C99B9;
 }
 
-.konf-information {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 20px;
+.card-header {
+  background: #8C99B9 !important;
+  padding: 1rem;
 }
 
-.conf-title {
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+.card-body {
+  padding: 1.5rem;
 }
 
-.conf-info-text {
-  font-size: 20px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+/* Формы */
+.form-label {
+  font-weight: 500;
+  color: #33486e;
 }
 
-.conf-btn-users-list a {
-  color: #8C99B9;
-  text-decoration: dotted underline;
+.form-control {
+  border: 2px solid #8C99B9;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: #33486e;
+  box-shadow: none;
+}
+
+.form-control[readonly] {
+  background-color: #f8f9fa;
+}
+
+/* Кнопки */
+.btn {
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.btn-primary {
+  background: #8C99B9;
+  border-color: #7e8bab;
+}
+
+.btn-primary:hover {
+  background: #7e8bab;
+}
+
+.alert-link {
   cursor: pointer;
 }
 
-.conf-section-title {
-  padding: 13px;
-  height: 47px;
-  background-color: #8C99B9;
-}
+/* Адаптивность */
+@media (max-width: 768px) {
+  .card-header h2 {
+    font-size: 1.25rem;
+  }
 
-.conf-info-section-item {
-  display: contents;
-}
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 
-.conf-info-section {
-  font-size: 20px !important;
-  font-weight: 400 !important;
-  margin-bottom: 10px;
-  padding: 0px;
-}
-
-.section-text {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 47px;
-}
-
-.section-area {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 80px;
-  min-height: 80px;
-}
-
-.conf-desc {
-  padding: 20px;
-  min-height: 300px;
-  background: rgb(255, 255, 255, 0.3);
-}
-
-.konf-name {
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  margin-bottom: 20px;
-  background-color: #8C99B9;
-  padding: 10px;
-}
-
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
-}
-
-.input-search {
-  height: 47px;
-  margin-left: 20px;
-  width: 20vw;
-  min-width: 100px;
-  background: rgba(255, 255, 255, 0.5);
-  border: #8C99B9 solid 1px;
-}
-
-.pref-options {
-  margin-left: 20px;
-}
-
-.btn-pref {
-  background-color: #212529;
-  height: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
-}
-
-.btn-pref-add {
-  background-color: #212529;
-  height: 47px;
-  width: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
-}
-
-.konf-item {
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: 0;
-  padding: 0px;
-  position: relative;
-}
-
-.konf-item-outer {
-  z-index: 0;
-  padding: 6px;
-  position: relative;
-}
-
-.img-info-conf img {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  border-bottom: 0px;
-}
-
-.general-info-conf {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  padding: 10px;
-}
-
-.konf-organization {
-  font-size: 20px !important;
-  font-weight: 500 !important;
-  margin-bottom: 25px;
-}
-
-.second-info-conf {
-  border: #8C99B9 solid 1px;
-  border-top: 0px;
-  padding: 10px;
-}
-
-.btn-konf {
-  background-color: #212529;
-  height: 36px;
-  max-width: 100px;
-  border-radius: 0;
-  font-size: 16px;
-  margin: 20px 10px 3px 0px;
-}
-
-.konf-status {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  bottom: 30px;
-}
-
-.konf-timeDate {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-}
-
-.users-list-text {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 26px 13px;
-  height: 74px;
-  overflow: auto;
-  vertical-align: middle;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  white-space: nowrap;
-  font-size: 16px !important;
-}
-
-.users-list-text-btn {
-  cursor: pointer;
-  font-size: 16px !important;
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 8px;
-  height: 37px;
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  white-space: nowrap;
-}
-
-.users-list-text-btn:hover {
-  opacity: 0.8;
-}
-
-.users-list-text::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  .d-md-flex {
+    flex-direction: column;
+  }
 }

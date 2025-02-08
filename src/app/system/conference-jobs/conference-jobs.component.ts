@@ -8,17 +8,19 @@ import {map} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
-import {AlertService} from "../shared/services/alert.service";
 import {UserBase} from "../shared/model/user.base";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, ToastModule],
+  providers: [MessageService]
 })
 export class ConferenceJobsComponent implements OnInit {
 
@@ -38,7 +40,7 @@ export class ConferenceJobsComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
@@ -95,15 +97,21 @@ export class ConferenceJobsComponent implements OnInit {
             this.jobs = data
           }
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Ошибка на стороне сервера',
+            life: 3000
+          });
         });
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
-        if (error.status == '500') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+        if (error.status == '404') {
           this.router.navigate(['not-found']);
         }
       });
@@ -170,9 +178,12 @@ export class ConferenceJobsComponent implements OnInit {
   downloadFilesJob(job: Job) {
     this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response))
     .catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось скачать файлы',
+        life: 3000
+      });
     });
   }
 
@@ -180,17 +191,23 @@ export class ConferenceJobsComponent implements OnInit {
     if (this.isMasterModeratorOfThisConference()) {
       this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response))
       .catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось скачать файлы',
+          life: 3000
+        });
       });
     } else {
       this.currentSections.forEach((sec) =>
           this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response))
           .catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Не удалось скачать файлы',
+              life: 3000
+            });
           })
       );
     }
