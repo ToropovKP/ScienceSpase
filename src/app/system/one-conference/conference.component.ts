@@ -76,6 +76,8 @@ export class ConferenceComponent implements OnInit {
     })
   }
 
+  loadingConference: boolean = true;
+
   loadAllData() {
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
       this.currentConferenceId = e;
@@ -99,7 +101,9 @@ export class ConferenceComponent implements OnInit {
         }
 
         this.updateUserInfo()
+        this.loadingConference = false;
       }).catch(error => {
+        this.loadingConference = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Возникла непредвиденная ошибка',

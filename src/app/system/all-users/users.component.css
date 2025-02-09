@@ -3,21 +3,21 @@
 }
 
 .main {
-  background-color: #e3e3e3;
-  box-shadow: 0 0 5rem rgba(0, 0, 0, 0.5);
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
   padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--old-bg-card);
   border-radius: 0.5rem;
 }
 
 .card-header {
-  background: #8C99B9 !important;
+  background: var(--old-accent) !important;
   border-radius: 0.5rem;
-  color: white !important;
+  color: var(--old-text-primary-color) !important;
   padding: 1rem 1.5rem;
   border: none;
 }
@@ -29,25 +29,25 @@
 
 /* Заголовок таблицы */
 .grid-header {
-  background: #8C99B9 !important;
+  background: var(--old-accent) !important;
   border-radius: 0.5rem 0.5rem 0 0 !important;
   font-weight: 500;
-  border-bottom: 2px solid #8C99B9;
+  border-bottom: 2px solid var(--old-accent);
 }
 
 /* Элементы списка */
 .user-list {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--old-bg-card);
   border-radius: 0 0 0.5rem 0.5rem !important;
 }
 
 .user-list .user-item {
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--old-border-white);
   transition: background-color 0.2s;
 }
 
 .user-list .user-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--old-bg-row);
 }
 
 .user-list .user-item:last-child {
@@ -58,7 +58,7 @@
 .empty-state {
   padding: 3rem;
   text-align: center;
-  color: #6c757d;
+  color: var(--old-text-secondary-color);
 }
 
 .empty-state i {
@@ -81,8 +81,7 @@
 .grid-header .row > div,
 .user-item .row > div {
   padding: 0.75rem 1rem;
-  border-right: 1px solid rgba(255,255,255,0.1);
-  /*border-right: 1px solid rgb(172, 24, 24);*/
+  border-right: 1px solid var(--old-border-black-light-1);
 }
 
 .grid-header .row > div:last-child,
@@ -123,7 +122,7 @@
   .mobile-scroll-container > .card {
     min-width: 800px;
     margin: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px var(--old-border-black);
   }
 
   .grid-header,
@@ -141,11 +140,11 @@
   /* Стилизация полосы прокрутки */
   .mobile-scroll-container::-webkit-scrollbar {
     height: 6px;
-    background: #f8f9fa;
+    background: var(--old-bg-row);
   }
 
   .mobile-scroll-container::-webkit-scrollbar-thumb {
-    background: #8C99B9;
+    background: var(--old-accent);
     border-radius: 4px;
   }
 
@@ -176,11 +175,11 @@
 
 /* Фикс для границ при прокрутке */
 .grid-header .row > div {
-  border-right: 1px solid rgba(255,255,255,0.2);
+  border-right: 1px solid var(--old-border-black-light-2);
 }
 
 .user-item .row > div {
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--old-border-white);
 }
 
 /* Сохранение выравнивания */
@@ -194,11 +193,11 @@
 
 /* Иконка профиля */
 .btn-profile {
-  color: #8C99B9;
+  color: var(--old-accent);
   transition: opacity 0.2s;
 }
 
 .btn-profile:hover {
   opacity: 0.7;
-  color: #7e8bab;
+  color: var(--old-accent-hover);
 }

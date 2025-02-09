@@ -3,39 +3,39 @@
 }
 
 .main {
-  background-color: #e3e3e3;
-  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
   padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
 /* Общие стили */
 .card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #8C99B9;
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
   border-radius: 0.5rem;
 }
 
 .card-header {
-  background: #8C99B9 !important;
-  color: white !important;
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--old-border-black);
 }
 
 .form-control {
-  border: 1px solid #8C99B9;
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--old-accent);
+  background: var(--old-bg-card);
   padding: 0.75rem;
 }
 
 .form-control:read-only {
-  background-color: #f8f9fa;
+  background-color: var(--old-bg-row);
 }
 
 .btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: var(--old-danger);
+  border-color: var(--old-danger);
   transition: opacity 0.2s;
 }
 
@@ -50,18 +50,18 @@
   scroll-behavior: smooth;
   overscroll-behavior: contain;
   padding: 10px;
-  background: rgba(255,255,255,0.9);
+  background: var(--old-bg-card);
   border-radius: 8px;
 }
 
 .alert-secondary {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--old-bg-row);
+  border: 1px solid var(--old-border-white);
 }
 
 .alert-primary {
-  background-color: #8C99B9;
-  color: white;
+  background-color: var(--old-accent);
+  color: var(--old-text-primary-color);
   border: none;
 }
 
@@ -70,7 +70,7 @@
   overflow-wrap: anywhere; /* Экстренный перенос длинных слов */
   display: block;
   line-height: 1.3;
-  color: #33486e;
+  color: var(--old-h1-accent);
   font-weight: 600;
 }
 
@@ -136,8 +136,8 @@
 
 /* Радио-кнопки */
 .form-check-input:checked {
-  background-color: #8C99B9;
-  border-color: #7e8bab;
+  background-color: var(--old-accent);
+  border-color: var(--old-accent-hover);
 }
 
 /* Иконки */

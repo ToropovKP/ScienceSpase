@@ -3,25 +3,23 @@
 }
 
 .main {
-  /*background: url(/assets/pictures/home/page.svg) no-repeat center/cover;*/
-  /*background-color: rgba(255, 255, 255, 0.9);*/
-  background-color: #e3e3e3;
-  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
   padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #8C99B9;
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
   /*backdrop-filter: blur(2px);*/
 }
 
 .card-header {
-  background: #8C99B9 !important;
-  color: white !important;
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--old-border-black);
 }
 
 .list-group-item:last-child {
@@ -29,34 +27,34 @@
 }
 
 .badge {
-  background: #33486e;
-  color: white;
+  background: var(--old-h1-accent);
+  color: var(--old-text-primary-color);
 }
 
 .breadcrumb-item.active {
-  color: #33486e !important;
+  color: var(--old-h1-accent) !important;
 }
 
 .text-primary {
-  color: #33486e !important;
+  color: var(--old-h1-accent) !important;
 }
 
 .btn-primary {
-  background: #8C99B9;
-  border-color: #7e8bab;
+  background: var(--old-accent);
+  border-color: var(--old-accent-hover);
 }
 
 .btn-primary:hover {
-  background: #7e8bab;
+  background: var(--old-accent-hover);
 }
 
 .form-control {
-  border: 1px solid #8C99B9;
+  border: 1px solid var(--old-accent);
 }
 
 /* Сохраняем видимость паттернов через тонкие акценты */
 .list-group-item {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--old-bg-card);
 }
 
 .header-container {
@@ -74,7 +72,7 @@
   margin: 0;
   flex: 1 1 auto;
   min-width: 0;
-  color: #33486e;
+  color: var(--old-h1-accent);
   font-weight: 600;
   line-height: 1.4;
   word-wrap: break-word;

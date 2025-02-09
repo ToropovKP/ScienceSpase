@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {conferenceStatusMap} from "../../app.constants";
+import {conferenceStatusMap, userRoleMap, userStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
 import {Job} from "../shared/model/job";
@@ -14,12 +14,14 @@ import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
+import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule, ToastModule],
+  imports: [CommonModule, ToastModule, FirstWordPipe, ShortNamePipe],
   providers: [MessageService]
 })
 export class ConferenceJobsComponent implements OnInit {
@@ -54,6 +56,9 @@ export class ConferenceJobsComponent implements OnInit {
       }
     });
   }
+
+  loadingConference: boolean = true;
+  loadingJobs: boolean = true;
 
   loadAllData() {
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
@@ -96,7 +101,9 @@ export class ConferenceJobsComponent implements OnInit {
           } else {
             this.jobs = data
           }
+          this.loadingJobs = false;
         }).catch(error => {
+          this.loadingJobs = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Возникла непредвиденная ошибка',
@@ -104,7 +111,9 @@ export class ConferenceJobsComponent implements OnInit {
             life: 3000
           });
         });
+        this.loadingConference = false;
       }).catch(error => {
+        this.loadingConference = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Возникла непредвиденная ошибка',
@@ -227,4 +236,7 @@ export class ConferenceJobsComponent implements OnInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
+
+  protected readonly userRoleMap = userRoleMap;
+  protected readonly userStatusMap = userStatusMap;
 }

@@ -3,188 +3,284 @@
 }
 
 .main {
-  background-color: #e3e3e3;
-  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
   padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.conf-name-adress {
-  font-size: 20px;
-  margin-left: 10px;
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem !important;
 }
 
-.konf-information {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 20px;
-
+.card-header {
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--old-border-black);
+  border-radius: 0.5rem 0.5rem 0 0 !important;
 }
 
-.conf-title {
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+.header-container {
+  margin-bottom: 1.5rem;
 }
 
-.conf-info-text {
-  font-size: 20px;
-  font-weight: 400;
-  margin-bottom: 20px;
-  margin-top: 10px;
+.title-flex-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 1.5rem;
 }
 
-.conf-btn-users-list a {
-  color: #8C99B9;
-  text-decoration: dotted underline;
-  cursor: pointer;
+.conference-title {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--old-h1-accent);
+  font-weight: 600;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  padding-right: 1rem;
+  position: relative;
 }
 
-.conf-section-title {
-  padding: 13px;
-  height: 47px;
-  background-color: #8C99B9;
-}
-
-.conf-info-section-item {
-  display: contents;
-}
-
-.conf-info-section {
-  font-size: 20px !important;
-  font-weight: 400 !important;
-  margin-bottom: 10px;
-  padding: 0px;
-
-}
-
-.jobs-list-text {
-  border: #8C99B9 solid 1px;
-  background: rgb(255, 255, 255, 0.3);
-  padding: 13px;
-  height: 47px;
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.status-badge {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  padding: 0.5em 0.75em;
+  border-radius: 0.5rem;
+  line-height: 1.2;
+  font-weight: 500;
   white-space: nowrap;
+  align-self: flex-start;
+  position: sticky;
+  right: 0;
+  top: 0;
 }
 
-.download-pointer {
-  cursor: pointer;
+.card-body {
+  border: none;
+  border-radius: 0 0 0.5rem 0.5rem !important;
 }
 
-.jobs-list-text::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+/* Заголовок таблицы */
+.grid-header {
+  background: var(--old-accent) !important;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  font-weight: 500;
+  border-bottom: 2px solid var(--old-accent);
 }
 
-.conf-desc {
-  padding: 20px;
-  min-height: 300px;
-  background: rgb(255, 255, 255, 0.3);
+/* Элементы списка */
+.user-list {
+  background: var(--old-bg-card);
+  border-radius: 0 0 0.5rem 0.5rem !important;
 }
 
-.konf-name {
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  margin-bottom: 20px;
-  background-color: #8C99B9;
-  padding: 10px;
+.user-list .user-item {
+  border-bottom: 1px solid var(--old-border-white);
+  transition: background-color 0.2s;
 }
 
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
+.user-list .user-item:hover {
+  background-color: var(--old-bg-row);
 }
 
-.input-search {
-  height: 47px;
-  margin-left: 20px;
-  width: 20vw;
-  min-width: 100px;
-  background: rgba(255, 255, 255, 0.5);
-  border: #8C99B9 solid 1px;
+.user-list .user-item:last-child {
+  border-bottom: none;
 }
 
-.pref-options {
-  margin-left: 20px;
+/* Пустое состояние */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--old-text-secondary-color);
 }
 
-.btn-pref {
-  background-color: #212529;
-  height: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-.btn-pref-add {
-  background-color: #212529;
-  height: 47px;
-  width: 47px;
-  border-radius: 0;
-  font-size: 16px;
-  margin-left: 20px;
+.empty-state p {
+  font-size: 1.25rem;
+  margin: 0;
 }
 
-.konf-item {
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: 0;
-  padding: 0px;
-  position: relative;
-
+.grid-header .row > div,
+.user-item .row > div {
+  padding: 0.75rem 1rem;
+  border-right: 1px solid var(--old-border-black-light-1);
 }
 
-.konf-item-outer {
-  z-index: 0;
-  padding: 6px;
-  position: relative;
+.grid-header .row > div:last-child,
+.user-item .row > div:last-child {
+  border-right: none;
 }
 
-.img-info-conf img {
+.user-item .row > div {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+}
+
+.mobile-scroll-container {
   width: 100%;
-  border: #8C99B9 solid 1px;
-  border-bottom: 0px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.general-info-conf {
-  width: 100%;
-  border: #8C99B9 solid 1px;
-  padding: 10px;
+
+/* Десктоп */
+@media (min-width: 992px) {
+  .mobile-scroll-container {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+
+  .scroll-content {
+    overflow: visible;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .conference-title {
+    font-size: 2rem;
+    max-width: calc(100% - 140px);
+  }
+
+  .status-badge {
+    font-size: 1.1rem;
+    margin-top: 0.35em;
+  }
 }
 
-.konf-organization {
-  font-size: 20px !important;
-  font-weight: 500 !important;
-  margin-bottom: 25px;
+/* Планшеты */
+@media (max-width: 991px) and (min-width: 768px) {
+  .conference-title {
+    font-size: 1.75rem;
+    max-width: calc(100% - 120px);
+  }
 }
 
-.second-info-conf {
-  border: #8C99B9 solid 1px;
-  border-top: 0px;
-  padding: 10px;
+
+/* Адаптивная таблица */
+@media (max-width: 767px) {
+  .mobile-scroll-container > .card {
+    min-width: 1200px;
+    margin: 0;
+    box-shadow: 0 2px 8px var(--old-border-black);
+  }
+
+  .grid-header,
+  .user-item {
+    min-width: 800px;
+  }
+
+  /* Оптимизация отступов и шрифтов */
+  .grid-header .row > div,
+  .user-item .row > div {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  /* Стилизация полосы прокрутки */
+  .mobile-scroll-container::-webkit-scrollbar {
+    height: 6px;
+    background: var(--old-bg-row);
+  }
+
+  .mobile-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--old-accent);
+    border-radius: 4px;
+  }
+
+  .badge {
+    font-size: 0.8em;
+    padding: 0.4em 0.6em;
+  }
+
+  .user-item .badge {
+    display: block;
+    width: fit-content;
+  }
+
+  /* Адаптация пустого состояния */
+  .empty-state {
+    min-width: 800px;
+    padding: 2rem;
+  }
+
+  .empty-state i {
+    font-size: 2rem;
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+  }
+
+  .title-flex-wrapper {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .conference-title {
+    font-size: 1.5rem;
+    max-width: 100%;
+    padding-right: 0;
+  }
+
+  .status-badge {
+    font-size: 0.9rem;
+    order: -1;
+    margin-right: auto;
+  }
+
+  /*.table-responsive {*/
+  /*  overflow-x: auto;*/
+  /*  min-width: 600px;*/
+  /*}*/
+  /*.table thead {*/
+  /*  font-size: 0.9rem;*/
+  /*}*/
+  /*.table td, .table th {*/
+  /*  padding: 0.75rem;*/
+  /*}*/
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+  }
 }
 
-.btn-konf {
-  background-color: #212529;
-  height: 36px;
-  max-width: 100px;
-  border-radius: 0;
-  font-size: 16px;
-  margin: 20px 10px 3px 0px;
+.grid-header .row > div {
+  border-right: 1px solid var(--old-border-black-light-2);
 }
 
-.konf-status {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  bottom: 30px;
+.user-item .row > div {
+  border-right: 1px solid var(--old-border-white);
 }
 
-.konf-timeDate {
-  margin-top: 5px;
-  font-size: 16px !important;
-  font-weight: 400 !important;
+/* Сохранение выравнивания */
+.user-item .col-2.text-truncate {
+  text-align: left;
+}
+
+.user-item .justify-content-center {
+  justify-content: center !important;
+}
+
+/* Иконки действий */
+.btn-outline-primary:hover {
+  background: var(--old-accent);
+  border-color: var(--old-accent-hover);
+}
+
+.btn-outline-success:hover {
+  background: var(--old-success);
+  color: var(--old-text-primary-color);
 }

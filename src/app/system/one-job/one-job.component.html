@@ -2,9 +2,8 @@
   <div class="container">
     <p-toast />
     <p-confirm-dialog />
-    <div *ngIf="currentJob.id !== undefined" class="main">
-      <!-- Шапка с названием -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="main">
+      <div *ngIf="!loadingJob" class="d-flex justify-content-between align-items-center mb-4">
         <div class="article-page">
           <h1 class="h2 mb-0 text-primary">
             <span class="title-text" [title]="currentJob.title">
@@ -27,8 +26,14 @@
         </div>
       </div>
 
+      <div *ngIf="loadingJob" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Загрузка...</span>
+        </div>
+      </div>
+
       <!-- Основной контент -->
-      <div class="content-wrapper">
+      <div *ngIf="!loadingJob" class="content-wrapper">
         <!-- Блок с основной информацией -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
@@ -174,7 +179,10 @@
               <div *ngIf="existReviewByCurrentUser">
                 <div class="mb-4">
                   <h6 class="mb-3">Оценки по критериям</h6>
-                  <div class="row g-3">
+                  <div *ngIf="loadingConference" class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                  </div>
+                  <div *ngIf="!loadingConference" class="row g-3">
                     <div *ngFor="let tag of currentConference.tags" class="col-md-6">
                       <div class="card mb-3">
                         <div class="card-body">

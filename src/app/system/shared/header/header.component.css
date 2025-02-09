@@ -13,11 +13,11 @@
   align-items: center !important;
   line-height: 1.2;
   transition: all 0.2s;
+}
 
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
+.head-text:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .desktop-name {
@@ -114,13 +114,13 @@
   .head-text {
     font-size: 18px;
     padding: 6px 12px; /* Единые отступы */
-    background: rgba(255, 255, 255, 0.1); /* Фон для плашки */
+    background: var(--old-border-black-light-1); /* Фон для плашки */
     border-radius: 4px;
   }
 
   .dropdown-toggle {
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--old-border-black-light-1);
     border-radius: 4px;
   }
 

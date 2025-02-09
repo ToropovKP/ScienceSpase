@@ -3,8 +3,8 @@
 }
 
 .main {
-  background-color: #e3e3e3;
-  box-shadow: 0 0 5rem rgb(0, 0, 0, 0.5);
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
   padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
@@ -43,7 +43,7 @@
 }
 
 .conf-btn-users-list a {
-  color: #8C99B9;
+  color: var(--old-accent);
   text-decoration: dotted underline;
   cursor: pointer;
 }
@@ -69,7 +69,7 @@
 .conf-section-title {
   padding: 13px;
   height: 47px;
-  background-color: #8C99B9;
+  background-color: var(--old-accent);
 }
 
 .conf-info-section-item {
@@ -85,7 +85,7 @@
 }
 
 .section-text {
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
   height: 47px;
@@ -96,7 +96,7 @@
 }
 
 .section-area {
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
   background: rgb(255, 255, 255, 0.3);
   padding: 13px;
   height: 47px;
@@ -126,7 +126,7 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-area
   font-size: 24px !important;
   font-weight: 400 !important;
   margin-bottom: 20px;
-  background-color: #8C99B9;
+  background-color: var(--old-accent);
   padding: 10px;
 }
 
@@ -143,7 +143,7 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-area
   width: 20vw;
   min-width: 100px;
   background: rgba(255, 255, 255, 0.5);
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
 }
 
 .pref-options {
@@ -183,13 +183,13 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-area
 
 .img-info-conf img {
   width: 100%;
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
   border-bottom: 0px;
 }
 
 .general-info-conf {
   width: 100%;
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
   padding: 10px;
 }
 
@@ -200,7 +200,7 @@ input.section-text:disabled, select.section-text:disabled, textarea.section-area
 }
 
 .second-info-conf {
-  border: #8C99B9 solid 1px;
+  border: var(--old-accent) solid 1px;
   border-top: 0px;
   padding: 10px;
 }

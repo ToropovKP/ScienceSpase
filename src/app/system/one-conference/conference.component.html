@@ -1,15 +1,22 @@
 <section id="container__main">
   <div class="container">
-    <p-toast />
-    <div *ngIf="currentConference.id !== undefined" class="main">
+    <p-toast/>
+    <div class="main">
+
+      <div *ngIf="loadingConference" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Загрузка...</span>
+        </div>
+      </div>
+
       <!-- Заголовок и статус -->
-      <div class="header-container">
+      <div *ngIf="!loadingConference" class="header-container">
         <div class="title-flex-wrapper">
           <h1 class="conference-title">
-            {{currentConference.title}}
+            {{ currentConference.title }}
           </h1>
           <span class="status-badge"
-                      [ngClass]="{
+                [ngClass]="{
                   'bg-success': currentConference.status === 'ACTIVE',
                   'bg-danger': currentConference.status === 'CLOSED',
                   'bg-warning': currentConference.status === 'ON_HOLD'
@@ -19,229 +26,244 @@
         </div>
       </div>
 
-      <!-- Основная информация -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title d-flex align-items-center">
-                <i class="bi bi-building me-2"></i>Организация
-              </h5>
-              <p class="card-text">{{currentConference.organization}}</p>
+      <div *ngIf="!loadingConference">
+        <!-- Основная информация -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-building me-2"></i>Организация
+                </h5>
+                <p class="card-text">{{ currentConference.organization }}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title d-flex align-items-center">
-                <i class="bi bi-calendar-range me-2"></i>Даты проведения
-              </h5>
-              <p class="card-text">
-                {{DateService.formatDate(currentConference.startDate)}} —
-                {{DateService.formatDate(currentConference.endDate)}}
-              </p>
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-calendar-range me-2"></i>Даты проведения
+                </h5>
+                <p class="card-text">
+                  {{ DateService.formatDate(currentConference.startDate) }} —
+                  {{ DateService.formatDate(currentConference.endDate) }}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="col-md-4" *ngIf="isModeratorOfThisConference() || isReviewer()">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title d-flex align-items-center">
-                <i class="bi bi-people me-2"></i>Участники
-              </h5>
-              <p class="card-text">
-                <span *ngIf="isModeratorOfThisConference()">{{countUsers}}</span>
-                <a *ngIf="isModeratorOfThisConference() || isReviewer()"
-                   (click)="checkUsers()"
-                   class="btn btn-link p-0 ms-2">
-                  Список участников <i class="bi bi-arrow-right"></i>
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Секции -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div *ngFor="let section of sections" class="list-group-item d-flex align-items-center py-3">
-              <div class="flex-grow-1">
-                <h6 class="mb-1">{{section.title}}</h6>
-                <small class="text-muted">
-                  Руководитель: {{section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен'}}
-                </small>
+          <div class="col-md-4" *ngIf="isModeratorOfThisConference() || isReviewer()">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-people me-2"></i>Участники
+                </h5>
+                <p class="card-text">
+                  <span *ngIf="isModeratorOfThisConference()">{{ countUsers }}</span>
+                  <a *ngIf="isModeratorOfThisConference() || isReviewer()"
+                     (click)="checkUsers()"
+                     class="btn btn-link p-0 ms-2">
+                    Список участников <i class="bi bi-arrow-right"></i>
+                  </a>
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Описание -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>
-        </div>
-        <div class="card-body">
-          <p class="mb-0">{{currentConference.description}}</p>
-        </div>
-      </div>
-
-      <!-- Форма добавления работы -->
-      <div *ngIf="addingJob" class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-file-earmark-plus me-2"></i>Добавление работы</h5>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="formAddJob" class="row g-3">
-
-            <div class="col-md-6">
-              <label class="form-label">Название работы <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="title" required [maxlength]="100">
+        <!-- Секции -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              <div *ngFor="let section of sections" class="list-group-item d-flex align-items-center py-3">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ section.title }}</h6>
+                  <small class="text-muted">
+                    Руководитель: {{ section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен' }}
+                  </small>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div class="col-12">
-              <label class="form-label">Аннотация <span class="text-danger">*</span></label>
-              <textarea class="form-control" rows="3" formControlName="description" required [maxlength]="1000"></textarea>
-            </div>
+        <!-- Описание -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ currentConference.description }}</p>
+          </div>
+        </div>
 
-            <!-- Секция соавторов -->
-            <div class="col-12">
-              <h6 class="mb-3">Соавторы</h6>
-              <div formArrayName="authors" class="row g-3">
-                <div *ngFor="let author of authors.controls; let i = index" [formGroupName]="i" class="col-12">
-                  <div class="card mb-2">
-                    <div class="card-body py-2">
-                      <div class="row g-2">
-                        <div class="col-md-4">
-                          <input type="text" class="form-control" placeholder="ФИО" formControlName="fullName" [maxlength]="100">
-                        </div>
-                        <div class="col-md-3">
-                          <input type="text" class="form-control" placeholder="Организация" formControlName="organization" [maxlength]="100">
-                        </div>
-                        <div class="col-md-3">
-                          <input type="email" class="form-control" placeholder="Email" formControlName="email" [maxlength]="20">
-                        </div>
-                        <div class="col-md-2 d-flex gap-2">
-                          <button *ngIf="!author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary" (click)="disableAuthor(i)">
-                            Сохранить
-                          </button>
-                          <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary" (click)="enableAuthor(i)">
-                            Изменить
-                          </button>
-                          <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-danger" (click)="removeAuthor(i)">
-                            <i class="bi bi-trash"></i>
-                          </button>
+        <!-- Форма добавления работы -->
+        <div *ngIf="addingJob" class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-file-earmark-plus me-2"></i>Добавление работы</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="formAddJob" class="row g-3">
+
+              <div class="col-md-6">
+                <label class="form-label">Название работы <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="title" required [maxlength]="100">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Аннотация <span class="text-danger">*</span></label>
+                <textarea class="form-control" rows="3" formControlName="description" required
+                          [maxlength]="1000"></textarea>
+              </div>
+
+              <!-- Секция соавторов -->
+              <div class="col-12">
+                <h6 class="mb-3">Соавторы</h6>
+                <div formArrayName="authors" class="row g-3">
+                  <div *ngFor="let author of authors.controls; let i = index" [formGroupName]="i" class="col-12">
+                    <div class="card mb-2">
+                      <div class="card-body py-2">
+                        <div class="row g-2">
+                          <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="ФИО" formControlName="fullName"
+                                   [maxlength]="100">
+                          </div>
+                          <div class="col-md-3">
+                            <input type="text" class="form-control" placeholder="Организация"
+                                   formControlName="organization" [maxlength]="100">
+                          </div>
+                          <div class="col-md-3">
+                            <input type="email" class="form-control" placeholder="Email" formControlName="email"
+                                   [maxlength]="30">
+                          </div>
+                          <div class="col-md-2 d-flex gap-2">
+                            <button *ngIf="!author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary"
+                                    (click)="disableAuthor(i)">
+                              Сохранить
+                            </button>
+                            <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary"
+                                    (click)="enableAuthor(i)">
+                              Изменить
+                            </button>
+                            <button *ngIf="author.get('fullName')?.disabled" class="btn btn-sm btn-danger"
+                                    (click)="removeAuthor(i)">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-<!--              <button class="btn btn-sm btn-primary mt-2" (click)="addAuthor()">-->
-<!--                <i class="bi bi-plus-circle me-2"></i>Добавить соавтора-->
-<!--              </button>-->
-            </div>
-
-            <div class="row g-3">
-
-              <div class="col-12 col-md-4">
-                <label class="form-label">Телефон <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true" mask="+0 (000) 000-0000" [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
+                <!--              <button class="btn btn-sm btn-primary mt-2" (click)="addAuthor()">-->
+                <!--                <i class="bi bi-plus-circle me-2"></i>Добавить соавтора-->
+                <!--              </button>-->
               </div>
 
-              <div class="col-12 col-md-4">
-                <label class="form-label">ORCID <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="orcId" required [showMaskTyped]="true" mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000" [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
+              <div class="row g-3">
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Телефон <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true"
+                         mask="+0 (000) 000-0000"
+                         [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">ORCID <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" formControlName="orcId" required [showMaskTyped]="true"
+                         mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000"
+                         [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">РИНЦ ID (Author ID)</label>
+                  <input type="text" class="form-control" formControlName="rincId" [showMaskTyped]="true"
+                         mask="0000-0000" placeholder="0000-0000">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Организация <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" formControlName="organization" required [maxlength]="100"
+                         [ngClass]="{'has-error': formAddJob.get('organization')?.invalid && formAddJob.get('organization')?.touched}">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Ученая степень</label>
+                  <input type="text" class="form-control" formControlName="academicDegree" [maxlength]="100">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Ученое звание</label>
+                  <input type="text" class="form-control" formControlName="academicTitle" [maxlength]="100">
+                </div>
+
               </div>
 
-              <div class="col-12 col-md-4">
-                <label class="form-label">РИНЦ ID (Author ID)</label>
-                <input type="text" class="form-control" formControlName="rincId" [showMaskTyped]="true" mask="0000-0000" placeholder="0000-0000">
+              <div class="col-12 row g-2">
+                <div class="col-md-4">
+                  <label class="form-label">Секция <span class="text-danger">*</span></label>
+                  <select class="form-control" formControlName="section" (change)="updateSection($event)">
+                    <option [ngValue]="undefined">Выберите</option>
+                    <option *ngFor="let section of sections">{{ section.title }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
+                <input type="file"
+                       class="form-control"
+                       formControlName="files"
+                       accept=".docx,.pdf"
+                       multiple
+                       (change)="onSelectedFiles($event)"
+                       [ngClass]="{'has-error': formAddJob.get('files')?.invalid && formAddJob.get('files')?.touched}">
+                <div class="form-text">Допустимые форматы: DOCX, PDF</div>
               </div>
 
-              <div class="col-12 col-md-4">
-                <label class="form-label">Организация <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="organization" required [maxlength]="100" [ngClass]="{'has-error': formAddJob.get('organization')?.invalid && formAddJob.get('organization')?.touched}">
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label">Ученая степень</label>
-                <input type="text" class="form-control" formControlName="academicDegree" [maxlength]="100">
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label">Ученое звание</label>
-                <input type="text" class="form-control" formControlName="academicTitle" [maxlength]="100">
-              </div>
-
-            </div>
-
-            <div class="col-12 row g-2">
-              <div class="col-md-4">
-                <label class="form-label">Секция <span class="text-danger">*</span></label>
-                <select class="form-control" formControlName="section" (change)="updateSection($event)">
-                  <option [ngValue]="undefined">Выберите</option>
-                  <option *ngFor="let section of sections">{{ section.title }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
-              <input type="file"
-                     class="form-control"
-                     formControlName="files"
-                     accept=".docx,.pdf"
-                     multiple
-                     (change)="onSelectedFiles($event)"
-                     [ngClass]="{'has-error': formAddJob.get('files')?.invalid && formAddJob.get('files')?.touched}">
-              <div class="form-text">Допустимые форматы: DOCX, PDF</div>
-            </div>
-
-            <div class="col-12 d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-secondary" (click)="cancelJob()">Отмена</button>
-              <button type="submit"
-                      class="btn btn-primary"
-                      [disabled]="formAddJob.invalid || savingJob"
-                      (click)="createJob()">
-                <span *ngIf="!savingJob">Сохранить работу</span>
-                <span *ngIf="savingJob">
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" (click)="cancelJob()">Отмена</button>
+                <button type="submit"
+                        class="btn btn-primary"
+                        [disabled]="formAddJob.invalid || savingJob"
+                        (click)="createJob()">
+                  <span *ngIf="!savingJob">Сохранить работу</span>
+                  <span *ngIf="savingJob">
                   <span class="spinner-border spinner-border-sm"
                         role="status"
                         aria-hidden="true"></span>
                   Сохранение...
                 </span>
-              </button>
-            </div>
-          </form>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
 
-      <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
-        <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && !addingJob"
-                class="btn btn-primary px-4"
-                (click)="addJob()">
-          <i class="bi bi-plus-lg me-2"></i>Добавить работу
-        </button>
+        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
+          <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && !addingJob"
+                  class="btn btn-primary px-4"
+                  (click)="addJob()">
+            <i class="bi bi-plus-lg me-2"></i>Добавить работу
+          </button>
 
-        <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null && !addingJob"
-                class="btn btn-outline-primary px-4"
-                (click)="openJob()">
-          <i class="bi bi-files me-2"></i>Мои работы
-        </button>
+          <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null && !addingJob"
+                  class="btn btn-outline-primary px-4"
+                  (click)="openJob()">
+            <i class="bi bi-files me-2"></i>Мои работы
+          </button>
 
-        <button *ngIf="isModeratorOfThisConference() && !addingJob"
-                class="btn btn-warning px-4"
-                (click)="editConference()">
-          <i class="bi bi-pencil-square me-2"></i>Редактировать
-        </button>
+          <button *ngIf="isModeratorOfThisConference() && !addingJob"
+                  class="btn btn-warning px-4"
+                  (click)="editConference()">
+            <i class="bi bi-pencil-square me-2"></i>Редактировать
+          </button>
+        </div>
       </div>
     </div>
   </div>
