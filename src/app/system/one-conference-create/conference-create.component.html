@@ -3,209 +3,304 @@
     <p-toast />
     <div class="main">
       <form [formGroup]="formCreateConference">
-        <div class="row d-flex align-items-center konf-pref rounded-3" style="padding: 0px;">
-          <div class="d-inline-flex align-items-center col-8">
-            <div class="conf-name-adress text-black">
-              Конференции / {{this.currentConference != null ? "Изменение \"" + this.currentConference.title +"\"" :
-              "Создание"}}
+        <!-- Шапка -->
+        <div class="header-container mb-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="title-flex-wrapper">
+              <span class="status-badge bg-secondary">
+                {{ currentConference ? 'Редактирование' : 'Создание' }}
+              </span>
+              <h1 class="conference-title">
+                {{ formCreateConference.get('confName')?.value || 'Новая конференция' }}
+              </h1>
+
+            </div>
+
+            <!-- Блок администратора -->
+            <div *ngIf="isAdmin()" class="d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside">
+                  <i class="bi bi-gear me-2"></i>
+                  Администраторы
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end p-3">
+                  <li *ngFor="let user of admins">
+                    <div class="form-check">
+                      <input class="form-check-input"
+                             type="checkbox"
+                             [formControlName]="'admin' + user.id"
+                             [id]="'admin' + user.id"
+                             (change)="updateAdmin()">
+                      <label class="form-check-label" [for]="'admin' + user.id">
+                        {{ user.firstName }} {{ user.lastName }}
+                      </label>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="d-inline-flex align-items-center col-4 text-black" *ngIf="isAdmin()" style="height: 17px;">
-            Администратор
-            <div class="conf-name-adress-2 text-black" style="width: 100%;">
-              <div class="form-floating mb-3">
+        </div>
 
-                <div style="padding: 10px; margin-top: 15px;" class="dropdown">
-                  <button style="height: 47px; width: 100%; border: var(--old-accent) solid 1px;" data-bs-auto-close="outside" class="btn bg-white  text-center text-black dropdown-toggle" type="button" id="dropdownMenuButton"
-                  data-bs-toggle="dropdown" aria-expanded="false">
-                  Изменить
-                  </button>
-                  <ul style="width: calc(100% - 20px); padding-left: 10px;" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <li *ngFor="let user of admins">
-                              <div class="form-check align-items-center" style="width: 100%;">
-                                  <input formControlName="admin{{user.id}}" (change)="updateAdmin()" class="form-check-input" type="checkbox" id="{{ user.id }}" />
-                                  <label class="form-check-label " style="width: 100%; margin-top: 3px;" for="{{ user.id }}">{{ user.firstName + " " + user.lastName }}</label>
-                              </div>
-                      </li>
-                  </ul>
+        <!-- Основные поля -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Основные параметры</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Название -->
+              <div class="col-md-8">
+                <label class="form-label fs-5">
+                  Название конференции
+                  <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control"
+                       formControlName="confName"
+                       [class.is-invalid]="formCreateConference.get('confName')?.invalid"
+                       [readonly]="!isMasterModeratorOfThisConference()"
+                       [maxlength]="100">
+              </div>
+
+              <!-- Статус -->
+              <div class="col-md-4">
+                <label class="form-label fs-5">Статус <span class="text-danger">*</span></label>
+                <select class="form-select"
+                        formControlName="confStatus"
+                        [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null"
+                        (change)="updateStatus($event)">
+                  <option [ngValue]="undefined">Выберите статус</option>
+                  <option *ngFor="let status of conferenceStatusList">{{ status }}</option>
+                </select>
+              </div>
+
+              <!-- Организация -->
+              <div class="col-md-4">
+                <label class="form-label fs-5">Организация <span class="text-danger">*</span></label>
+                <input type="text"
+                       class="form-control"
+                       formControlName="organization"
+                       [readonly]="!isMasterModeratorOfThisConference()"
+                       [maxlength]="100">
+              </div>
+
+              <!-- Даты -->
+              <div class="col-md-4">
+                <label class="form-label fs-5">Дата начала <span class="text-danger">*</span></label>
+                <input type="date"
+                       class="form-control"
+                       formControlName="date_start"
+                       [readonly]="!isMasterModeratorOfThisConference()">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fs-5">Дата завершения <span class="text-danger">*</span></label>
+                <input type="date"
+                       class="form-control"
+                       formControlName="date_end"
+                       [readonly]="!isMasterModeratorOfThisConference()">
+              </div>
+
+              <!-- Описание -->
+              <div class="col-12">
+                <label class="form-label fs-5">Описание <span class="text-danger">*</span></label>
+                <textarea class="form-control"
+                          rows="4"
+                          formControlName="description"
+                          [readonly]="!isMasterModeratorOfThisConference()"
+                          [maxlength]="1000"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Секции -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingSections" class="text-center py-4">
+              <div class="spinner-border" role="status"></div>
+            </div>
+
+            <div *ngIf="!loadingSections" formArrayName="sections">
+              <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i" class="mb-3">
+                <div class="row g-2 align-items-center">
+                  <div class="col-md-5">
+                    <input type="text"
+                           class="form-control"
+                           formControlName="title"
+                           placeholder="Название секции"
+                           [readonly]="!isLeaderSection(i)">
+                  </div>
+
+                  <div class="col-md-3">
+                    <div *ngIf="!isMasterModeratorOfThisConference()" >
+                      <button class="btn btn-outline-secondary w-100 text-start text-truncate"
+                              type="button"
+                              disabled>
+                        {{ countLeadSecArray(i) !== 0 ? getStringLeadSecArray(i) : 'Не назначен' }}
+                      </button>
+                    </div>
+                    <div *ngIf="isMasterModeratorOfThisConference()" class="dropdown">
+                      <button class="btn btn-outline-secondary w-100 text-start text-truncate"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              data-bs-auto-close="outside"
+                              [disabled]="isDisabledSection(i)"
+                              [id]="'dropdownMenuButtonLeaders' + i">
+                        {{ getStringLeadSecArray(i) || 'Выберите руководителей' }}
+                      </button>
+                      <ul formArrayName="leaders"
+                          class="dropdown-menu p-3"
+                          [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
+                        <li *ngFor="let user of leadSecArray(i).controls; let j = index" [formGroupName]="j">
+                          <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   formControlName="selected"
+                                   *ngIf="isMasterModeratorOfThisConference() ? this.currentUser.id != user.get('id')?.value : null"
+                                   [id]="'leader' + i + j">
+                            <label class="form-check-label" [for]="'leader' + i + j">
+                              {{ user.get('name')?.value }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div *ngIf="!isMasterModeratorOfThisConference()" >
+                      <button class="btn btn-outline-secondary w-100 text-start text-truncate"
+                              type="button"
+                              disabled>
+                        {{ countReviewSecArray(i) !== 0 ? getStringReviewSecArray(i) : 'Не назначен' }}
+                      </button>
+                    </div>
+                    <div *ngIf="isMasterModeratorOfThisConference()" class="dropdown">
+                      <button class="btn btn-outline-secondary w-100 text-start text-truncate"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              data-bs-auto-close="outside"
+                              [disabled]="isDisabledSection(i)"
+                              [id]="'dropdownMenuButtonLeaders' + i">
+                        {{ getStringReviewSecArray(i) || 'Выберите рецензентов' }}
+                      </button>
+                      <ul formArrayName="reviewers"
+                          class="dropdown-menu p-3"
+                          [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
+                        <li *ngFor="let user of reviewSecArray(i).controls; let j = index" [formGroupName]="j">
+                          <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   formControlName="selected"
+                                   [id]="'reviewer' + i + j">
+                            <label class="form-check-label" [for]="'reviewer' + i + j">
+                              {{ user.get('name')?.value }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Кнопки управления -->
+                  <div class="col-md-1">
+                    <div class="d-flex gap-2">
+                      <button *ngIf="!section.get('title')?.disabled"
+                              class="btn btn-success"
+                              [disabled]="section.get('title')?.value === ''"
+                              (click)="disableSection(i)">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+
+                      <button *ngIf="section.get('title')?.disabled"
+                              class="btn btn-outline-secondary"
+                              [disabled]="!isLeaderSection(i) ? true : null"
+                              (click)="enableSection(i)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+
+                      <button *ngIf="section.get('title')?.disabled"
+                              class="btn btn-outline-danger"
+                              [disabled]="!isMasterModeratorOfThisConference() ? true : null"
+                              (click)="removeSection(i)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Критерии оценивания -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Критерии оценивания</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="loadingTags" class="text-center py-4">
+              <div class="spinner-border" role="status"></div>
+            </div>
+
+            <div *ngIf="!loadingTags" formArrayName="tags">
+              <div *ngFor="let tag of tags.controls; let i = index" [formGroupName]="i" class="mb-3">
+                <div class="row g-2 align-items-center">
+                  <div class="col-md-10">
+                    <input type="text"
+                           class="form-control"
+                           formControlName="name"
+                           placeholder="Новый критерий"
+                           [readonly]="!isMasterModeratorOfThisConference()">
+                  </div>
+
+                  <div class="col-md-2">
+                    <div class="d-flex gap-2">
+                      <button *ngIf="!tag.get('name')?.disabled"
+                              class="btn btn-success"
+                              [disabled]="tag.get('name')?.value === ''"
+                              (click)="disableTag(i)">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+
+                      <button *ngIf="tag.get('name')?.disabled"
+                              class="btn btn-outline-secondary"
+                              [disabled]="!isMasterModeratorOfThisConference() ? true : null"
+                              (click)="enableTag(i)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+
+                      <button *ngIf="tag.get('name')?.disabled"
+                              class="btn btn-outline-danger"
+                              [disabled]="!isMasterModeratorOfThisConference() ? true : null"
+                              (click)="removeTag(i)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="rounded-3 row konf-information" style="padding-right: 5px;">
-          <div *ngIf="loadingConference" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Загрузка...</span>
-            </div>
-          </div>
-          <div *ngIf="!loadingConference" class="row" style="margin-bottom: 20px; margin-top: -15px;">
-            <div class="col-10 conf-title text-black" style="padding: 0px; padding-right: 16px;" [ngClass]="{'has-error': (formCreateConference.get('confName')?.invalid && formCreateConference.get('confName')?.touched || this.isNameExists)}">
-              <label class="main-text">Название конференции <span
-                  style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="confName">
-            </div>
-            <div class="col-2 conf-title text-black" style="padding: 0px;">
-              <label class="main-text">Статус <span style="color: red;">*</span></label>
-              <select [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" class="form-control section-text text-black text-center" style="height: 47px; padding: 10px;"
-                      formControlName="confStatus" (change)="updateStatus($event)">
-                <option selected [ngValue]="undefined" style="font-size: 16px; color: black;">Выберите</option>
-                <option *ngFor="let status of conferenceStatusList">{{ status }}</option>
-              </select>
-            </div>
-            <div class="col-4" style="padding-left: 0px;" [ngClass]="{'has-error': formCreateConference.get('organization')?.invalid && formCreateConference.get('organization')?.touched}">
-              <label class="second-text">Организация <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="text" class="form-control section-text text-black" formControlName="organization">
-            </div>
-            <div class="col-4 text-center" [ngClass]="{'has-error': formCreateConference.get('date_start')?.invalid && formCreateConference.get('date_start')?.touched}">
-              <label class="second-text">Дата начала <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_start">
-            </div>
-            <div class="col-4 text-end" style="padding-right: 0px;" [ngClass]="{'has-error': formCreateConference.get('date_end')?.invalid && formCreateConference.get('date_end')?.touched}">
-              <label class="second-text">Дата завершения <span style="color: red;">*</span></label>
-              <input [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" type="date" class="form-control section-text text-black" formControlName="date_end">
-            </div>
-
-            <div class="col-12" style="margin-bottom: 10px; padding: 0px; margin-top: 15px;" [ngClass]="{'has-error': formCreateConference.get('description')?.invalid && formCreateConference.get('description')?.touched}">
-              <label class="second-text">Описание <span style="color: red;">*</span></label>
-              <textarea [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null" style="white-space: pre-wrap; min-height: 250px;" rows="10" type="text"
-                        class="form-control section-area text-black" formControlName="description"></textarea>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top: 50px; margin-bottom: 0px;">
-            <div class="row conf-info-section-item">
-              <div class="col-12 conf-info-section" style="padding-right: 5px;">
-                <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Секции</div>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="loadingSections" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Загрузка...</span>
-            </div>
-          </div>
-
-          <div *ngIf="!loadingSections" formArrayName="sections">
-            <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i">
-              <div class="row conf-info-section">
-                <div class="col-6" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <input [readonly]="!isLeaderSection(i)" type="text" class="form-control section-text text-black" formControlName="title" placeholder="Название секции">
-                </div>
-
-                <div class="col-2">
-                  <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" class="dropdown">
-                    <button style="height: 47px; width: 100%; border: var(--old-accent) solid 1px;" data-bs-auto-close="outside" class="btn bg-white text-center text-black dropdown-toggle" type="button" [id]="'dropdownMenuButtonLeaders' + i" data-bs-toggle="dropdown" aria-expanded="false">
-                      Руководители
-                    </button>
-                    <ul formArrayName="leaders" style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
-                      <li *ngFor="let user of leadSecArray(i).controls; let j = index" [formGroupName]="j">
-                        <div class="form-check align-items-center" style="width: 100%;">
-                          <input *ngIf="isMasterModeratorOfThisConference() ? this.currentUser.id != user.get('id')?.value : null" formControlName="selected" class="form-check-input" type="checkbox" [id]="'leader' + i + j"/>
-                          <label class="form-check-label" style="width: 100%; margin-top: 3px;" [for]="'leader' + i + j">
-                            {{ user.get('name')?.value }}
-                          </label>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                  <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;">
-                    <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
-                           [value]="countLeadSecArray(i) !== 0 ? getStringLeadSecArray(i) : 'Не назначен'" [readonly]="true">
-                  </div>
-                </div>
-
-                <div class="col-2">
-                  <div *ngIf="isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;" class="dropdown">
-                    <button style="height: 47px; width: 100%; border: var(--old-accent) solid 1px;" data-bs-auto-close="outside" class="btn bg-white text-center text-black dropdown-toggle" type="button" [id]="'dropdownMenuButtonLeaders' + i" data-bs-toggle="dropdown" aria-expanded="false">
-                      Рецензенты
-                    </button>
-                    <ul formArrayName="reviewers" style="width: calc(100% - 5px); padding-left: 10px;" class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
-                      <li *ngFor="let user of reviewSecArray(i).controls; let j = index" [formGroupName]="j">
-                        <div class="form-check align-items-center" style="width: 100%;">
-                          <input formControlName="selected" class="form-check-input" type="checkbox" [id]="'reviewer' + i + j"/>
-                          <label class="form-check-label" style="width: 100%; margin-top: 3px;" [for]="'reviewer' + i + j">
-                            {{ user.get('name')?.value }}
-                          </label>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                  <div *ngIf="!isMasterModeratorOfThisConference()" style="padding: 10px; margin-top: 15px;">
-                    <input [attr.disabled]="isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-center text-black"
-                           [value]="countReviewSecArray(i) !== 0 ? getStringReviewSecArray(i) : 'Не назначен'" [readonly]="true">
-                  </div>
-                </div>
-
-                <div *ngIf="!section.get('title')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="section.get('title')?.value === ''" (click)="disableSection(i)">Сохранить</button>
-                </div>
-                <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isLeaderSection(i) ? true : null" (click)="enableSection(i)">Изменить</button>
-                </div>
-                <div *ngIf="section.get('title')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeSection(i)">Удалить</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top: 50px; margin-bottom: 0px;">
-            <div class="row conf-info-section-item">
-              <div class="col-12 conf-info-section" style="padding-right: 5px;">
-                <div style="padding: 10px" class="conf-section-title form-control text-center text-white">Критерии оценивания</div>
-              </div>
-            </div>
-          </div>
-          <div *ngIf="loadingTags" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Загрузка...</span>
-            </div>
-          </div>
-          <div *ngIf="!loadingTags" formArrayName="tags">
-            <div *ngFor="let tag of tags.controls; let i = index">
-              <div class="row"  [formGroupName]="i" >
-                <div class="col-10" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <input [readonly]="!isMasterModeratorOfThisConference()" type="text" class="form-control section-text text-black" formControlName="name" placeholder="Название">
-                </div>
-                <div *ngIf="!tag.get('name')?.disabled" class="col-2" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="tag.get('name')?.value === ''" (click)="disableTag(i)">Сохранить</button>
-                </div>
-                <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="enableTag(i)">Изменить</button>
-                </div>
-                <div *ngIf="tag.get('name')?.disabled" class="col-1" style="padding-left: 0px; margin-bottom: 0px;">
-                  <label class="second-text strong text-black"></label>
-                  <button  class="form-control rounded-3 btn section-text bg-black text-white" type="button" [disabled]="!isMasterModeratorOfThisConference() ? true : null" (click)="removeTag(i)">Удалить</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row align-items-center" style="margin-bottom: 10px;">
-            <div class="col-4 conf-info-text text-black">
-
-            </div>
-            <div class="col-4 conf-info-text text-black text-center">
-              <button [disabled]="formCreateConference.invalid" type="button" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId == null"
-                (click)="createConference()">Сохранить</button>
-              <button [disabled]="formCreateConference.invalid" type="button" style="margin: 0px;" class="form-control rounded-3 btn btn-pref text-white" *ngIf="this.currentConferenceId != null"
-                (click)="updateConference()">Сохранить изменения</button>
-            </div>
-            <div class="col-4 conf-info-text text-black text-end">
-
-            </div>
-          </div>
-
+        <div class="text-center mt-4">
+          <button type="button"
+                  class="btn btn-primary px-5"
+                  [disabled]="formCreateConference.invalid"
+                  (click)="currentConferenceId ? updateConference() : createConference()">
+            <i class="bi bi-save me-2"></i>
+            {{ currentConferenceId ? 'Сохранить изменения' : 'Создать конференцию' }}
+          </button>
         </div>
       </form>
     </div>

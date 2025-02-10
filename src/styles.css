@@ -36,6 +36,8 @@
   --old-danger: #dc3545;
   --old-text-primary-color: #fff;
   --old-text-secondary-color: #6c757d;
+  --old-text-disabled: rgba(128, 128, 128, 0.8);
+  --old-border-disabled: rgba(128, 128, 128, 0.8);
 
   --my-bg: #F5F5F7;
   --my-bg-card: #FFFFFF;

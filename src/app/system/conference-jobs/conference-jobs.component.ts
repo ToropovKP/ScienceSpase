@@ -14,14 +14,12 @@ import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
-import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
-import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule, ToastModule, FirstWordPipe, ShortNamePipe],
+  imports: [CommonModule, ToastModule],
   providers: [MessageService]
 })
 export class ConferenceJobsComponent implements OnInit {

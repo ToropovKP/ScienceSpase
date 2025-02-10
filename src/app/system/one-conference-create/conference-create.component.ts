@@ -489,6 +489,7 @@ export class ConferenceCreateComponent implements OnInit {
     }
 
     this.loadingSections = false;
+    this.formCreateConference.controls['confStatus'].disable()
   }
 
   disableSection(index: number) {
@@ -528,6 +529,10 @@ export class ConferenceCreateComponent implements OnInit {
     if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.value.length === 4) {
       this.sections.push(this.createSection());
     }
+  }
+
+  isDisabledSection(index: number) {
+    return this.sections.at(index).get('title')?.disabled;
   }
 
   get tags(): FormArray {
@@ -586,6 +591,7 @@ export class ConferenceCreateComponent implements OnInit {
 
   isModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
+      this.formCreateConference.controls['confStatus'].enable()
       return true;
     }
     if (this.currentAdmins && this.currentAdmins.length !== 0) {
@@ -597,6 +603,7 @@ export class ConferenceCreateComponent implements OnInit {
 
   isMasterModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
+      this.formCreateConference.controls['confStatus'].enable()
       return true;
     }
     if (this.isModeratorOfThisConference()) {
@@ -611,9 +618,13 @@ export class ConferenceCreateComponent implements OnInit {
             .filter((control) => control.get('id')?.value === find?.id)
                 .length === 0
           }).length;
-          return length === this.sections.controls
+          const bool = length === this.sections.controls
           .filter((control) => control.get('title')?.value !== '')
               .length;
+          if (bool) {
+            this.formCreateConference.controls['confStatus'].enable()
+          }
+          return bool;
         }
       }
     }
