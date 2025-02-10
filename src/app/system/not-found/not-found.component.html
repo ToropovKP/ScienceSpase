@@ -20,6 +20,7 @@
                class="img-fluid position-absolute top-0 start-0"
                height="300"
                width="300"
+               priority
                style="z-index: 3;">
 
           <!-- Статичный средний слой -->
@@ -28,12 +29,14 @@
                class="img-fluid position-absolute top-0 start-0"
                height="300"
                width="300"
+               priority
                style="z-index: 1;">
 
           <!-- Анимируемая часть -->
           <div class="error-image-animated position-absolute"
                style="z-index: 2; top: 20%; left: 35%;">
             <img ngSrc="/assets/pictures/errors/403.svg"
+                 priority
                  alt="animated element"
                  class="img-fluid"
                  height="100"

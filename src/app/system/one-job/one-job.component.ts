@@ -165,32 +165,71 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   loadingConference: boolean = true;
 
   loadAllData() {
-    //TODO как-то запретить переходить сюда не админам и не владельцу
+    const pattern = /^\/conference\/.+\/jobs\/.+$/;
+    const currentPath = window.location.pathname;
+    let skip: boolean = false;
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
-      this.currentJobId = e;
+      if (currentPath.match(pattern)) {
+        this.route.params.pipe(map(p => p['confId'])).subscribe(e => {
+          this.httpService.getConference(String(e)).then((conf) => {
+            this.currentConference = conf;
+            if (!this.isModeratorOfJobConferenceOrReviewer()) {
+              this.router.navigate(['not-found']);
+              skip = true;
+            }
 
-      this.httpService.getUserOneJob(this.currentJobId).then((data) => {
-        this.currentJob = data
-        this.updateUserInfo()
-
-        if (this.isReviewer()) {
-          let find = this.currentJob.reviews.find(review => review.userId === this.currentUser.id);
-          if (find) {
-            this.existReviewByCurrentUser = true;
-            this.reviewByCurrentUser = find;
-            this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
-          }
-        }
-
-        this.httpService.getConference(String(data.conferenceId)).then((conf) => {
-          this.currentConference = conf;
-          this.loadingConference = false;
-        }).catch(error => {
-          this.loadingConference = false;
+            this.loadingConference = false;
+          }).catch(error => {
+            this.loadingConference = false;
+          });
         });
+      }
 
-        this.httpService.getJobComments(this.currentJobId).then((data) => {
-          this.currentComments = data
+      if (!skip) {
+        this.currentJobId = e;
+
+        this.httpService.getUserOneJob(this.currentJobId).then((data) => {
+          this.currentJob = data
+
+          const pattern2 = /^\/jobs\/.+$/;
+          if (currentPath.match(pattern2)) {
+            if (this.currentJob.userId !== this.currentUser.id) {
+              this.router.navigate(['not-found']);
+              skip = true;
+            }
+          }
+
+          if (!skip) {
+            this.updateUserInfo()
+
+            if (this.isReviewer()) {
+              let find = this.currentJob.reviews.find(review => review.userId === this.currentUser.id);
+              if (find) {
+                this.existReviewByCurrentUser = true;
+                this.reviewByCurrentUser = find;
+                this.formReview.controls['text'].setValue(this.reviewByCurrentUser.text);
+              }
+            }
+
+            this.httpService.getConference(String(data.conferenceId)).then((conf) => {
+              this.currentConference = conf;
+              this.loadingConference = false;
+            }).catch(error => {
+              this.loadingConference = false;
+            });
+
+            this.httpService.getJobComments(this.currentJobId).then((data) => {
+              this.currentComments = data
+            }).catch(error => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Возникла непредвиденная ошибка',
+                detail: 'Ошибка на стороне сервера',
+                life: 3000
+              });
+            })
+          }
+
         }).catch(error => {
           this.messageService.add({
             severity: 'error',
@@ -198,18 +237,12 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             detail: 'Ошибка на стороне сервера',
             life: 3000
           });
+          if (error.status == '404') {
+            this.router.navigate(['not-found']);
+          }
         })
-      }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
-        if (error.status == '404') {
-          this.router.navigate(['not-found']);
-        }
-      })
+      }
+
     });
   }
 
@@ -255,6 +288,27 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
   isReviewer(): boolean {
     return this.authService.hasRole('REVIEWER');
+  }
+
+  isModeratorOfJobConferenceOrReviewer(): boolean {
+    if (this.isAdmin()) {
+      return true;
+    }
+    if (this.currentConference.admins !== undefined && this.currentConference.admins.length !== 0) {
+      let find = this.currentConference.admins.find((admin) => admin.id === this.currentUser.id);
+      if (!find) {
+        let find1 = this.currentConference.sections.find((sec) => {
+          if (sec.reviewers !== undefined && sec.reviewers.length !== 0) {
+            let find2 = sec.reviewers.find((rev) => rev.id === this.currentUser.id);
+            return this.isReviewer() && find2 !== undefined
+          }
+          return false;
+        });
+        return find1 !== undefined;
+      }
+      return this.isModerator()
+    }
+    return false;
   }
 
   updateMark(tag: string, mark: number) {

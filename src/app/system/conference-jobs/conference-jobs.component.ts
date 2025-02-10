@@ -179,7 +179,7 @@ export class ConferenceJobsComponent implements OnInit {
   }
 
   openJob(id: string) {
-    this.toPage(`/jobs/${id}`)
+    this.toPage(`conference/${this.currentConferenceId}/jobs/${id}`)
   }
 
   downloadFilesJob(job: Job) {

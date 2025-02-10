@@ -33,6 +33,10 @@ export const appRoutes: Routes = [
     component: ConferenceJobsComponent
   },
   {
+    path: 'conference/:confId/jobs/:id',
+    component: OneJobComponent
+  },
+  {
     path: 'conference/:id',
     component: ConferenceComponent,
   },
