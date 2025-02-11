@@ -1,12 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
 import {ActivatedRoute} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-verify',
@@ -15,7 +16,7 @@ import {MessageService} from "primeng/api";
   imports: [CommonModule, ToastModule],
   providers: [MessageService]
 })
-export class VerifyAccountComponent implements OnInit {
+export class VerifyAccountComponent implements OnInit, OnDestroy {
 
   currentUser!: User;
   verified: boolean = false;
@@ -26,13 +27,25 @@ export class VerifyAccountComponent implements OnInit {
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
     this.loadAllData()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadAllData() {

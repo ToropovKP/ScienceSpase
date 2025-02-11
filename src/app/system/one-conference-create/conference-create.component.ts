@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
 import {Section} from "../shared/model/section";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {SectionDto} from "../shared/dto/section.dto";
@@ -14,6 +14,7 @@ import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-one-conference-create',
@@ -22,7 +23,7 @@ import {MessageService} from "primeng/api";
   imports: [ReactiveFormsModule, CommonModule, ToastModule],
   providers: [MessageService]
 })
-export class ConferenceCreateComponent implements OnInit {
+export class ConferenceCreateComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusList = conferenceStatusList;
 
@@ -48,8 +49,15 @@ export class ConferenceCreateComponent implements OnInit {
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user && this.isModerator()) {
         this.currentUser = user;
         this.initializeForms();
@@ -58,6 +66,11 @@ export class ConferenceCreateComponent implements OnInit {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForms() {

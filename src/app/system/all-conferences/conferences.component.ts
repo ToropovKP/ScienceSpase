@@ -1,14 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {conferenceStatusMap} from "../../app.constants";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {Subject, takeUntil} from "rxjs";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-conferences',
@@ -17,7 +19,7 @@ import {MessageService} from "primeng/api";
   imports: [CommonModule, ToastModule],
   providers: [MessageService]
 })
-export class ConferencesComponent implements OnInit {
+export class ConferencesComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -26,19 +28,32 @@ export class ConferencesComponent implements OnInit {
   currentUser!: User;
 
   constructor(private router: Router,
+              private route: ActivatedRoute,
               private httpService: HttpService,
               private authService: AuthService,
               private messageService: MessageService) {
 
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
     this.loadAllData()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadingConference: boolean = true;

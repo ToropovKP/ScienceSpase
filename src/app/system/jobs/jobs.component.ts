@@ -1,14 +1,15 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Job} from "../shared/model/job";
 import {User} from "../shared/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-jobs',
@@ -17,7 +18,7 @@ import {MessageService} from "primeng/api";
   imports: [CommonModule, ToastModule],
   providers: [MessageService]
 })
-export class JobsComponent implements OnInit {
+export class JobsComponent implements OnInit, OnDestroy {
 
   jobs: Job[] = [];
 
@@ -32,8 +33,15 @@ export class JobsComponent implements OnInit {
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
         this.loadAllData()
@@ -41,6 +49,11 @@ export class JobsComponent implements OnInit {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadingJobs: boolean = true;

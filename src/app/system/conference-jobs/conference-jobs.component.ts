@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {conferenceStatusMap, userRoleMap, userStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
 import {Job} from "../shared/model/job";
 import {Conference} from "../shared/model/conference";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
@@ -14,6 +14,7 @@ import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -22,7 +23,7 @@ import {MessageService} from "primeng/api";
   imports: [CommonModule, ToastModule],
   providers: [MessageService]
 })
-export class ConferenceJobsComponent implements OnInit {
+export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -44,8 +45,15 @@ export class ConferenceJobsComponent implements OnInit {
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user && this.isReviewerOrModerator()) {
         this.currentUser = user;
         this.loadAllData()
@@ -53,6 +61,11 @@ export class ConferenceJobsComponent implements OnInit {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadingConference: boolean = true;

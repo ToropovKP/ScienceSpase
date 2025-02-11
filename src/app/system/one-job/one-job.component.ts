@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Job} from "../shared/model/job";
@@ -20,6 +20,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToastModule} from "primeng/toast";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-one-conference',
@@ -61,6 +62,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('chatContainer', {static: false}) chatContainerRef!: ElementRef<HTMLElement>;
 
+  private destroy$ = new Subject<void>();
   private scrollTimeout: any;
   private isUserScrolling = false;
   private readonly SCROLL_THRESHOLD = 100;
@@ -73,7 +75,12 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
         this.initializeForms();
@@ -110,6 +117,8 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     clearTimeout(this.scrollTimeout);
     this.chatService.disconnect();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initChatConnection() {

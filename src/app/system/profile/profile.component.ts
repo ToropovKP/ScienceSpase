@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {CommonModule} from "@angular/common";
@@ -10,6 +10,7 @@ import {AuthService} from "../shared/services/auth.service";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-profile',
@@ -18,7 +19,7 @@ import {ToastModule} from "primeng/toast";
   imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule],
   providers: [ConfirmationService, MessageService]
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
 
   formProfile!: FormGroup;
   currentUser!: User;
@@ -36,8 +37,15 @@ export class ProfileComponent implements OnInit {
               private messageService: MessageService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
         this.initializeForms();
@@ -46,6 +54,11 @@ export class ProfileComponent implements OnInit {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForms() {

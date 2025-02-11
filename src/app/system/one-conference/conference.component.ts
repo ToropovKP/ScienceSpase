@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {Section} from "../shared/model/section";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
@@ -15,6 +15,7 @@ import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-one-conference',
@@ -23,7 +24,7 @@ import {MessageService} from "primeng/api";
   imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule],
   providers: [MessageService]
 })
-export class ConferenceComponent implements OnInit {
+export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -50,14 +51,26 @@ export class ConferenceComponent implements OnInit {
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
     this.initializeForms();
     this.loadAllData()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForms() {

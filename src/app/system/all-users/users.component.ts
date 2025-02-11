@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
 import {userRoleMap, userStatusMap} from "../../app.constants";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
@@ -9,6 +9,8 @@ import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
+import {Subject, takeUntil} from "rxjs";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-users',
@@ -17,7 +19,7 @@ import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
   imports: [CommonModule, ToastModule, FirstWordPipe, ShortNamePipe],
   providers: [MessageService]
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
 
   protected readonly userStatusMap = userStatusMap;
   protected readonly userRoleMap = userRoleMap;
@@ -25,19 +27,32 @@ export class UsersComponent implements OnInit {
   users: User[] = [];
 
   constructor(private router: Router,
+              private route: ActivatedRoute,
               private httpService: HttpService,
               private messageService: MessageService,
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.loadAllData()
       } else {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadingData: boolean = true;
