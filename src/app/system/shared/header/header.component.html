@@ -1,6 +1,6 @@
 <header class="p-3 bg-dark text-white fixed-top">
   <div class="container">
-    <p-toast />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
     <div class="d-flex flex-wrap align-items-center justify-content-between">
       <!-- Логотип и десктопные ссылки -->
       <div class="d-flex align-items-center">
@@ -55,7 +55,8 @@
           <button (click)="clearBooleans()"
                   type="button" class="btn btn-warning"
                   data-bs-toggle="modal" data-bs-target="#windowRegistration">
-            Регистрация
+            <i class="bi bi-r-circle-fill"></i>
+            <span>Регистрация</span>
           </button>
         </div>
 

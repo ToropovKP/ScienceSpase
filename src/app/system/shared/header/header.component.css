@@ -129,6 +129,32 @@
   }
 }
 
+.btn-warning i {
+  display: none;
+}
+
+@media (max-width: 370px) {
+  .logo__link img {
+    height: 55px;
+  }
+
+  .btn-warning {
+    width: 50px;
+    overflow: hidden;
+  }
+  .btn-warning span {
+    display: none;
+  }
+
+  .btn-warning i {
+    display: inline-block;
+  }
+
+  .badge {
+    font-size: 8px;
+  }
+}
+
 /* Модальные окна */
 .modal {
   background: rgba(0, 0, 0, .4);

@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
     <p-confirm-dialog />
     <div class="main">
       <div *ngIf="!loadingJob" class="d-flex justify-content-between align-items-center mb-4">
