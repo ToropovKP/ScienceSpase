@@ -450,7 +450,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   }
 
   getLeadersString(leaders: UserBase[]) {
-    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join("\n")
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join(", ")
   }
 
   toPage(link: string) {

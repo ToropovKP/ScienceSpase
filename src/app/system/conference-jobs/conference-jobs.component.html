@@ -94,11 +94,11 @@
               <div class="user-item" *ngFor="let job of jobs">
                 <div class="row g-0 align-items-center ">
                   <!-- Данные пользователя -->
-                  <div class="col-3 " [title]="job.userName">
+                  <div class="col-3 text-break" [title]="isReviewer() ? '-' : job.userName">
                     {{ isReviewer() ? '-' : job.userName }}
                   </div>
-                  <div class="col-3 ">{{ job.title }}</div>
-                  <div class="col-3 ">{{ job.sectionTitle }}</div>
+                  <div class="col-3 text-break">{{ job.title }}</div>
+                  <div class="col-3 text-break">{{ job.sectionTitle }}</div>
                   <div class="col-2 ">
                     {{ DateService.formatDateTime(job.dateTime) }}
                   </div>

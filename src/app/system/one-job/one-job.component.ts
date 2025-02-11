@@ -203,14 +203,15 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
           const pattern2 = /^\/jobs\/.+$/;
           if (currentPath.match(pattern2)) {
             if (this.currentJob.userId !== this.currentUser.id) {
-              this.router.navigate(['not-found']);
-              skip = true;
+              let find = this.currentJob.coAuthors.find((author) => author.email === this.currentUser.email);
+              if (!find) {
+                this.router.navigate(['not-found']);
+                skip = true;
+              }
             }
           }
 
           if (!skip) {
-            this.updateUserInfo()
-
             if (this.isReviewer()) {
               let find = this.currentJob.reviews.find(review => review.userId === this.currentUser.id);
               if (find) {
@@ -222,6 +223,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
             this.httpService.getConference(String(data.conferenceId)).then((conf) => {
               this.currentConference = conf;
+              this.updateUserInfo()
               this.loadingConference = false;
             }).catch(error => {
               this.loadingConference = false;

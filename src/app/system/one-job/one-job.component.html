@@ -10,16 +10,6 @@
               {{currentJob.title}}
             </span>
           </h1>
-          <div class="breadcrumb-text">
-            <span *ngIf="!loadingJob && !isReviewer()" class="text-muted">
-              {{this.jobUser.id == this.currentUser.id ? "Мои статьи" :
-                this.jobUser.lastName + " " + this.jobUser.firstName + " " +
-                this.jobUser.middleName }} / {{this.currentJob.conferenceTitle}}
-            </span>
-            <span *ngIf="!loadingJob && isReviewer()" class="text-muted">
-              {{this.currentJob.conferenceTitle}}
-            </span>
-          </div>
         </div>
         <div *ngIf="loadingJob" class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Загрузка...</span>
@@ -34,6 +24,47 @@
 
       <!-- Основной контент -->
       <div *ngIf="!loadingJob" class="content-wrapper">
+        <div *ngIf="loadingConference" class="text-center">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        <div *ngIf="!loadingConference" class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-journal-text me-2"></i>Конференция
+                </h5>
+                <p class="card-text">{{ currentConference.title }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-building me-2"></i>Организация
+                </h5>
+                <p class="card-text">{{ currentConference.organization }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!isReviewer()" class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title d-flex align-items-center">
+                  <i class="bi bi-people me-2"></i>ФИО
+                </h5>
+                <p class="card-text text-break">
+                  {{ jobUser.lastName + " " + jobUser.firstName + " " + jobUser.middleName}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         <!-- Блок с основной информацией -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
@@ -43,6 +74,7 @@
             <form [formGroup]="formAddJob">
               <!-- Секция с авторами -->
               <div formArrayName="authors" *ngIf="!isReviewer()" class="mb-4">
+                <label *ngIf="authors.controls?.length !== 0" class="form-label">Соавторы</label>
                 <div class="card mb-3" *ngFor="let author of authors.controls; let i = index" [formGroupName]="i">
                   <div class="card-body">
                     <h6 class="card-subtitle mb-3 text-muted">Соавтор {{i+1}}</h6>

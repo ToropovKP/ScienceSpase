@@ -51,7 +51,8 @@
 
                   <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-person-circle text-primary"></i>
-                    <span [class.text-success]="job.userId === currentUser.id"
+                    <span class="text-break"
+                          [class.text-success]="job.userId === currentUser.id"
                           [class.text-danger]="job.userId !== currentUser.id">
                       {{ job.userName }}
                     </span>
