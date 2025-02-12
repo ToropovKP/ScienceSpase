@@ -107,7 +107,7 @@
             <label for="email-log">Почта <span style="color: red;">*</span></label>
           </p-iftalabel>
 
-          <p-iftalabel>
+          <p-iftalabel class="mb-3">
             <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password-log" inputId="password-log" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
             <label for="password-log">Пароль <span style="color: red;">*</span></label>
           </p-iftalabel>

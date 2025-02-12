@@ -125,7 +125,7 @@ export class HeaderComponent implements OnInit {
       this.router.navigate(["/conferences"]);
     }).catch((error) => {
       this.loading = false;
-      if (error.error['code'] === 'UNAUTHORIZED') {
+      if (error.error['code'] === 'USER_DOES_NOT_EXISTS') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;
       } else if (error.error['code'] === 'BANNED') {
