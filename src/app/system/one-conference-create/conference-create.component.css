@@ -153,3 +153,17 @@
 .is-invalid {
   border-color: var(--old-danger) !important;
 }
+
+.custom-select.is-invalid {
+  background-image: none !important;
+  border-color: var(--old-danger);
+}
+
+.custom-select.is-invalid:invalid {
+  background-image: none !important;
+}
+
+.custom-select.is-invalid::-ms-expand,
+.custom-select.is-invalid::after {
+  display: none !important;
+}

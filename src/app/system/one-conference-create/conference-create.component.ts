@@ -1,5 +1,13 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule, ValidatorFn,
+  Validators
+} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
 import {Section} from "../shared/model/section";
@@ -15,6 +23,7 @@ import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
+import {dateValidator} from "../shared/validators/date.validator";
 
 @Component({
   selector: 'app-one-conference-create',
@@ -40,6 +49,9 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
   currentUser!: User;
 
   isNameExists: boolean = false;
+
+  minDate = new Date(1900, 0, 1);
+  maxDate = new Date(new Date().getFullYear() + 5, 11, 31);
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -79,8 +91,8 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
       confStatus: new FormControl('', [Validators.required]),
       organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
       description: new FormControl('', [Validators.required]),
-      date_start: new FormControl('', [Validators.required]),
-      date_end: new FormControl('', [Validators.required]),
+      date_start: new FormControl('', [Validators.required, dateValidator()]),
+      date_end: new FormControl('', [Validators.required, dateValidator()]),
       sections: this.formBuilder.array([this.createSection()]),
       tags: this.formBuilder.array([this.createTag()]),
     })

@@ -69,8 +69,9 @@
               <!-- Статус -->
               <div class="col-md-4">
                 <label class="form-label fs-5">Статус <span class="text-danger">*</span></label>
-                <select class="form-select"
+                <select class="form-select custom-select"
                         formControlName="confStatus"
+                        [class.is-invalid]="formCreateConference.get('confStatus')?.invalid"
                         [attr.disabled]="!isMasterModeratorOfThisConference() ? true : null"
                         (change)="updateStatus($event)">
                   <option [ngValue]="undefined">Выберите статус</option>
@@ -84,6 +85,7 @@
                 <input type="text"
                        class="form-control"
                        formControlName="organization"
+                       [class.is-invalid]="formCreateConference.get('organization')?.invalid"
                        [readonly]="!isMasterModeratorOfThisConference()"
                        [maxlength]="100">
               </div>
@@ -94,7 +96,12 @@
                 <input type="date"
                        class="form-control"
                        formControlName="date_start"
+                       [min]="minDate | date: 'yyyy-MM-dd'"
+                       [max]="maxDate | date: 'yyyy-MM-dd'"
+                       [class.is-invalid]="formCreateConference.get('date_start')?.invalid"
                        [readonly]="!isMasterModeratorOfThisConference()">
+                <!-- Добавьте проверку на существование required -->
+
               </div>
 
               <div class="col-md-4">
@@ -102,6 +109,9 @@
                 <input type="date"
                        class="form-control"
                        formControlName="date_end"
+                       [min]="minDate | date: 'yyyy-MM-dd'"
+                       [max]="maxDate | date: 'yyyy-MM-dd'"
+                       [class.is-invalid]="formCreateConference.get('date_end')?.invalid"
                        [readonly]="!isMasterModeratorOfThisConference()">
               </div>
 
@@ -111,6 +121,7 @@
                 <textarea class="form-control"
                           rows="4"
                           formControlName="description"
+                          [class.is-invalid]="formCreateConference.get('description')?.invalid"
                           [readonly]="!isMasterModeratorOfThisConference()"
                           [maxlength]="2000"></textarea>
               </div>
