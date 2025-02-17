@@ -100,14 +100,66 @@
 
               <!-- Идентификаторы -->
               <div class="col-md-4">
-                <label class="form-label">ORCID</label>
+                <label class="form-label">
+                  ORCID
+                  <i class="fas fa-question-circle hover-icon" (click)="op.show($event)"></i>
+                  <p-popover #op
+                             styleClass="fixed-width-popover"
+                             [style]="{maxWidth: '400px', width: '100%'}">
+                    <div class="popover-content">
+                      <div class="popover-header">
+                        <h5 class="popover-title">Что такое ORCID?</h5>
+                      </div>
+                      <div class="popover-body">
+                        <p class="popover-text">
+                          ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
+                          который позволяет установить связь между авторами и их работами.
+                          Формат: 16 цифр, например, <code>0000-0000-0000-0000</code>.
+                        </p>
+                        <div class="text-right">
+                          <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
+                             target="_blank"
+                             class="popover-link">
+                            Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </p-popover>
+                </label>
                 <input type="text" class="form-control"
                        mask="0000-0000-0000-0000"
                        [readonly]="!allowToChange()"
                        formControlName="orcId">
               </div>
               <div class="col-md-4">
-                <label class="form-label">РИНЦ ID</label>
+                <label class="form-label">
+                  РИНЦ ID (Author ID)
+                  <i class="fas fa-question-circle hover-icon" (click)="opRinc.show($event)"></i>
+                  <p-popover #opRinc
+                             styleClass="fixed-width-popover"
+                             [style]="{maxWidth: '400px', width: '100%'}">
+                    <div class="popover-content">
+                      <div class="popover-header">
+                        <h5 class="popover-title">Что такое РИНЦ ID?</h5>
+                      </div>
+                      <div class="popover-body">
+                        <p class="popover-text">
+                          РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
+                          Позволяет однозначно идентифицировать исследователя и его публикации. Формат:
+                          <code>0000-0000</code> (8 цифр).
+                        </p>
+                        <div class="text-right">
+                          <a href="https://www.hse.ru/scholarly-integration/howtofindid"
+                             target="_blank"
+                             class="popover-link">
+                            Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </p-popover>
+                </label>
                 <input type="text" class="form-control"
                        mask="0000-0000"
                        [readonly]="!allowToChange()"

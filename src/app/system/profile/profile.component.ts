@@ -12,12 +12,13 @@ import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
 import {filter} from "rxjs/operators";
 import {passwordMatchValidator} from "../shared/validators/password.match.validator";
+import {PopoverModule} from "primeng/popover";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule],
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

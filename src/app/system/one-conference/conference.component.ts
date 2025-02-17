@@ -17,12 +17,13 @@ import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../shared/model/file.metadata";
+import {PopoverModule} from "primeng/popover";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule],
   providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
