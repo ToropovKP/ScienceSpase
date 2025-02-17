@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
@@ -11,6 +11,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
 import {filter} from "rxjs/operators";
+import {passwordMatchValidator} from "../shared/validators/password.match.validator";
 
 @Component({
   selector: 'app-profile',
@@ -22,11 +23,14 @@ import {filter} from "rxjs/operators";
 export class ProfileComponent implements OnInit, OnDestroy {
 
   formProfile!: FormGroup;
+  securityForm!: FormGroup;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
 
   editProfile: boolean = false;
+  editPassword: boolean = false;
+  showNewPasswordFields: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -73,7 +77,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
       orcId: new FormControl('',),
       rincId: new FormControl('',),
       password: new FormControl('',),
-    })
+    });
+
+    this.securityForm = this.formBuilder.group({
+      currentPassword: new FormControl('', Validators.required),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(8)
+      ]),
+      confirmedPassword: new FormControl('', Validators.required)
+    }, {
+      validator: passwordMatchValidator
+    });
   }
 
   loadAllData() {
@@ -113,7 +128,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
     this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
     this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
-    this.formProfile.controls['password'].setValue("***************")
   }
 
   isAdmin(): boolean {
@@ -285,6 +299,67 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
       }
     });
+  }
+
+  initiatePasswordChange() {
+    this.editPassword = true;
+    this.showNewPasswordFields = false;
+    this.securityForm.get('currentPassword')?.enable();
+  }
+
+  verifyCurrentPassword() {
+    const currentPassword = this.securityForm.value.currentPassword;
+    console.log(currentPassword)
+    let object = {
+      "password": currentPassword
+    }
+    this.httpService.verifyCurrentPassword(object).then(data => {
+      if (data) {
+        this.showNewPasswordFields = true;
+        this.securityForm.get('currentPassword')?.disable();
+      } else {
+        this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
+      }
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
+    });
+  }
+
+  updatePassword() {
+    if (this.securityForm.valid) {
+      const newPassword = this.securityForm.value.password;
+      console.log(newPassword)
+      let object = {
+        "password": newPassword
+      }
+      this.httpService.updatePassword(object).then(() => {
+        this.cancelPasswordChange()
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Пароль успешно изменен',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+      });
+    }
+  }
+
+  cancelPasswordChange() {
+    this.securityForm.reset();
+    this.showNewPasswordFields = false;
+    this.editPassword = false;
   }
 
   toPage(link: string) {

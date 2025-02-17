@@ -65,6 +65,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   private scrollTimeout: any;
   private isUserScrolling = false;
+  private isInitialLoad = true;
   private readonly SCROLL_THRESHOLD = 100;
 
   ngAfterViewInit() {
@@ -78,7 +79,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     this.authService.currentUser$
     .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.route.snapshot.component != null) // Проверка активности
+        filter(() => this.route.snapshot.component != null)
     )
     .subscribe((user) => {
       if (user) {
@@ -163,10 +164,13 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   private scrollToBottom() {
     const container = this.chatContainerRef?.nativeElement;
     if (container) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
+      // Небольшая задержка для обновления DOM
+      setTimeout(() => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'auto' // Меняем на 'auto' для первоначальной загрузки
+        });
+      }, 0);
     }
   }
 
@@ -231,6 +235,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
             this.httpService.getJobComments(this.currentJobId).then((data) => {
               this.currentComments = data
+              if (this.isInitialLoad) {
+                this.scrollToBottom();
+                this.isInitialLoad = false;
+              }
             }).catch(error => {
               this.messageService.add({
                 severity: 'error',
@@ -353,7 +361,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   downloadFile(fileName: string) {
-    this.httpService.downloadFile(fileName, String(this.currentJob.id)).then(response => {
+    this.httpService.downloadFile(fileName).then(response => {
       this.processDownloadFile(response)
     }).catch(error => {
       this.messageService.add({

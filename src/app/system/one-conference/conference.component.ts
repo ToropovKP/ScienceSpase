@@ -16,6 +16,7 @@ import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
+import {FileMetadata} from "../shared/model/file.metadata";
 
 @Component({
   selector: 'app-one-conference',
@@ -306,9 +307,13 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   }
 
   files: File[] = [];
+  uploadedFilesMetadata: FileMetadata[] = [];
+  needToRemoveFilesMetadata: FileMetadata[] = [];
 
   onSelectedFiles(event: Event) {
     this.files = []
+    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
+    this.uploadedFilesMetadata = [];
     let files = (event.target as HTMLInputElement).files;
 
     if (files !== null) {
@@ -318,6 +323,31 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           this.files.push(file);
         }
       }
+    }
+
+    if (this.files.length !== 0) {
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.uploadedFilesMetadata.push(...data)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Файлы загружены',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось загрузить файлы',
+          life: 3000
+        });
+        (event.target as HTMLInputElement).value = '';
+      });
     }
   }
 
@@ -356,12 +386,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     this.httpService.updateUserInfoByJob(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Успешно',
-        detail: 'Данные успешно обновлены',
-        life: 3000
-      });
     }).catch(error => {
       this.messageService.add({
         severity: 'error',
@@ -385,6 +409,9 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         authorsDtos.push(authorDto);
       }
     }
+    let filesForUpload: object[] = []
+    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
+
     let request = {
       "title": this.formAddJob.value.title,
       "coAuthors": authorsDtos,
@@ -394,17 +421,16 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       "sectionId": this.currentSection?.id,
       "sectionTitle": this.currentSection?.title,
       "conferenceId": this.currentConference?.id,
-      "conferenceTitle": this.currentConference?.title
+      "conferenceTitle": this.currentConference?.title,
+      "files": filesForUpload
     };
     this.httpService.createJob(request).then((data) => {
       this.currentUserJobId = String(data.id)
 
-      const formData: FormData = new FormData();
-      this.files.forEach((file) => {
-        formData.append("files", file);
-      })
-      formData.append("jobId", String(data?.id));
-
+      this.toPage(`/conference/${this.currentConference.id}`)
+      this.addingJob = false;
+      this.savingJob = false;
+      this.formAddJob.reset()
       this.messageService.add({
         severity: 'success',
         summary: 'Успешно',
@@ -412,26 +438,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         life: 3000
       });
 
-      this.httpService.uploadFiles(formData).then((data) => {
-        this.toPage(`/conference/${this.currentConference.id}`)
-        this.addingJob = false;
-        this.savingJob = false;
-        this.formAddJob.reset()
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Успешно',
-          detail: 'Файлы загружены',
-          life: 3000
-        });
-      }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось загрузить файлы',
-          life: 3000
-        });
-        this.savingJob = false;
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid))
+      .then(() => {
+        this.needToRemoveFilesMetadata = []
+        this.uploadedFilesMetadata = []
+        this.files = []
       });
     }).catch(error => {
       this.messageService.add({

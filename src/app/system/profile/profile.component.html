@@ -52,7 +52,10 @@
       </div>
 
       <!-- Форма редактирования -->
-      <div class="card shadow-sm">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Основная информация</h5>
+        </div>
         <div class="card-body">
           <form [formGroup]="formProfile">
             <div class="row g-3">
@@ -111,10 +114,6 @@
                        formControlName="rincId">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Пароль</label>
-                <input type="password" class="form-control"
-                       [readonly]="true"
-                       formControlName="password">
               </div>
 
               <!-- Ученая информация -->
@@ -158,6 +157,109 @@
           </div>
         </div>
       </div>
+
+
+      <!-- Секция безопасности -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Безопасность</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="securityForm">
+            <!-- Основная кнопка -->
+            <div *ngIf="!editPassword">
+              <button type="button"
+                      class="btn btn-outline-primary"
+                      (click)="initiatePasswordChange()">
+                Изменить пароль
+              </button>
+            </div>
+
+            <!-- Текущий пароль -->
+            <div *ngIf="editPassword && !showNewPasswordFields" class="password-section">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Текущий пароль</label>
+                  <input type="password"
+                         class="form-control"
+                         formControlName="currentPassword"
+                         [class.is-invalid]="securityForm.get('currentPassword')?.invalid">
+                  <div class="invalid-feedback">
+                    <div *ngIf="securityForm.get('currentPassword')?.hasError('required')">
+                      Введите текущий пароль
+                    </div>
+                    <div *ngIf="securityForm.get('currentPassword')?.hasError('incorrect')">
+                      Неверный пароль
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-primary"
+                            (click)="verifyCurrentPassword()"
+                            [disabled]="securityForm.get('currentPassword')?.invalid">
+                      Проверить
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            (click)="cancelPasswordChange()">
+                      Отмена
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Новый пароль (оставляем как было) -->
+            <div *ngIf="showNewPasswordFields" class="new-password-section">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Новый пароль</label>
+                  <input type="password"
+                         class="form-control"
+                         formControlName="password"
+                         [class.is-invalid]="securityForm.get('password')?.invalid">
+                  <div *ngIf="securityForm.get('password')?.invalid"
+                       class="invalid-feedback">
+                    Минимум 8 символов
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Подтвердите пароль</label>
+                  <input type="password"
+                         class="form-control"
+                         formControlName="confirmedPassword"
+                         [class.is-invalid]="securityForm.hasError('passwordMismatch')">
+                  <div *ngIf="securityForm.hasError('passwordMismatch')"
+                       class="invalid-feedback">
+                    Пароли не совпадают
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-success"
+                            (click)="updatePassword()"
+                            [disabled]="securityForm.invalid">
+                      Сохранить
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            (click)="cancelPasswordChange()">
+                      Отмена
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

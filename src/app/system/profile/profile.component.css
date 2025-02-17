@@ -44,6 +44,24 @@
   background-color: var(--old-bg-row);
 }
 
+.invalid-feedback {
+  /*display: block;*/
+  margin-top: 0.25rem;
+  color: var(--old-danger);
+  font-size: 0.875em;
+}
+
+.btn-outline-primary {
+  border-color: var(--old-accent);
+  color: var(--old-accent);
+}
+
+.btn-outline-primary:hover {
+  border-color: var(--old-accent);
+  background-color: var(--old-accent);
+  color: var(--old-text-primary-color);
+}
+
 /* Кнопки */
 .btn {
   transition: all 0.2s;
