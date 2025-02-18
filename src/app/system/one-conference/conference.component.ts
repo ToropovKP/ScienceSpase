@@ -376,7 +376,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     this.savingJob = true;
     let requestUser = {
       "id": this.currentUser.id,
-      "phone": '7' + this.formAddJob.value.phone,
+      "phone": this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,
       "orcId": this.formAddJob.value.orcId,
