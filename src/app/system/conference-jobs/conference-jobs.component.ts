@@ -131,7 +131,7 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
           detail: 'Ошибка на стороне сервера',
           life: 3000
         });
-        if (error.status == '404') {
+        if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
       });

@@ -210,12 +210,21 @@ export class HeaderComponent implements OnInit {
       this.formRestore.reset();
     }).catch((error) => {
       this.loading = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось отправить письмо',
-        life: 3000
-      });
+      if (error.status === 429) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Отклонено',
+          detail: 'Слишком много запросов на сброс пароля. Попробуйте позже',
+          life: 3000
+        });
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось отправить письмо',
+          life: 3000
+        });
+      }
     });
   }
 

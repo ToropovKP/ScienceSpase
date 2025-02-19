@@ -125,7 +125,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           detail: 'Ошибка на стороне сервера',
           life: 3000
         });
-        if (error.status == '404') {
+        if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
       });
@@ -375,7 +375,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
     this.savingJob = true;
     let requestUser = {
-      "id": this.currentUser.id,
       "phone": this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,

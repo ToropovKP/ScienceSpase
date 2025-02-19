@@ -68,16 +68,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   initializeForms() {
     this.formProfile = this.formBuilder.group({
-      firstName: new FormControl('',),
-      lastName: new FormControl('',),
+      firstName: new FormControl('', Validators.required),
+      lastName: new FormControl('', Validators.required),
       middleName: new FormControl('',),
-      phone: new FormControl('',),
+      phone: new FormControl('', Validators.required),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('',),
       rincId: new FormControl('',),
-      password: new FormControl('',),
     });
 
     this.securityForm = this.formBuilder.group({
@@ -188,7 +187,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   saveProfile() {
     let requestUser = {
-      "id": this.profileUser.id,
       "firstName": this.formProfile.value.firstName,
       "lastName": this.formProfile.value.lastName,
       "middleName": this.formProfile.value.middleName,
@@ -220,12 +218,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
         life: 3000
       });
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось обновить профиль',
-        life: 3000
-      });
+      console.log(error)
+      if (error.status === 429) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Отклонено',
+          detail: 'Слишком много запросов на изменение профиля. Попробуйте позже',
+          life: 3000
+        });
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось обновить профиль',
+          life: 3000
+        });
+      }
     });
     this.editProfile = false;
     this.formProfile.reset()
@@ -322,12 +330,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
       }
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Ошибка на стороне сервера',
-        life: 3000
-      });
+      if (error.status === 429) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Отклонено',
+          detail: 'Слишком много запросов на проверку пароля. Попробуйте позже',
+          life: 3000
+        });
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+      }
     });
   }
 
