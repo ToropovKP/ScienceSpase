@@ -1,26 +1,38 @@
-import {Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule, ValidatorFn,
+  Validators
+} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
 import {Section} from "../shared/model/section";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {SectionDto} from "../shared/dto/section.dto";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {UserBaseDto} from "../shared/dto/user.base.dto";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
+import {dateValidator} from "../shared/validators/date.validator";
 
 @Component({
   selector: 'app-one-conference-create',
   templateUrl: './conference-create.component.html',
   styleUrls: ['./conference-create.component.css'],
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule, ToastModule],
+  providers: [MessageService]
 })
-export class ConferenceCreateComponent implements OnInit {
+export class ConferenceCreateComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusList = conferenceStatusList;
 
@@ -38,16 +50,26 @@ export class ConferenceCreateComponent implements OnInit {
 
   isNameExists: boolean = false;
 
+  minDate = new Date(1900, 0, 1);
+  maxDate = new Date(new Date().getFullYear() + 5, 11, 31);
+
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user && this.isModerator()) {
         this.currentUser = user;
         this.initializeForms();
@@ -58,14 +80,19 @@ export class ConferenceCreateComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   initializeForms() {
     this.formCreateConference = this.formBuilder.group({
       confName: new FormControl('', [Validators.required, Validators.minLength(4)]),
       confStatus: new FormControl('', [Validators.required]),
       organization: new FormControl('', [Validators.required, Validators.minLength(4)]),
       description: new FormControl('', [Validators.required]),
-      date_start: new FormControl('', [Validators.required]),
-      date_end: new FormControl('', [Validators.required]),
+      date_start: new FormControl('', [Validators.required, dateValidator()]),
+      date_end: new FormControl('', [Validators.required, dateValidator()]),
       sections: this.formBuilder.array([this.createSection()]),
       tags: this.formBuilder.array([this.createTag()]),
     })
@@ -112,10 +139,13 @@ export class ConferenceCreateComponent implements OnInit {
                   this.fillTags(this.currentConference.tags)
                   this.fillSections(this.currentConference.sections)
                 }).catch(error => {
-                  let title = "Возникла непредвиденная ошибка";
-                  let description = 'Ошибка на стороне сервера';
-                  this.alertService.constructErrorAlert(error, title, description);
-                  if (error.status == '400') {
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Возникла непредвиденная ошибка',
+                    detail: 'Ошибка на стороне сервера',
+                    life: 3000
+                  });
+                  if (error.status == '404') {
                     this.router.navigate(['not-found']);
                   }
                 });
@@ -124,9 +154,12 @@ export class ConferenceCreateComponent implements OnInit {
                 this.fillSections([])
               }
             }).catch(error => {
-              let title = "Возникла непредвиденная ошибка";
-              let description = 'Ошибка на стороне сервера';
-              this.alertService.constructErrorAlert(error, title, description);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Возникла непредвиденная ошибка',
+                detail: 'Ошибка на стороне сервера',
+                life: 3000
+              });
             })
           } else {
             if (this.currentConferenceId) {
@@ -145,10 +178,13 @@ export class ConferenceCreateComponent implements OnInit {
                 this.fillTags(this.currentConference.tags)
                 this.fillSections(this.currentConference.sections)
               }).catch(error => {
-                let title = "Возникла непредвиденная ошибка";
-                let description = 'Ошибка на стороне сервера';
-                this.alertService.constructErrorAlert(error, title, description);
-                if (error.status == '400') {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Возникла непредвиденная ошибка',
+                  detail: 'Ошибка на стороне сервера',
+                  life: 3000
+                });
+                if (error.status == '404') {
                   this.router.navigate(['not-found']);
                 }
               });
@@ -164,7 +200,12 @@ export class ConferenceCreateComponent implements OnInit {
 
   createConference() {
     if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
@@ -227,27 +268,40 @@ export class ConferenceCreateComponent implements OnInit {
         this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
         })
         .catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Не удалось назначить модераторов',
+            life: 3000
+          });
         });
       }
       this.toPage(`/conference/${data.id}`)
     }).catch(error => {
       let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
+      let description = 'Не удалось сохранить конференцию';
       if (error.error['code'] === 'NAME_EXISTS') {
         title = 'Возникла ошибка при сохранении'
         description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: title,
+        detail: description,
+        life: 3000
+      });
     });
   }
 
   updateConference() {
     if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
@@ -315,9 +369,12 @@ export class ConferenceCreateComponent implements OnInit {
           this.httpService.appointModeratorToConference(String(data.id), adminsDto).then(data => {
           })
           .catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Не удалось назначить модераторов',
+              life: 3000
+            });
           });
         }
       }
@@ -325,13 +382,18 @@ export class ConferenceCreateComponent implements OnInit {
     })
     .catch(error => {
       let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      if (error.error['code'] == 'NAME_EXISTS') {
+      let description = 'Не удалось сохранить конференцию';
+      if (error.error['code'] === 'NAME_EXISTS') {
         title = 'Возникла ошибка при сохранении'
         description = 'Такое имя уже существует';
         this.isNameExists = true;
       }
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: title,
+        detail: description,
+        life: 3000
+      });
     });
   }
 
@@ -452,6 +514,7 @@ export class ConferenceCreateComponent implements OnInit {
     }
 
     this.loadingSections = false;
+    this.formCreateConference.controls['confStatus'].disable()
   }
 
   disableSection(index: number) {
@@ -491,6 +554,10 @@ export class ConferenceCreateComponent implements OnInit {
     if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.value.length === 4) {
       this.sections.push(this.createSection());
     }
+  }
+
+  isDisabledSection(index: number) {
+    return this.sections.at(index).get('title')?.disabled;
   }
 
   get tags(): FormArray {
@@ -549,6 +616,7 @@ export class ConferenceCreateComponent implements OnInit {
 
   isModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
+      this.formCreateConference.controls['confStatus'].enable()
       return true;
     }
     if (this.currentAdmins && this.currentAdmins.length !== 0) {
@@ -560,6 +628,7 @@ export class ConferenceCreateComponent implements OnInit {
 
   isMasterModeratorOfThisConference(): boolean {
     if (this.isAdmin()) {
+      this.formCreateConference.controls['confStatus'].enable()
       return true;
     }
     if (this.isModeratorOfThisConference()) {
@@ -574,9 +643,13 @@ export class ConferenceCreateComponent implements OnInit {
             .filter((control) => control.get('id')?.value === find?.id)
                 .length === 0
           }).length;
-          return length === this.sections.controls
+          const bool = length === this.sections.controls
           .filter((control) => control.get('title')?.value !== '')
               .length;
+          if (bool) {
+            this.formCreateConference.controls['confStatus'].enable()
+          }
+          return bool;
         }
       }
     }

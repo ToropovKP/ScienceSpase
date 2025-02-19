@@ -1,5 +1,6 @@
 <header class="p-3 bg-dark text-white fixed-top">
   <div class="container">
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
     <div class="d-flex flex-wrap align-items-center justify-content-between">
       <!-- Логотип и десктопные ссылки -->
       <div class="d-flex align-items-center">
@@ -54,26 +55,27 @@
           <button (click)="clearBooleans()"
                   type="button" class="btn btn-warning"
                   data-bs-toggle="modal" data-bs-target="#windowRegistration">
-            Регистрация
+            <i class="bi bi-r-circle-fill"></i>
+            <span>Регистрация</span>
           </button>
         </div>
 
         <div *ngIf="checkLogin()" class="d-flex flex-column flex-md-row align-items-center gap-2">
-          <div class="order-2 order-md-1">
+          <div *ngIf="!currentUser.verified" class="order-2 order-md-1">
             <div class="text-end">
-              <span *ngIf="!currentUser.verified"
-                    class="badge bg-danger me-md-2 mb-2 mb-md-0">
+              <span class="badge bg-danger me-md-2 mb-2 mb-md-0">
                 Неподтвержден
               </span>
             </div>
           </div>
 
           <div class="dropdown order-1 order-md-2">
-            <a class="dropdown-toggle text-white text-decoration-none head-text d-inline-flex align-items-center"
-               data-bs-toggle="dropdown"
-               style="max-width: 200px">
-              <span >
-                {{currentUser.firstName}} {{currentUser.lastName}}
+            <a class="dropdown-toggle text-white text-decoration-none head-text d-inline-flex align-items-center gap-2"
+               data-bs-toggle="dropdown">
+              <i class="bi bi-person-fill flex-shrink-0"></i>
+              <span class="desktop-name d-none d-md-inline" [title]="currentUser.firstName + ' ' + currentUser.lastName">
+                {{ (currentUser.firstName | firstWord | shortName:15) || '' }}
+                {{ (currentUser.lastName | firstWord | shortName:15) || '' }}
               </span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -101,13 +103,13 @@
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="loginForm">
           <p-iftalabel>
-            <input pInputText id="email" formControlName="email" autocomplete="off" class="w-100 mb-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" />
-            <label for="email">Почта <span style="color: red;">*</span></label>
+            <input pInputText id="email-log" formControlName="email" autocomplete="off" class="w-100 mb-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" />
+            <label for="email-log">Почта <span style="color: red;">*</span></label>
           </p-iftalabel>
 
-          <p-iftalabel>
-            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password" inputId="password" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
-            <label for="password">Пароль <span style="color: red;">*</span></label>
+          <p-iftalabel class="mb-3">
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password-log" inputId="password-log" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
+            <label for="password-log">Пароль <span style="color: red;">*</span></label>
           </p-iftalabel>
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">
             <span *ngIf="invalidLogin">Неверные логин или пароль</span>
@@ -154,8 +156,8 @@
           </p-iftalabel>
 
           <p-iftalabel class="mb-3">
-            <input pInputText id="email" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('email')?.invalid && formRegistration.get('email')?.touched}" />
-            <label for="email">Почта <span style="color: red;">*</span></label>
+            <input pInputText id="email-reg" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRegistration.get('email')?.invalid && formRegistration.get('email')?.touched}" />
+            <label for="email-reg">Почта <span style="color: red;">*</span></label>
           </p-iftalabel>
 
 <!--          <p-iftalabel class="mb-3">-->
@@ -174,12 +176,12 @@
 <!--          </p-iftalabel>-->
 
           <p-iftalabel class="mb-3">
-            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password" inputId="password" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
-            <label for="password">Пароль <span style="color: red;">*</span></label>
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="password-reg" inputId="password-reg" formControlName="password" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"/>
+            <label for="password-reg">Пароль <span style="color: red;">*</span></label>
           </p-iftalabel>
 
           <p-iftalabel class="mb-3">
-            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="confirmedPassword" inputId="password" formControlName="confirmedPassword" class="w-100 mt-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('confirmedPassword')?.invalid && loginForm.get('confirmedPassword')?.touched}"/>
+            <p-password [feedback]="false" [fluid]="true" [toggleMask]="true" id="confirmedPassword" inputId="confirmedPassword" formControlName="confirmedPassword" class="w-100 mt-3" [ngClass]="{'ng-invalid ng-dirty': loginForm.get('confirmedPassword')?.invalid && loginForm.get('confirmedPassword')?.touched}"/>
             <label for="confirmedPassword">Подтверждение пароля <span style="color: red;">*</span></label>
           </p-iftalabel>
 
@@ -210,8 +212,8 @@
       <div class="modal-body p-4 pb-3 pt-0">
         <form [formGroup]="formRestore" (keyup.enter)="pressBtn('button__code')">
           <p-iftalabel class="mb-3">
-            <input pInputText id="email" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRestore.get('email')?.invalid && formRestore.get('email')?.touched}" />
-            <label for="email">Почта <span style="color: red;">*</span></label>
+            <input pInputText id="email-restore" formControlName="email" autocomplete="off" [fluid]="true" [ngClass]="{'has-error': formRestore.get('email')?.invalid && formRestore.get('email')?.touched}" />
+            <label for="email-restore">Почта <span style="color: red;">*</span></label>
           </p-iftalabel>
 
           <div class="text-center" style="color: #D80000; padding-bottom: 10px">

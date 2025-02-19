@@ -3,20 +3,21 @@ import {User} from "../shared/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {map} from "rxjs";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../shared/services/auth.service";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {passwordMatchValidator} from "../../app.component";
+import {passwordMatchValidator} from "../shared/validators/password.match.validator";
 import {Button} from "primeng/button";
 import {IftaLabel} from "primeng/iftalabel";
 import {Password} from "primeng/password";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-restore-password',
   templateUrl: './restore-password.component.html',
   styleUrls: ['./restore-password.component.css'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Button, IftaLabel, Password]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Button, IftaLabel, Password, ToastModule],
+  providers: [MessageService]
 })
 export class RestorePasswordComponent implements OnInit {
 
@@ -29,8 +30,7 @@ export class RestorePasswordComponent implements OnInit {
               private route: ActivatedRoute,
               private formBuilder: FormBuilder,
               private httpService: HttpService,
-              private alertService: AlertService,
-              private authService: AuthService) {
+              private messageService: MessageService) {
   }
 
   ngOnInit(): void {
@@ -56,9 +56,12 @@ export class RestorePasswordComponent implements OnInit {
           this.reseted = true;
         }
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
       });
     })
   }
@@ -72,17 +75,30 @@ export class RestorePasswordComponent implements OnInit {
     };
     this.httpService.changePasswordByRestore(this.token, request).then((data) => {
       if (data) {
-        this.alertService.constructSuccessAlert('Успешно', 'Пароль успешно изменен');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Пароль успешно изменен',
+          life: 3000
+        });
         this.router.navigate([""]);
       } else {
-        this.alertService.constructWarnAlert('Ошибка', 'Не удалось обновить пароль');
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Ошибка',
+          detail: 'Не удалось обновить пароль',
+          life: 3000
+        });
       }
       this.loading = false;
     }).catch(error => {
       this.loading = false;
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось изменить пароль',
+        life: 3000
+      });
     });
   }
 }

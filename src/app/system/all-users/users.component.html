@@ -1,67 +1,80 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref rounded-3">
-        <div class="d-inline-flex align-items-center col-10">
-          <div class="text-black" style="font-size: 20px; margin-left: 10px;">
-            Все пользователи
-          </div>
-<!--          Поиск  -->
+      <!-- Заголовок -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h2 class="h4 mb-0">
+            <i class="bi bi-people-fill me-2"></i>Все пользователи
+          </h2>
         </div>
       </div>
 
-
-      <div class="row konf-information" style="margin-bottom: 20px;">
-
-        <div class="row conf-info-section-item">
-          <div class="col-3 conf-info-section">
-            <div class="conf-section-title text-center text-white rounded-3">Фамилия И.О.</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Телефон</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Почта</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Статус</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Роль</div>
-          </div>
-          <div class="col-1 conf-info-section" style="padding-left: 5px;">
-            <div class="conf-section-title text-center text-white rounded-3">Профиль</div>
-          </div>
+      <div *ngIf="loadingData" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Загрузка...</span>
         </div>
+      </div>
 
-        <div *ngIf="!this.users || this.users.length === 0" class="text-center text-black" style="font-size: 30px; margin-top: 30px">
-          Нет зарегистрированных пользователей
-        </div>
+      <!-- Таблица пользователей -->
+      <div *ngIf="!loadingData" class="mobile-scroll-container">
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <!-- Заголовки таблицы -->
+            <div class="grid-header bg-primary text-white">
+              <div class="row g-0 align-items-center ">
+                <div class="col-2 ">Фамилия И.О.</div>
+                <div class="col-2 ">Телефон</div>
+                <div class="col-2 ">Почта</div>
+                <div class="col-2 text-center">Статус</div>
+                <div class="col-2 text-center">Роль</div>
+                <div class="col-2 text-center">Профиль</div>
+              </div>
+            </div>
 
-        <div class="row conf-info-section-item" *ngFor="let user of this.users">
-          <div class="col-3 conf-info-section">
-            <div class="users-list-text text-center text-black rounded-3">{{ user.lastName + ' ' + user.firstName + ' ' + user.middleName }}</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black rounded-3">{{ user.phone }}</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center text-black rounded-3">{{ user.email }}</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center rounded-3" [style.color]="user.status == 'ACTIVE' ? 'green' : '#D80000'">{{ userStatusMap[user.status] }}</div>
-          </div>
-          <div class="col-2 conf-info-section" style="padding-left: 5px;">
-            <div class="users-list-text text-center rounded-3" [style.color]="user.role == 'ADMIN' ? '#334FFF' : 'black'">{{ userRoleMap[user.role] }}</div>
-          </div>
-          <div class="col-1 conf-info-section" style="padding-left:5px; cursor: pointer">
-            <div class="users-list-text text-center text-black rounded-3 download-pointer" (click)="openProfile(user.id)">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.5002 13.5L19.0003 19" stroke="black" stroke-width="1.5" stroke-linecap="round"
-                      stroke-linejoin="round"/>
-                <circle cx="8" cy="8" r="7.25" stroke="black" stroke-width="1.5"/>
-              </svg>
+            <!-- Список пользователей -->
+            <div class="user-list ">
+              <div *ngIf="!users?.length" class="empty-state">
+                <i class="bi bi-person-x-fill"></i>
+                <p>Нет зарегистрированных пользователей</p>
+              </div>
+
+              <div class="user-item" *ngFor="let user of users">
+                <div class="row g-0 align-items-center ">
+                  <!-- Данные пользователя -->
+                  <div class="col-2 text-center text-truncate" [title]="user.lastName + ' ' + user.firstName + ' ' + user.middleName">
+                    {{ (user.lastName | firstWord | shortName:15) || '' }}
+                    {{ user.firstName | slice:0:1 }}.
+                    {{ user.middleName != '' ? (user.middleName | slice:0:1) + '.' : '' }}
+                  </div>
+                  <div class="col-2 text-truncate">{{ user.phone || '-' }}</div>
+                  <div class="col-2 text-truncate">{{ user.email }}</div>
+                  <div class="col-2 justify-content-center">
+                    <span class="badge" [ngClass]="{
+                      'bg-success': user.status === 'ACTIVE',
+                      'bg-danger': user.status !== 'ACTIVE'
+                    }">
+                      {{ userStatusMap[user.status] }}
+                    </span>
+                  </div>
+                  <div class="col-2 justify-content-center">
+                    <span class="badge" [ngClass]="{
+                      'bg-primary': user.role === 'ADMIN',
+                      'bg-secondary': user.role !== 'ADMIN'
+                    }">
+                      {{ userRoleMap[user.role] }}
+                    </span>
+                  </div>
+                  <div class="col-2 justify-content-center">
+                    <button class="btn btn-sm btn-link btn-profile"
+                            (click)="openProfile(user.id)"
+                            title="Открыть профиль">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,22 +1,43 @@
 <section id="container__main">
   <div class="container">
-
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref rounded-3">
-        <div class="d-inline-flex align-items-center col-10">
-          <div class="text-black" style="font-size: 20px; margin-left: 10px;">
-            Подтверждение аккаунта
-          </div>
-        </div>
-      </div>
 
-      <div class="row verify-div rounded-3 text-black">
-        <div *ngIf="verified" class="text-bg-success bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
-          Ваш аккаунт успешно подтвержден!
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h2 class="h4 mb-0">
+            <i class="bi bi-shield-check me-2"></i>Подтверждение аккаунта
+          </h2>
         </div>
-        <div *ngIf="!verified" class="text-bg-warning bg-opacity-75 text-md-center" style="padding-top: 20px; vertical-align: center; height: 60px; font-size: 30px">
-          Ссылка устарела. <span *ngIf="this.currentUser">Попробуйте <a (click)="sendRepeatLink()" class="link-primary" style="cursor: pointer">снова</a> </span>
-          <span *ngIf="!this.currentUser">Обновите страницу или войдите в аккаунт и отправьте новую </span>
+        <div class="card-body p-0">
+          <div *ngIf="verified" class="alert alert-success m-0">
+            <div class="d-flex align-items-center gap-3 p-4">
+              <i class="bi bi-check-circle-fill fs-2"></i>
+              <div>
+                <h3 class="alert-heading mb-3">Успешное подтверждение!</h3>
+                <p class="mb-0">Ваш аккаунт успешно активирован</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!verified" class="alert alert-warning m-0">
+            <div class="d-flex align-items-center gap-3 p-4">
+              <i class="bi bi-exclamation-triangle-fill fs-2"></i>
+              <div>
+                <h3 class="alert-heading mb-3">Проблема с подтверждением</h3>
+                <p class="mb-3">
+                  Ссылка для подтверждения устарела или недействительна
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <span *ngIf="currentUser">
+                    <button class="btn btn-primary" (click)="sendRepeatLink()">
+                      <i class="bi bi-send me-2"></i>Отправить новую ссылку
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
