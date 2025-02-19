@@ -1,27 +1,32 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {Section} from "../shared/model/section";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {AlertService} from "../shared/services/alert.service";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
 import {conferenceStatusMap} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
+import {FileMetadata} from "../shared/model/file.metadata";
+import {PopoverModule} from "primeng/popover";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective]
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule],
+  providers: [MessageService]
 })
-export class ConferenceComponent implements OnInit {
+export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -44,18 +49,30 @@ export class ConferenceComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
     this.initializeForms();
     this.loadAllData()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForms() {
@@ -68,11 +85,13 @@ export class ConferenceComponent implements OnInit {
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
-      rincId: new FormControl('', [Validators.required, Validators.minLength(8)]),
-      section: new FormControl('',),
+      rincId: new FormControl('', /*[Validators.required, Validators.minLength(8)]*/),
+      section: new FormControl('', [Validators.required]),
       files: new FormControl('', [Validators.required]),
     })
   }
+
+  loadingConference: boolean = true;
 
   loadAllData() {
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
@@ -87,18 +106,26 @@ export class ConferenceComponent implements OnInit {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
           }).catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Ошибка на стороне сервера',
+              life: 3000
+            });
           });
         }
 
         this.updateUserInfo()
+        this.loadingConference = false;
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
-        if (error.status == '400') {
+        this.loadingConference = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+        if (error.status == '404') {
           this.router.navigate(['not-found']);
         }
       });
@@ -124,9 +151,12 @@ export class ConferenceComponent implements OnInit {
         }
       })
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
     });
   }
 
@@ -194,13 +224,29 @@ export class ConferenceComponent implements OnInit {
     }
   }
 
+  // addAuthor() {
+  //   if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
+  //     this.authors.push(this.createAuthor());
+  //   }
+  // }
+
   checkUsers() {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/jobs`);
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
   }
 
@@ -208,9 +254,19 @@ export class ConferenceComponent implements OnInit {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/edit`);
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
   }
 
@@ -219,10 +275,29 @@ export class ConferenceComponent implements OnInit {
       this.addingJob = true;
       this.updateUserInfo()
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
+  }
+
+  cancelJob() {
+    this.addingJob = false;
+    this.formAddJob.reset();
+    this.authors.clear();
+    const control = this.formAddJob.controls['authors'] as FormArray;
+    control.clear()
+    control.push(this.createAuthor())
   }
 
   openJob() {
@@ -233,9 +308,13 @@ export class ConferenceComponent implements OnInit {
   }
 
   files: File[] = [];
+  uploadedFilesMetadata: FileMetadata[] = [];
+  needToRemoveFilesMetadata: FileMetadata[] = [];
 
   onSelectedFiles(event: Event) {
     this.files = []
+    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
+    this.uploadedFilesMetadata = [];
     let files = (event.target as HTMLInputElement).files;
 
     if (files !== null) {
@@ -247,18 +326,54 @@ export class ConferenceComponent implements OnInit {
       }
     }
 
-    console.log(this.files.reduce((prev, cur, ind) => `${prev} ${cur.name}`, ''))
+    if (this.files.length !== 0) {
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.uploadedFilesMetadata.push(...data)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Файлы загружены',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось загрузить файлы',
+          life: 3000
+        });
+        (event.target as HTMLInputElement).value = '';
+      });
+    }
   }
+
+  savingJob: boolean = false;
 
   createJob() {
     if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
       return;
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
       return;
     }
 
+    this.savingJob = true;
     let requestUser = {
       "id": this.currentUser.id,
       "phone": this.formAddJob.value.phone,
@@ -272,11 +387,13 @@ export class ConferenceComponent implements OnInit {
     this.httpService.updateUserInfoByJob(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось обновить профиль',
+        life: 3000
+      });
     });
 
     const authorsDtos: AuthorDto[] = [];
@@ -293,6 +410,9 @@ export class ConferenceComponent implements OnInit {
         authorsDtos.push(authorDto);
       }
     }
+    let filesForUpload: object[] = []
+    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
+
     let request = {
       "title": this.formAddJob.value.title,
       "coAuthors": authorsDtos,
@@ -302,30 +422,37 @@ export class ConferenceComponent implements OnInit {
       "sectionId": this.currentSection?.id,
       "sectionTitle": this.currentSection?.title,
       "conferenceId": this.currentConference?.id,
-      "conferenceTitle": this.currentConference?.title
+      "conferenceTitle": this.currentConference?.title,
+      "files": filesForUpload
     };
     this.httpService.createJob(request).then((data) => {
       this.currentUserJobId = String(data.id)
 
-      const formData: FormData = new FormData();
-      this.files.forEach((file) => {
-        formData.append("files", file);
-      })
-      formData.append("jobId", String(data?.id));
+      this.toPage(`/conference/${this.currentConference.id}`)
+      this.addingJob = false;
+      this.savingJob = false;
+      this.formAddJob.reset()
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Работа создана',
+        life: 3000
+      });
 
-      this.httpService.uploadFiles(formData).then((data) => {
-        this.toPage(`/conference/${this.currentConference.id}`)
-        this.addingJob = false;
-        this.formAddJob.reset()
-      }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid))
+      .then(() => {
+        this.needToRemoveFilesMetadata = []
+        this.uploadedFilesMetadata = []
+        this.files = []
       });
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось создать работу',
+        life: 3000
+      });
+      this.savingJob = false;
     });
   }
 
@@ -335,7 +462,7 @@ export class ConferenceComponent implements OnInit {
   }
 
   getLeadersString(leaders: UserBase[]) {
-    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join("\n")
+    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join(", ")
   }
 
   toPage(link: string) {

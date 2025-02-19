@@ -5,13 +5,13 @@ import {Section} from "../model/section";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Job} from "../model/job";
-import {UploadResponse} from "../model/upload.response";
 import {UserBase} from "../model/user.base";
 import {UserBaseDto} from "../dto/user.base.dto";
 import {LoginResponse} from "../model/login.response";
 import {Comment} from "../model/comment";
 import {ReviewDto} from "../dto/review.dto";
 import {baseUrl} from "../../../app.constants";
+import {FileMetadata} from "../model/file.metadata";
 
 @Injectable({providedIn: 'root'})
 export class HttpService {
@@ -113,6 +113,16 @@ export class HttpService {
     return await firstValueFrom(this.http.put<User>(`${baseUrl}/api/v1/user/profile/update?job=true`, JSON.stringify(request), this.httpOptions));
   }
 
+  async verifyCurrentPassword(request: object): Promise<boolean> {
+    this.updateHeaders();
+    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/profile/verify-password`, JSON.stringify(request), this.httpOptions));
+  }
+
+  async updatePassword(request: object): Promise<void> {
+    this.updateHeaders();
+    return await firstValueFrom(this.http.put<void>(`${baseUrl}/api/v1/user/profile/password`, JSON.stringify(request), this.httpOptions));
+  }
+
   // /conference
 
   async createConference(request: object): Promise<Conference> {
@@ -196,20 +206,31 @@ export class HttpService {
 
   // /files
 
-  async uploadFiles(formData: FormData): Promise<UploadResponse[]> {
+  async uploadFiles(formData: FormData): Promise<FileMetadata[]> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`, // Добавляем токен, если нужен
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
       Accept: 'application/json',
     });
-    return await firstValueFrom(this.http.post<UploadResponse[]>(`${baseUrl}/api/v1/files/uploadMultipleFiles`, formData, {
+    return await firstValueFrom(this.http.post<FileMetadata[]>(`${baseUrl}/api/v1/files/uploadMultipleFiles`, formData, {
       observe: 'body',
       headers: headers
     }));
   }
 
-  async downloadFile(fileName: string, jobId: string): Promise<any> {
+  async deleteFiles(files: string[]): Promise<void> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Accept: 'application/json',
+    });
+    return await firstValueFrom(this.http.post<void>(`${baseUrl}/api/v1/files/deleteFiles`, files, {
+      observe: 'body',
+      headers: headers
+    }));
+  }
+
+  async downloadFile(fileName: string): Promise<any> {
     this.updateHeaders();
-    return await firstValueFrom(this.http.get(`${baseUrl}/api/v1/files/downloadFile/${fileName}?jobId=${jobId}`, {
+    return await firstValueFrom(this.http.get(`${baseUrl}/api/v1/files/downloadFile/${fileName}`, {
       observe: 'response',
       responseType: 'blob',
       headers: this.httpOptions.headers

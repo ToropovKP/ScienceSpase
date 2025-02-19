@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
 import {User} from "../model/user";
-import {BehaviorSubject, map, Observable} from "rxjs";
+import {BehaviorSubject, distinctUntilChanged, map, Observable} from "rxjs";
 import {HttpService} from "./http.service";
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
+  public currentUser$ = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
 
   private userRole: string = 'MEMBER';
   private userPermissions: string[] = [];

@@ -1,45 +1,56 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 import {AuthService} from "../shared/services/auth.service";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
+import {filter} from "rxjs/operators";
+import {passwordMatchValidator} from "../shared/validators/password.match.validator";
+import {PopoverModule} from "primeng/popover";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule],
   providers: [ConfirmationService, MessageService]
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
 
   formProfile!: FormGroup;
+  securityForm!: FormGroup;
   currentUser!: User;
   profileUser!: User;
   profileUserId!: string;
 
   editProfile: boolean = false;
+  editPassword: boolean = false;
+  showNewPasswordFields: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
               private authService: AuthService,
               private confirmationService: ConfirmationService,
               private messageService: MessageService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
         this.initializeForms();
@@ -48,6 +59,11 @@ export class ProfileComponent implements OnInit {
         this.router.navigate(['not-found']);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForms() {
@@ -62,7 +78,18 @@ export class ProfileComponent implements OnInit {
       orcId: new FormControl('',),
       rincId: new FormControl('',),
       password: new FormControl('',),
-    })
+    });
+
+    this.securityForm = this.formBuilder.group({
+      currentPassword: new FormControl('', Validators.required),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(8)
+      ]),
+      confirmedPassword: new FormControl('', Validators.required)
+    }, {
+      validator: passwordMatchValidator
+    });
   }
 
   loadAllData() {
@@ -74,9 +101,12 @@ export class ProfileComponent implements OnInit {
         this.profileUser = data
         this.updateUserInfoForm()
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
       });
     } else {
       if (profId !== undefined) {
@@ -99,7 +129,6 @@ export class ProfileComponent implements OnInit {
     this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
     this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
     this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
-    this.formProfile.controls['password'].setValue("***************")
   }
 
   isAdmin(): boolean {
@@ -117,10 +146,20 @@ export class ProfileComponent implements OnInit {
   sendRepeatLink() {
     this.httpService.sendRepeatLink().then((data) => {
       if (data) {
-        this.alertService.constructSuccessAlert('Успешно', 'Письмо отправлено');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Письмо отправлено',
+          life: 3000
+        });
         return null;
       } else {
-        this.alertService.constructWarnAlert('Ошибка', 'Ваш аккаунт уже подтвержден');
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Ошибка',
+          detail: 'Ваш аккаунт уже подтвержден',
+          life: 3000
+        });
         return this.authService.getCurrentUser();
       }
     }).then((user) => {
@@ -128,9 +167,12 @@ export class ProfileComponent implements OnInit {
         this.currentUser = user;
       }
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось отправить письмо',
+        life: 3000
+      });
     });
   }
 
@@ -171,11 +213,19 @@ export class ProfileComponent implements OnInit {
     this.httpService.updateUserInfo(requestUser).then(() => {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
-      this.alertService.constructSuccessAlert('Успешно', 'Данные успешно обновлены');
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Данные успешно обновлены',
+        life: 3000
+      });
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось обновить профиль',
+        life: 3000
+      });
     });
     this.editProfile = false;
     this.formProfile.reset()
@@ -200,13 +250,16 @@ export class ProfileComponent implements OnInit {
         this.httpService.changeUserRole(String(this.profileUser.id), role).then((data) => {
           if (data) {
             this.profileUser.role = role
+            this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Роль изменена', life: 3000});
           }
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Не удалось изменить роль',
+            life: 3000
+          });
         });
-        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Роль изменена', life: 3000});
       },
       reject: () => {
         this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
@@ -232,18 +285,82 @@ export class ProfileComponent implements OnInit {
         this.httpService.changeUserStatus(String(this.profileUser.id), status).then((data) => {
           if (data) {
             this.profileUser.status = status
+            this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статус изменен', life: 3000});
           }
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Не удалось изменить статус',
+            life: 3000
+          });
         });
-        this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статус изменен', life: 3000});
       },
       reject: () => {
         this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
       }
     });
+  }
+
+  initiatePasswordChange() {
+    this.editPassword = true;
+    this.showNewPasswordFields = false;
+    this.securityForm.get('currentPassword')?.enable();
+  }
+
+  verifyCurrentPassword() {
+    const currentPassword = this.securityForm.value.currentPassword;
+    console.log(currentPassword)
+    let object = {
+      "password": currentPassword
+    }
+    this.httpService.verifyCurrentPassword(object).then(data => {
+      if (data) {
+        this.showNewPasswordFields = true;
+        this.securityForm.get('currentPassword')?.disable();
+      } else {
+        this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
+      }
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
+    });
+  }
+
+  updatePassword() {
+    if (this.securityForm.valid) {
+      const newPassword = this.securityForm.value.password;
+      console.log(newPassword)
+      let object = {
+        "password": newPassword
+      }
+      this.httpService.updatePassword(object).then(() => {
+        this.cancelPasswordChange()
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Пароль успешно изменен',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+      });
+    }
+  }
+
+  cancelPasswordChange() {
+    this.securityForm.reset();
+    this.showNewPasswordFields = false;
+    this.editPassword = false;
   }
 
   toPage(link: string) {

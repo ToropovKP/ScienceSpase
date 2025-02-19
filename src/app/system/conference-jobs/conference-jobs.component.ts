@@ -1,26 +1,29 @@
-import {Component, OnInit} from '@angular/core';
-import {conferenceStatusMap} from "../../app.constants";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {conferenceStatusMap, userRoleMap, userStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
 import {Job} from "../shared/model/job";
 import {Conference} from "../shared/model/conference";
-import {map} from "rxjs";
+import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {Section} from "../shared/model/section";
-import {AlertService} from "../shared/services/alert.service";
 import {UserBase} from "../shared/model/user.base";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, ToastModule],
+  providers: [MessageService]
 })
-export class ConferenceJobsComponent implements OnInit {
+export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -38,12 +41,19 @@ export class ConferenceJobsComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user && this.isReviewerOrModerator()) {
         this.currentUser = user;
         this.loadAllData()
@@ -52,6 +62,14 @@ export class ConferenceJobsComponent implements OnInit {
       }
     });
   }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadingConference: boolean = true;
+  loadingJobs: boolean = true;
 
   loadAllData() {
     this.route.params.pipe(map(p => p['id'])).subscribe(e => {
@@ -94,16 +112,26 @@ export class ConferenceJobsComponent implements OnInit {
           } else {
             this.jobs = data
           }
+          this.loadingJobs = false;
         }).catch(error => {
-          let title = "Возникла непредвиденная ошибка";
-          let description = 'Ошибка на стороне сервера';
-          this.alertService.constructErrorAlert(error, title, description);
+          this.loadingJobs = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Возникла непредвиденная ошибка',
+            detail: 'Ошибка на стороне сервера',
+            life: 3000
+          });
         });
+        this.loadingConference = false;
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
-        if (error.status == '500') {
+        this.loadingConference = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
+        if (error.status == '404') {
           this.router.navigate(['not-found']);
         }
       });
@@ -164,15 +192,18 @@ export class ConferenceJobsComponent implements OnInit {
   }
 
   openJob(id: string) {
-    this.toPage(`/jobs/${id}`)
+    this.toPage(`conference/${this.currentConferenceId}/jobs/${id}`)
   }
 
   downloadFilesJob(job: Job) {
     this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response))
     .catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось скачать файлы',
+        life: 3000
+      });
     });
   }
 
@@ -180,17 +211,23 @@ export class ConferenceJobsComponent implements OnInit {
     if (this.isMasterModeratorOfThisConference()) {
       this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response))
       .catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось скачать файлы',
+          life: 3000
+        });
       });
     } else {
       this.currentSections.forEach((sec) =>
           this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response))
           .catch(error => {
-            let title = "Возникла непредвиденная ошибка";
-            let description = 'Ошибка на стороне сервера';
-            this.alertService.constructErrorAlert(error, title, description);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Возникла непредвиденная ошибка',
+              detail: 'Не удалось скачать файлы',
+              life: 3000
+            });
           })
       );
     }
@@ -210,4 +247,7 @@ export class ConferenceJobsComponent implements OnInit {
   toPage(link: string) {
     this.router.navigate([link]);
   }
+
+  protected readonly userRoleMap = userRoleMap;
+  protected readonly userStatusMap = userStatusMap;
 }

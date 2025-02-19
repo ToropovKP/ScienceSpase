@@ -3,7 +3,6 @@ import {Router, RouterModule} from "@angular/router";
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {User} from "../model/user";
 import {HttpService} from "../services/http.service";
-import {AlertService} from "../services/alert.service";
 import {CommonModule} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 import {IftaLabelModule} from "primeng/iftalabel";
@@ -11,14 +10,19 @@ import {InputTextModule} from "primeng/inputtext";
 import {PasswordModule} from "primeng/password";
 import {ButtonModule} from "primeng/button";
 import {AuthService} from "../services/auth.service";
-import {passwordMatchValidator} from "../../../app.component";
+import {passwordMatchValidator} from "../validators/password.match.validator";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {FirstWordPipe} from "../pipes/first.word.pipe";
+import {ShortNamePipe} from "../pipes/short.name.pipe";
 
 @Component({
   selector: 'app-header',
   templateUrl: 'header.component.html',
   styleUrls: ['header.component.css'],
   imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective,
-    IftaLabelModule, InputTextModule, PasswordModule, ButtonModule]
+    IftaLabelModule, InputTextModule, PasswordModule, ButtonModule, FirstWordPipe, ShortNamePipe, ToastModule, FirstWordPipe, ShortNamePipe],
+  providers: [MessageService]
 })
 export class HeaderComponent implements OnInit {
 
@@ -41,9 +45,8 @@ export class HeaderComponent implements OnInit {
   constructor(private router: Router,
               private formBuilder: FormBuilder,
               private httpService: HttpService,
-              private alertService: AlertService,
-              private authService: AuthService
-  ) {
+              private messageService: MessageService,
+              private authService: AuthService) {
 
   }
 
@@ -122,16 +125,19 @@ export class HeaderComponent implements OnInit {
       this.router.navigate(["/conferences"]);
     }).catch((error) => {
       this.loading = false;
-      if (error.error['code'] === 'UNAUTHORIZED') {
+      if (error.error['code'] === 'USER_DOES_NOT_EXISTS') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;
       } else if (error.error['code'] === 'BANNED') {
         this.invalidLogin = false
         this.userBlockedLogin = true;
       } else {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
       }
     });
   }
@@ -151,7 +157,12 @@ export class HeaderComponent implements OnInit {
     };
     this.httpService.registration(request).then((data) => {
       this.loading = false;
-      this.alertService.constructSuccessAlert('Регистрация прошла успешно', 'На вашу почту отправлено письмо с подтверждением');
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Регистрация прошла успешно',
+        detail: 'На вашу почту отправлено письмо с подтверждением',
+        life: 3000
+      });
       this.userExists = false;
       this.userBlockedReg = false;
       this.closeModalReg.nativeElement.click()
@@ -169,9 +180,12 @@ export class HeaderComponent implements OnInit {
         this.userExists = false;
         this.userBlockedReg = true;
       } else {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
       }
     })
   }
@@ -181,7 +195,12 @@ export class HeaderComponent implements OnInit {
     let email: string = this.formRestore.value.email;
     this.httpService.sendRestorePasswordLink(email).then((data) => {
       if (data) {
-        this.alertService.constructSuccessAlert('Успешно', 'Письмо с инструкцией отправлено на почту');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Письмо с инструкцией отправлено на почту',
+          life: 3000
+        });
         this.restoreEmailNotExist = false;
         this.closeModalRestore.nativeElement.click()
       } else {
@@ -191,9 +210,12 @@ export class HeaderComponent implements OnInit {
       this.formRestore.reset();
     }).catch((error) => {
       this.loading = false;
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось отправить письмо',
+        life: 3000
+      });
     });
   }
 

@@ -1,17 +1,59 @@
 <section id="container__main">
   <div class="container">
-
     <div class="main">
-      <div class="row d-flex align-items-center konf-pref rounded-3">
-        <div class="d-inline-flex align-items-center col-10">
-          <div class="text-black" style="font-size: 20px; margin-left: 10px;">
-            Страница не найдена
-          </div>
+      <!-- Заголовок -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h1 class="h4 mb-0">
+            <i class="bi bi-exclamation-octagon me-2"></i>Ошибка навигации
+          </h1>
         </div>
       </div>
 
-      <div class="text-center" style="font-size: 30px; margin-top: 50px">
-        Упс.. Страница не найдена!
+      <!-- Основной контент -->
+      <div class="error-container text-center">
+
+        <div class="error-image-container position-relative mx-auto">
+          <!-- Статичный фон -->
+          <img ngSrc="/assets/pictures/errors/401.svg"
+               alt="error background"
+               class="img-fluid position-absolute top-0 start-0"
+               height="300"
+               width="300"
+               priority
+               style="z-index: 3;">
+
+          <!-- Статичный средний слой -->
+          <img ngSrc="/assets/pictures/errors/402.svg"
+               alt="error middle"
+               class="img-fluid position-absolute top-0 start-0"
+               height="300"
+               width="300"
+               priority
+               style="z-index: 1;">
+
+          <!-- Анимируемая часть -->
+          <div class="error-image-animated position-absolute"
+               style="z-index: 2; top: 20%; left: 35%;">
+            <img ngSrc="/assets/pictures/errors/403.svg"
+                 priority
+                 alt="animated element"
+                 class="img-fluid"
+                 height="100"
+                 width="100">
+          </div>
+        </div>
+
+        <h2 class="error-title mb-3">Страница не найдена</h2>
+
+        <p class="error-text mb-4">
+          Запрошенный ресурс недоступен или перемещен.<br>
+          Проверьте правильность URL или вернитесь на главную
+        </p>
+
+        <a [routerLink]="['/']" class="btn btn-primary btn-lg">
+          <i class="bi bi-house-door me-2"></i>На главную
+        </a>
       </div>
     </div>
   </div>

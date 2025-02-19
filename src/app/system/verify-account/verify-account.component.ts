@@ -1,37 +1,51 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {User} from "../shared/model/user";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
-import {map} from "rxjs";
-import {AlertService} from "../shared/services/alert.service";
+import {map, Subject, takeUntil} from "rxjs";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-verify',
   templateUrl: './verify-account.component.html',
   styleUrls: ['./verify-account.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, ToastModule],
+  providers: [MessageService]
 })
-export class VerifyAccountComponent implements OnInit {
+export class VerifyAccountComponent implements OnInit, OnDestroy {
 
   currentUser!: User;
   verified: boolean = false;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
+  constructor(private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
+              private messageService: MessageService,
               private authService: AuthService) {
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
     this.loadAllData()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadAllData() {
@@ -48,9 +62,12 @@ export class VerifyAccountComponent implements OnInit {
           this.currentUser = user;
         }
       }).catch(error => {
-        let title = "Возникла непредвиденная ошибка";
-        let description = 'Ошибка на стороне сервера';
-        this.alertService.constructErrorAlert(error, title, description);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Ошибка на стороне сервера',
+          life: 3000
+        });
       });
     })
   }
@@ -58,10 +75,20 @@ export class VerifyAccountComponent implements OnInit {
   sendRepeatLink() {
     this.httpService.sendRepeatLink().then((data) => {
       if (data) {
-        this.alertService.constructSuccessAlert('Успешно', 'Письмо отправлено');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Письмо отправлено',
+          life: 3000
+        });
         return null;
       } else {
-        this.alertService.constructWarnAlert('Ошибка', 'Ваш аккаунт уже подтвержден');
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Ошибка',
+          detail: 'Ваш аккаунт уже подтвержден',
+          life: 3000
+        });
         return this.authService.getCurrentUser();
       }
     }).then((user) => {
@@ -69,9 +96,12 @@ export class VerifyAccountComponent implements OnInit {
         this.currentUser = user;
       }
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось отправить письмо',
+        life: 3000
+      });
     });
   }
 }

@@ -3,15 +3,83 @@
 }
 
 .main {
-  background: url(/assets/pictures/home/page.svg);
-  padding: 110px 35px 0px 35px;
-  box-shadow: rgb(0, 0, 0, 0.5) 0px 0px 50px;
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 50px var(--old-bg-shadow);
+  padding: 110px 35px 20px 35px;
   min-height: 100vh;
 }
 
-.konf-pref {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  margin-bottom: 20px;
-  height: 80px;
+.card-header {
+  background: var(--old-accent) !important;
+  padding: 1rem;
+}
+
+/* Общие стили */
+.error-container {
+  padding: 2rem;
+  background: var(--old-bg-card);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px var(--old-border-black);
+}
+
+.error-title {
+  color: var(--old-h1-accent);
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.error-text {
+  color: var(--old-text-secondary-color);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .error-title {
+    font-size: 2rem;
+  }
+
+  .error-text {
+    font-size: 1.1rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Анимации */
+.error-image-container {
+  perspective: 1000px;
+  width: 300px;
+  height: 300px;
+}
+
+@media (max-width: 768px) {
+  .error-image-container {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.error-image-animated {
+  animation: jump 1.5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes jump {
+  0%, 100% {
+    transform: translateY(0) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotateZ(-5deg);
+  }
+  70% {
+    transform: translateY(-15px) rotateZ(3deg);
+  }
 }

@@ -17,11 +17,40 @@
   --regular-text: 16px;
   --line-height: 19px;
   --userfont: Gilroy-wt, sans-serif;
+
+  --old-bg-shadow: rgba(0, 0, 0, 0.5);
+  --old-bg-main: #e3e3e3;
+  --old-bg-card: rgba(255, 255, 255, 0.95);
+  --old-bg-card-darker-7: rgba(255, 255, 255, 0.7);
+  --old-bg-card-darker-5: rgba(255, 255, 255, 0.5);
+  --old-bg-card-darker-3: rgba(255, 255, 255, 0.3);
+  --old-bg-row: #f8f9fa;
+  --old-accent: #8C99B9;
+  --old-accent-hover: #7e8bab;
+  --old-h1-accent: #33486e;
+  --old-border-white: #dee2e6;
+  --old-border-black: rgba(0, 0, 0, 0.1);
+  --old-border-black-light-1: rgba(255, 255, 255, 0.1);
+  --old-border-black-light-2: rgba(255, 255, 255, 0.2);
+  --old-success: #28a745;
+  --old-danger: #dc3545;
+  --old-text-primary-color: #fff;
+  --old-text-secondary-color: #6c757d;
+  --old-text-disabled: rgba(128, 128, 128, 0.8);
+  --old-border-disabled: rgba(128, 128, 128, 0.8);
+
+  --my-bg: #F5F5F7;
+  --my-bg-card: #FFFFFF;
+  --my-accent: #6C8EBF;
+  --my-accent-hover: #6C8EBF;
+  --my-text-primary: #333333;
+  --my-text-secondary: #666666;
+  --my-borders: #D1D1D6;
 }
 
 /* доп хедер после авторизации */
 .fixed-top {
-  box-shadow: #000 0px 0px 25px;
+  box-shadow: #000 0 0 25px;
 }
 
 .head-text {
@@ -51,7 +80,7 @@ input:focus:required:invalid {
 }
 
 body {
-  font-family: var(--userfont);
+  font-family: var(--userfont), sans-serif;
   font-size: var(--regular-text);
   line-height: var(--line-height);
   color: var(--text);
@@ -63,7 +92,7 @@ body {
 }
 
 .input__modal {
-  background-color: white;
+  background-color: var(--old-text-primary-color);
   width: 373px;
   height: 37px;
   border-radius: 5px;
@@ -71,7 +100,7 @@ body {
 }
 
 select {
-  background-color: white;
+  background-color: var(--old-text-primary-color);
   width: 373px;
   height: 37px;
   border-radius: 5px;
@@ -97,4 +126,10 @@ select {
 .has-error textarea {
   border-color: red !important;
   color: red;
+}
+
+/* Общий стиль для всех текстовых элементов с возможным длинным содержанием */
+.text-break {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }

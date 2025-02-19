@@ -1,21 +1,25 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {conferenceStatusMap} from "../../app.constants";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
-import {AlertService} from "../shared/services/alert.service";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {Subject, takeUntil} from "rxjs";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-conferences',
   templateUrl: './conferences.component.html',
   styleUrls: ['./conferences.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, ToastModule],
+  providers: [MessageService]
 })
-export class ConferencesComponent implements OnInit {
+export class ConferencesComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
@@ -24,14 +28,22 @@ export class ConferencesComponent implements OnInit {
   currentUser!: User;
 
   constructor(private router: Router,
+              private route: ActivatedRoute,
               private httpService: HttpService,
-              private alertService: AlertService,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private messageService: MessageService) {
 
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
+    this.authService.currentUser$
+    .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.route.snapshot.component != null) // Проверка активности
+    )
+    .subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
@@ -39,15 +51,27 @@ export class ConferencesComponent implements OnInit {
     this.loadAllData()
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadingConference: boolean = true;
+
   loadAllData() {
     this.currentUser = this.authService.getUserInfo()!;
 
     this.httpService.getConferences().then((data) => {
       this.conferences = data;
+      this.loadingConference = false;
     }).catch(error => {
-      let title = "Возникла непредвиденная ошибка";
-      let description = 'Ошибка на стороне сервера';
-      this.alertService.constructErrorAlert(error, title, description);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Ошибка на стороне сервера',
+        life: 3000
+      });
+      this.loadingConference = false;
     });
   }
 
@@ -59,9 +83,19 @@ export class ConferencesComponent implements OnInit {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage('/conferences/create');
     } else if (!this.currentUser) {
-      this.alertService.constructWarnAlert("Отклонено", "Необходимо выполнить вход в аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Отклонено',
+        detail: 'Необходимо выполнить вход в аккаунт',
+        life: 3000
+      });
     } else if (!this.currentUser.verified) {
-      this.alertService.constructWarnAlert("Подтвердите аккаунт", "Проверьте почту и подтвердите свой аккаунт")
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Подтвердите аккаунт',
+        detail: 'Проверьте почту и подтвердите свой аккаунт',
+        life: 3000
+      });
     }
   }
 
