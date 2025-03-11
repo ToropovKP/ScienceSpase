@@ -25,3 +25,7 @@ export const userRoleMap: Record<string, string> = {
   'ADMIN': 'Админ',
   'REVIEWER': 'Рецензент',
 }
+
+export const orcidPattern = {
+  'S': { pattern: new RegExp('[a-zA-Z0-9]') }
+};

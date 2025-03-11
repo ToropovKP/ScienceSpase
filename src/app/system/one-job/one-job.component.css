@@ -86,6 +86,19 @@
   word-break: break-word;
 }
 
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+}
+
+.list-group-item small {
+  flex-shrink: 0; /* Запрещаем сжатие */
+  margin-left: 1rem; /* Отступ слева */
+  white-space: nowrap; /* Запрещаем перенос текста */
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .card-header h5 {

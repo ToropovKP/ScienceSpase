@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <div class="main">
 
       <div *ngIf="loadingConference" class="text-center">
@@ -202,8 +202,8 @@
                       </div>
                     </p-popover>
                   </label>
-                  <input type="text" class="form-control" formControlName="orcId" required [showMaskTyped]="true"
-                         mask="0000-0000-0000-0000" placeholder="0000-0000-0000-0000"
+                  <input type="text" class="form-control text-uppercase" formControlName="orcId" required [showMaskTyped]="true"
+                         mask="SSSS-SSSS-SSSS-SSSS" placeholder="0000-0000-0000-0000" [patterns]="customOrcidPattern"
                          [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
                 </div>
 

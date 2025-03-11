@@ -9,7 +9,7 @@ import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
-import {conferenceStatusMap} from "../../app.constants";
+import {conferenceStatusMap, orcidPattern} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
@@ -29,6 +29,7 @@ import {PopoverModule} from "primeng/popover";
 export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly customOrcidPattern = orcidPattern;
   protected readonly DateService = DateService;
 
   sections: Section[] = []
@@ -378,7 +379,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       "phone": this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,
-      "orcId": this.formAddJob.value.orcId,
+      "orcId": (this.formAddJob.value.orcId).toUpperCase(),
       "rincId": this.formAddJob.value.rincId,
       "organization": this.formAddJob.value.organization,
     }

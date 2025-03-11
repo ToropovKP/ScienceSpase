@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <p-confirm-popup />
     <div *ngIf="profileUser" class="main">
       <!-- Шапка профиля -->
@@ -127,8 +127,11 @@
                     </div>
                   </p-popover>
                 </label>
-                <input type="text" class="form-control"
-                       mask="0000-0000-0000-0000"
+                <input type="text" class="form-control text-uppercase"
+                       mask="SSSS-SSSS-SSSS-SSSS"
+                       placeholder="0000-0000-0000-0000"
+                       [patterns]="customOrcidPattern"
+                       [showMaskTyped]="true"
                        [readonly]="!allowToChange()"
                        formControlName="orcId">
               </div>
@@ -162,6 +165,8 @@
                 </label>
                 <input type="text" class="form-control"
                        mask="0000-0000"
+                       placeholder="0000-0000"
+                       [showMaskTyped]="true"
                        [readonly]="!allowToChange()"
                        formControlName="rincId">
               </div>

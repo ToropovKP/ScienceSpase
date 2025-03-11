@@ -13,6 +13,7 @@ import {ToastModule} from "primeng/toast";
 import {filter} from "rxjs/operators";
 import {passwordMatchValidator} from "../shared/validators/password.match.validator";
 import {PopoverModule} from "primeng/popover";
+import {orcidPattern} from "../../app.constants";
 
 @Component({
   selector: 'app-profile',
@@ -22,6 +23,8 @@ import {PopoverModule} from "primeng/popover";
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+
+  protected readonly customOrcidPattern = orcidPattern;
 
   formProfile!: FormGroup;
   securityForm!: FormGroup;
@@ -194,7 +197,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       "organization": this.formProfile.value.organization,
       "academicDegree": this.formProfile.value.academicDegree,
       "academicTitle": this.formProfile.value.academicTitle,
-      "orcId": this.formProfile.value.orcId,
+      "orcId": (this.formProfile.value.orcId).toUpperCase(),
       "rincId": this.formProfile.value.rincId,
     }
 

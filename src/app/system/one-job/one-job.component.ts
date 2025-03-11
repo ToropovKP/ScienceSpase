@@ -21,6 +21,7 @@ import {ToastModule} from "primeng/toast";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 import {filter} from "rxjs/operators";
+import {orcidPattern} from "../../app.constants";
 
 @Component({
   selector: 'app-one-conference',
@@ -32,6 +33,7 @@ import {filter} from "rxjs/operators";
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected readonly DateService = DateService;
+  protected readonly customOrcidPattern = orcidPattern;
 
   reviewsMarks = [1, 2, 3, 4, 5];
   model: Record<string, number> = {}
