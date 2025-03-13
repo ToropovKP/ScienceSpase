@@ -171,7 +171,7 @@
                       </div>
                       <small
                           class="text-muted file-date mt-2 mt-md-0 me-3">Добавлено: {{ file.uploadTime | date:'dd.MM.yyyy HH:mm' }}</small>
-                      <i *ngIf="currentJob.files.length > 1" class="bi bi-x text-danger"
+                      <i *ngIf="isUserJob() && currentJob.files.length > 1" class="bi bi-x text-danger"
                          (click)="confirmDeleteFile($event, file.uuid); $event.stopPropagation()"></i>
                     </a>
                   </div>
