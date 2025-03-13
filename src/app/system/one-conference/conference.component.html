@@ -176,7 +176,7 @@
 
                 <div class="col-12 col-md-4">
                   <label class="form-label">
-                    ORCID <span class="text-danger">*</span>
+                    ORCID
                     <i class="fas fa-question-circle hover-icon" (click)="op.show($event)"></i>
                     <p-popover #op
                                styleClass="fixed-width-popover"
@@ -189,7 +189,7 @@
                           <p class="popover-text">
                             ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
                             который позволяет установить связь между авторами и их работами.
-                            Формат: 16 цифр, например, <code>0000-0000-0000-0000</code>.
+                            Формат: 16 цифр и/или латинских букв, например, <code>0000-0000-0000-0000</code>.
                           </p>
                           <div class="text-right">
                             <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
@@ -203,8 +203,7 @@
                     </p-popover>
                   </label>
                   <input type="text" class="form-control text-uppercase" formControlName="orcId" required [showMaskTyped]="true"
-                         mask="SSSS-SSSS-SSSS-SSSS" placeholder="0000-0000-0000-0000" [patterns]="customOrcidPattern"
-                         [ngClass]="{'has-error': formAddJob.get('orcId')?.invalid && formAddJob.get('orcId')?.touched}">
+                         mask="SSSS-SSSS-SSSS-SSSS" placeholder="0000-0000-0000-0000" [patterns]="customOrcidPattern">
                 </div>
 
                 <div class="col-12 col-md-4">

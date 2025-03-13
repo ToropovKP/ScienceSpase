@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
@@ -97,9 +97,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   initializeForms() {
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('',),
-      authors: this.formBuilder.array([]),
       description: new FormControl('',),
       phone: new FormControl('',),
+      email: new FormControl('',),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
@@ -270,13 +270,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   updateUserInfo() {
     this.httpService.getUserInfoById(String(this.currentJob.userId)).then((data) => {
       this.jobUser = data
-      this.authors.clear();
-      this.currentJob.coAuthors.forEach(author => {
-        this.authors.push(this.createAuthor(author.fullName, author.organization, author.email));
-      })
       this.formAddJob.controls['title'].setValue(this.currentJob.title)
       this.formAddJob.controls['description'].setValue(this.currentJob.description)
       this.formAddJob.controls['phone'].setValue(this.jobUser.phone)
+      this.formAddJob.controls['email'].setValue(this.jobUser.email)
       this.formAddJob.controls['organization'].setValue(this.jobUser.organization)
       this.formAddJob.controls['academicDegree'].setValue(this.jobUser.academicDegree)
       this.formAddJob.controls['academicTitle'].setValue(this.jobUser.academicTitle)
@@ -348,18 +345,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       review.userId = this.currentUser.id;
       this.reviewByCurrentUser = review;
     })
-  }
-
-  get authors(): FormArray {
-    return this.formAddJob.get('authors') as FormArray;
-  }
-
-  createAuthor(fullName: string = '', organization: string = '', email: string = ''): FormGroup {
-    return this.formBuilder.group({
-      fullName: [fullName],
-      organization: [organization],
-      email: [email],
-    });
   }
 
   downloadFile(fileName: string) {

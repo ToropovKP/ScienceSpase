@@ -85,7 +85,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
-      orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
+      orcId: new FormControl('', /*[Validators.required, Validators.minLength(12)]*/),
       rincId: new FormControl('', /*[Validators.required, Validators.minLength(8)]*/),
       section: new FormControl('', [Validators.required]),
       files: new FormControl('', [Validators.required]),
@@ -224,12 +224,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       this.authors.push(this.createAuthor());
     }
   }
-
-  // addAuthor() {
-  //   if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
-  //     this.authors.push(this.createAuthor());
-  //   }
-  // }
 
   checkUsers() {
     if (this.currentUser && this.currentUser.verified) {
