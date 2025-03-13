@@ -39,6 +39,15 @@
   background-color: var(--old-bg-row);
 }
 
+.btn-primary {
+  background: var(--old-accent);
+  border-color: var(--old-accent-hover);
+}
+
+.btn-primary:hover {
+  background: var(--old-accent-hover);
+}
+
 .btn-danger {
   background-color: var(--old-danger);
   border-color: var(--old-danger);
@@ -140,8 +149,13 @@
   }
 
   .file-date {
-    margin-top: 0.5rem; /* Отступ сверху для времени на мобилках */
-    align-self: flex-start; /* Выравниваем время по левому краю */
+    margin-top: 0.5rem;
+    align-self: flex-start;
+  }
+
+  .bi-x {
+    margin-top: 0.5rem;
+    align-self: flex-start;
   }
 }
 
@@ -171,4 +185,14 @@
 .bi {
   font-size: 1.1em;
   vertical-align: middle;
+}
+
+.bi-x {
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: opacity 0.2s;
+}
+
+.bi-x:hover {
+  opacity: 0.7;
 }

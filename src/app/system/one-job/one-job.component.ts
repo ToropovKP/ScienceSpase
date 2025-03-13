@@ -22,12 +22,14 @@ import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 import {filter} from "rxjs/operators";
 import {orcidPattern} from "../../app.constants";
+import {FileMetadata} from "../shared/model/file.metadata";
+import {ConfirmPopupModule} from "primeng/confirmpopup";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe, ConfirmPopupModule],
   providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -45,12 +47,15 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   currentConference!: Conference;
 
   formAddJob!: FormGroup;
+  formUpdateJob!: FormGroup;
   formReview!: FormGroup;
   formComment!: FormGroup;
   currentUser!: User;
 
   existReviewByCurrentUser: boolean = false;
   reviewByCurrentUser!: Review;
+
+  updatingJob: boolean = false;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -106,6 +111,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       orcId: new FormControl('',),
       rincId: new FormControl('',),
       section: new FormControl('',),
+    })
+
+    this.formUpdateJob = this.formBuilder.group({
+      files: new FormControl('', [Validators.required])
     })
 
     this.formComment = this.formBuilder.group({
@@ -205,6 +214,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.httpService.getUserOneJob(this.currentJobId).then((data) => {
           this.currentJob = data
+          this.currentJob.files = this.currentJob.files.sort((a, b) => a.uploadTime > b.uploadTime ? 1 : -1)
 
           const pattern2 = /^\/jobs\/.+$/;
           if (currentPath.match(pattern2)) {
@@ -387,6 +397,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   confirmDelete(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
+      key: 'confirmPopup',
       message: 'Вы уверены, что хотите удалить статью?<br>Все связанные с ней данные и файлы будут удалены.',
       header: 'Подтверждение',
       closable: true,
@@ -412,10 +423,130 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             life: 3000
           });
         })
-      },
-      reject: () => {
-        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
       }
+    });
+  }
+
+  confirmDeleteFile(event: Event, uuid: string) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      key: 'confirmDialog',
+      message: 'Удалить файл?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Да',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.deleteFile(uuid)
+      }
+    });
+  }
+
+  deleteFile(uuid: string) {
+    this.httpService.deleteFiles([uuid], true).then(() => {
+      this.currentJob.files = this.currentJob.files.filter(file => file.uuid !== uuid);
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось удалить файл',
+        life: 3000
+      });
+    });
+  }
+
+  savingJob: boolean = false;
+
+  addJob() {
+    this.updatingJob = true;
+  }
+
+  cancelJob() {
+    this.updatingJob = false;
+    this.formUpdateJob.reset();
+  }
+
+  files: File[] = [];
+  uploadedFilesMetadata: FileMetadata[] = [];
+  needToRemoveFilesMetadata: FileMetadata[] = [];
+
+  onSelectedFiles(event: Event) {
+    this.files = []
+    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
+    this.uploadedFilesMetadata = [];
+    let files = (event.target as HTMLInputElement).files;
+
+    if (files !== null) {
+      for (let i = 0; i < files.length; i++) {
+        let file = files.item(i);
+        if (file !== null) {
+          this.files.push(file);
+        }
+      }
+    }
+
+    if (this.files.length !== 0) {
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.uploadedFilesMetadata.push(...data)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Файлы загружены',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось загрузить файлы',
+          life: 3000
+        });
+        (event.target as HTMLInputElement).value = '';
+      });
+    }
+  }
+
+  updateJob() {
+    this.savingJob = true;
+
+    let filesForUpload: object[] = []
+    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
+
+    let request = {
+      "id": this.currentJob.id,
+      "files": filesForUpload
+    };
+    this.httpService.updateJob(request).then((data) => {
+      this.updatingJob = false;
+      this.savingJob = false;
+      this.currentJob = data
+      this.currentJob.files = this.currentJob.files.sort((a, b) => a.uploadTime > b.uploadTime ? 1 : -1)
+      this.formUpdateJob.reset()
+
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), false)
+      .then(() => {
+        this.needToRemoveFilesMetadata = []
+        this.uploadedFilesMetadata = []
+        this.files = []
+      });
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось добавить файлы',
+        life: 3000
+      });
+      this.savingJob = false;
     });
   }
 

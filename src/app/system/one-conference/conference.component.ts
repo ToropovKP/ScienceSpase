@@ -433,7 +433,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         life: 3000
       });
 
-      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid))
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), false)
       .then(() => {
         this.needToRemoveFilesMetadata = []
         this.uploadedFilesMetadata = []
