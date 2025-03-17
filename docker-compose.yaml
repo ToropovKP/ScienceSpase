@@ -1,0 +1,13 @@
+version: "3"
+services:
+    frontend:
+      image: registry.gitlab.com/kograf/frontend/kograf-frontend:${VERSION}
+      container_name: kograf_frontend
+      ports:
+        - "80:80"
+      networks:
+        - kograf_network
+networks:
+  kograf_network:
+    name: kograf_network
+    driver: bridge
