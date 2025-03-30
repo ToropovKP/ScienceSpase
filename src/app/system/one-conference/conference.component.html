@@ -139,7 +139,7 @@
                           </div>
                           <div class="col-md-3">
                             <input type="email" class="form-control" placeholder="Email" formControlName="email"
-                                   [maxlength]="30">
+                                   [maxlength]="50">
                           </div>
                           <div class="col-md-2 d-flex gap-2">
                             <button *ngIf="!author.get('fullName')?.disabled" class="btn btn-sm btn-outline-secondary"
@@ -202,7 +202,7 @@
                       </div>
                     </p-popover>
                   </label>
-                  <input type="text" class="form-control text-uppercase" formControlName="orcId" required [showMaskTyped]="true"
+                  <input type="text" class="form-control text-uppercase" formControlName="orcId" [showMaskTyped]="true"
                          mask="SSSS-SSSS-SSSS-SSSS" placeholder="0000-0000-0000-0000" [patterns]="customOrcidPattern">
                 </div>
 
