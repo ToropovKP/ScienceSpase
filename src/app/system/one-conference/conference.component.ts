@@ -373,7 +373,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       "phone": this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,
-      "orcId": (this.formAddJob.value.orcId).toUpperCase(),
+      "orcId": this.formAddJob.value.orcId ? (this.formAddJob.value.orcId).toUpperCase() : undefined,
       "rincId": this.formAddJob.value.rincId,
       "organization": this.formAddJob.value.organization,
     }
