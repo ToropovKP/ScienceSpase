@@ -34,6 +34,8 @@ import {ConfirmPopupModule} from "primeng/confirmpopup";
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
+
   protected readonly DateService = DateService;
   protected readonly customOrcidPattern = orcidPattern;
 
@@ -388,10 +390,11 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       "firstName": this.currentUser.firstName,
       "lastName": this.currentUser.lastName,
       "middleName": this.currentUser.middleName,
-      "message": this.formComment.value.message
+      "message": this.formComment.value.message.trim()
     };
     this.chatService.sendMessage(`/app/send`, message);
     this.formComment.reset()
+    this.resetTextarea();
   }
 
   confirmDelete(event: Event) {
@@ -548,6 +551,40 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.savingJob = false;
     });
+  }
+
+  handleEnterKey(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+    const messageControl = this.formComment.get('message');
+
+    if (!messageControl?.value?.trim()) {
+      keyboardEvent.preventDefault();
+      return;
+    }
+
+    if (!keyboardEvent.shiftKey) {
+      if (!this.formComment.invalid) {
+        this.createComment();
+      }
+      keyboardEvent.preventDefault();
+    }
+  }
+
+  resetTextarea() {
+    const textarea = this.messageInput.nativeElement;
+    textarea.style.height = 'auto';
+    textarea.rows = 1;
+    this.formComment.patchValue({message: ''});
+  }
+
+  adjustTextareaHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    const maxHeight = parseFloat(getComputedStyle(textarea).maxHeight);
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
   }
 
   toPage(link: string) {
