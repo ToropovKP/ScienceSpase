@@ -75,8 +75,20 @@ input {
   outline: none;
 }
 
-input:focus:required:invalid {
-  border: 2px red;
+/*input:focus:required:invalid {*/
+/*  border: 2px red;*/
+/*}*/
+
+/*input:focus, input:required, input:invalid {*/
+/*  border: 2px red;*/
+/*}*/
+
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 body {
@@ -128,8 +140,29 @@ select {
   color: red;
 }
 
-/* Общий стиль для всех текстовых элементов с возможным длинным содержанием */
 .text-break {
   word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+.message a {
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.message-link {
+  color: #007bff;
+}
+
+.message-link:hover {
+  color: #0056b3;
+}
+
+.message-link-dark {
+  color: #cedeff;
+}
+
+.message-link-dark:hover {
+  color: #b2d3ff;
+  text-decoration: none;
 }

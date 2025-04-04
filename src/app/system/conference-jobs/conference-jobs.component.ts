@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {conferenceStatusMap, userRoleMap, userStatusMap} from "../../app.constants";
+import {conferenceStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
 import {Job} from "../shared/model/job";
@@ -15,12 +15,13 @@ import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
+import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule, ToastModule],
+  imports: [CommonModule, ToastModule, ClickOutsideDirective],
   providers: [MessageService]
 })
 export class ConferenceJobsComponent implements OnInit, OnDestroy {
@@ -77,6 +78,7 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
+        this.sectionFilters = [...new Set(data.sections.map(section => section.title))].filter(Boolean);
         if (!this.isModeratorOfThisConferenceOrReviewer()) {
           this.router.navigate(['not-found']);
         }
@@ -244,10 +246,71 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
     }
   }
 
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  sort(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.jobs.sort((a, b) => {
+      let valueA, valueB;
+
+      switch (column) {
+        case 'userName':
+          valueA = a.userName?.toLowerCase() || '';
+          valueB = b.userName?.toLowerCase() || '';
+          break;
+        case 'title':
+          valueA = a.title?.toLowerCase() || '';
+          valueB = b.title?.toLowerCase() || '';
+          break;
+        case 'sectionTitle':
+          valueA = a.sectionTitle?.toLowerCase() || '';
+          valueB = b.sectionTitle?.toLowerCase() || '';
+          break;
+        case 'dateTime':
+          valueA = new Date(a.dateTime).getTime();
+          valueB = new Date(b.dateTime).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (valueA < valueB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  sectionFilters: string[] = [];
+  selectedSections: string[] = [];
+  showSectionFilter: boolean = false;
+
+  get filteredJobs() {
+    if (!this.selectedSections.length) return this.jobs;
+    return this.jobs.filter(job =>
+        this.selectedSections.includes(job.sectionTitle)
+    );
+  }
+
+  toggleSectionFilter(section: string) {
+    if (this.selectedSections.includes(section)) {
+      this.selectedSections = this.selectedSections.filter(s => s !== section);
+    } else {
+      this.selectedSections = [...this.selectedSections, section];
+    }
+  }
+
   toPage(link: string) {
     this.router.navigate([link]);
   }
-
-  protected readonly userRoleMap = userRoleMap;
-  protected readonly userStatusMap = userStatusMap;
 }

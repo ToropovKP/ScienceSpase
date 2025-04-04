@@ -39,20 +39,16 @@
 .form-control {
   border: 1px solid var(--old-accent);
   background: var(--old-bg-card);
-  padding: 0.75rem;
+  /*padding: 0.75rem;*/
 }
 
 .form-control:read-only {
   background-color: var(--old-bg-row);
 }
 
-.btn-primary {
+.btn-primary:disabled {
   background: var(--old-accent);
   border-color: var(--old-accent-hover);
-}
-
-.btn-primary:hover {
-  background: var(--old-accent-hover);
 }
 
 .btn-danger {

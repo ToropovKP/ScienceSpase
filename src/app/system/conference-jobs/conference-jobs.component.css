@@ -284,3 +284,53 @@
   background: var(--old-success);
   color: var(--old-text-primary-color);
 }
+
+.user-item {
+  transition: transform 0.3s ease;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.sortable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Стили для фильтра */
+.section-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  width: 250px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-options {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.bi-filter {
+  cursor: pointer;
+}
+
+.bi-filter:hover {
+  color: #6c757d;
+}

@@ -14,12 +14,13 @@ import {filter} from "rxjs/operators";
 import {passwordMatchValidator} from "../shared/validators/password.match.validator";
 import {PopoverModule} from "primeng/popover";
 import {orcidPattern} from "../../app.constants";
+import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule, NumbersOnlyDirective],
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

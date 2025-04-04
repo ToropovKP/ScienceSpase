@@ -107,7 +107,7 @@
             <form [formGroup]="formAddJob">
 
               <!-- Контактные данные -->
-              <div *ngIf="!isReviewer()" class="row g-3 mb-4">
+              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
                 <div class="col-md-4">
                   <label class="form-label">Почта</label>
                   <input [readonly]="true" type="text" class="form-control"
@@ -126,7 +126,7 @@
               </div>
 
               <!-- Контактные данные -->
-              <div *ngIf="!isReviewer()" class="row g-3 mb-4">
+              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
                 <div class="col-md-3">
                   <label class="form-label">ORCID</label>
                   <input [readonly]="true" type="text" class="form-control text-uppercase"
@@ -135,7 +135,7 @@
                 <div class="col-md-3">
                   <label class="form-label">РИНЦ ID (Author ID)</label>
                   <input [readonly]="true" type="text" class="form-control"
-                         mask="0000-0000" formControlName="rincId">
+                         formControlName="rincId">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Ученая степень</label>
@@ -149,7 +149,7 @@
                 </div>
               </div>
 
-              <div *ngIf="!isReviewer()" class="row g-3 mb-4">
+              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
                 <div class="col-md-12">
                   <label class="form-label">Секция</label>
                   <input [readonly]="true" type="text" class="form-control"
@@ -273,8 +273,7 @@
                     </span>
                     <small class="text-muted">{{ DateService.formatDateTime(comment.dateTime) }}</small>
                   </div>
-                  <div class="message message-other">
-                    {{ comment.message }}
+                  <div class="message message-other" [innerHTML]="comment.message | linkify">
                   </div>
                 </div>
               </div>
@@ -288,8 +287,7 @@
                       {{ (comment.lastName! | firstWord | shortName:15) || '' }}
                     </span>
                   </div>
-                  <div class="message message-mine">
-                    {{ comment.message }}
+                  <div class="message message-mine" [innerHTML]="comment.message | linkify:true">
                   </div>
                 </div>
               </ng-template>

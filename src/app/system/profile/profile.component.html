@@ -149,8 +149,7 @@
                       <div class="popover-body">
                         <p class="popover-text">
                           РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
-                          Позволяет однозначно идентифицировать исследователя и его публикации. Формат:
-                          <code>0000-0000</code> (8 цифр).
+                          Позволяет однозначно идентифицировать исследователя и его публикации.
                         </p>
                         <div class="text-right">
                           <a href="https://www.hse.ru/scholarly-integration/howtofindid"
@@ -164,11 +163,10 @@
                   </p-popover>
                 </label>
                 <input type="text" class="form-control"
-                       mask="0000-0000"
-                       placeholder="0000-0000"
-                       [showMaskTyped]="true"
                        [readonly]="!allowToChange()"
-                       formControlName="rincId">
+                       formControlName="rincId"
+                       [maxLength]="20"
+                       appNumbersOnly>
               </div>
               <div class="col-md-4">
               </div>

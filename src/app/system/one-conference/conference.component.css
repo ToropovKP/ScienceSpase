@@ -58,6 +58,16 @@
   border: 1px solid var(--old-accent);
 }
 
+.readonly-style {
+  background-color: var(--old-bg-row);
+}
+
+/*.readonly-style {*/
+/*  background-color: #e9ecef !important;*/
+/*  border-color: #ced4da !important;*/
+/*  opacity: 1 !important;*/
+/*}*/
+
 /* Сохраняем видимость паттернов через тонкие акценты */
 .list-group-item {
   background: var(--old-bg-card);

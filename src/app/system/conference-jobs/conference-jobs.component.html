@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true"/>
     <div class="main">
 
       <div *ngIf="loadingConference" class="text-center">
@@ -12,7 +12,7 @@
       <div *ngIf="!loadingConference" class="header-container">
         <div class="title-flex-wrapper">
           <h1 class="conference-title">
-            {{currentConference.title}}
+            {{ currentConference.title }}
           </h1>
           <span class="status-badge"
                 [ngClass]="{
@@ -33,7 +33,7 @@
               <h5 class="card-title d-flex align-items-center">
                 <i class="bi bi-building me-2"></i>Организация
               </h5>
-              <p class="card-text">{{currentConference.organization}}</p>
+              <p class="card-text">{{ currentConference.organization }}</p>
             </div>
           </div>
         </div>
@@ -45,8 +45,8 @@
                 <i class="bi bi-calendar-range me-2"></i>Даты проведения
               </h5>
               <p class="card-text">
-                {{DateService.formatDate(currentConference.startDate)}} —
-                {{DateService.formatDate(currentConference.endDate)}}
+                {{ DateService.formatDate(currentConference.startDate) }} —
+                {{ DateService.formatDate(currentConference.endDate) }}
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@
                 <i class="bi bi-people me-2"></i>Участники
               </h5>
               <p class="card-text">
-                <span>{{countUsers}}</span>
+                <span>{{ countUsers }}</span>
                 <a (click)="downloadFilesConference()"
                    class="btn btn-link p-0 ms-2">
                   <i class="bi bi-download me-2"></i>Скачать все
@@ -75,12 +75,53 @@
           <div class="card-body p-0">
             <!-- Заголовки таблицы -->
             <div class="grid-header bg-primary text-white">
-              <div class="row g-0 align-items-center ">
-                <div class="col-3 ">Автор</div>
-                <div class="col-3 ">Название</div>
-                <div class="col-3 ">Секция</div>
-                <div class="col-2 ">Обновлено</div>
-                <div class="col-1 ">Действия</div>
+              <div class="row g-0 align-items-center">
+                <div class="col-3 sortable" (click)="sort('userName')">
+                  Автор <i class="bi" [class.bi-arrow-up]="sortColumn === 'userName' && sortDirection === 'asc'"
+                           [class.bi-arrow-down]="sortColumn === 'userName' && sortDirection === 'desc'"
+                           [class.bi-arrow-down-up]="sortColumn !== 'userName'"></i>
+                </div>
+                <div class="col-3 sortable" (click)="sort('title')">
+                  Название <i class="bi" [class.bi-arrow-up]="sortColumn === 'title' && sortDirection === 'asc'"
+                              [class.bi-arrow-down]="sortColumn === 'title' && sortDirection === 'desc'"
+                              [class.bi-arrow-down-up]="sortColumn !== 'title'"></i>
+                </div>
+                <div class="col-3 position-relative sortable" (click)="sort('sectionTitle'); $event.stopPropagation()">
+                  <div class="d-flex align-items-center">
+                    <span>Секция</span>
+                    <i class="bi ms-1"
+                       [class.bi-arrow-up]="sortColumn === 'sectionTitle' && sortDirection === 'asc'"
+                       [class.bi-arrow-down]="sortColumn === 'sectionTitle' && sortDirection === 'desc'"
+                       [class.bi-arrow-down-up]="sortColumn !== 'sectionTitle'"></i>
+                    <i class="bi bi-filter ms-1 justify-content-end"
+                       (click)="showSectionFilter=!showSectionFilter; $event.stopPropagation()"></i>
+                  </div>
+
+                  <!-- Выпадающий фильтр -->
+                  <div class="section-filter-dropdown" *ngIf="showSectionFilter"
+                       (click)="$event.stopPropagation()"
+                       appClickOutside
+                       (clickOutside)="showSectionFilter = false">
+                    <div class="filter-options">
+                      <div *ngFor="let section of sectionFilters" class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               [id]="'section-'+section"
+                               [checked]="selectedSections.includes(section)"
+                               (change)="toggleSectionFilter(section)">
+                        <label class="form-check-label text-black" [for]="'section-'+section">
+                          {{ section }}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2 sortable" (click)="sort('dateTime')">
+                  Обновлено <i class="bi" [class.bi-arrow-up]="sortColumn === 'dateTime' && sortDirection === 'asc'"
+                               [class.bi-arrow-down]="sortColumn === 'dateTime' && sortDirection === 'desc'"
+                               [class.bi-arrow-down-up]="sortColumn !== 'dateTime'"></i>
+                </div>
+                <div class="col-1">Действия</div>
               </div>
             </div>
 
@@ -91,9 +132,8 @@
                 <p>Нет добавленных работ</p>
               </div>
 
-              <div class="user-item" *ngFor="let job of jobs">
+              <div class="user-item" *ngFor="let job of filteredJobs">
                 <div class="row g-0 align-items-center ">
-                  <!-- Данные пользователя -->
                   <div class="col-3 text-break" [title]="isReviewer() ? '-' : job.userName">
                     {{ isReviewer() ? '-' : job.userName }}
                   </div>
@@ -120,65 +160,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Таблица работ -->
-<!--      <div class="card shadow-sm">-->
-<!--        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">-->
-<!--          <h2 class="h5 mb-0">Работы участников</h2>-->
-<!--          <button class="btn btn-sm btn-light"-->
-<!--                  (click)="downloadFilesConference()"-->
-<!--                  *ngIf="!isReviewer()">-->
-<!--            <i class="bi bi-download me-2"></i>Скачать все-->
-<!--          </button>-->
-<!--        </div>-->
-
-<!--        <div class="card-body p-0">-->
-<!--          <div *ngIf="loadingJobs" class="text-center">-->
-<!--            <div class="spinner-border" role="status">-->
-<!--              <span class="visually-hidden">Загрузка...</span>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div *ngIf="!loadingJobs" class="table-responsive">-->
-<!--            <table class="table table-hover mb-0">-->
-<!--              <thead class="bg-light">-->
-<!--              <tr>-->
-<!--                <th>Автор</th>-->
-<!--                <th>Название</th>-->
-<!--                <th>Секция</th>-->
-<!--                <th>Обновлено</th>-->
-<!--                <th class="text-end">Действия</th>-->
-<!--              </tr>-->
-<!--              </thead>-->
-<!--              <tbody>-->
-<!--              <tr *ngFor="let job of jobs">-->
-<!--                <td>{{ isReviewer() ? '-' : job.userName }}</td>-->
-<!--                <td>{{ job.title }}</td>-->
-<!--                <td>{{ job.sectionTitle }}</td>-->
-<!--                <td>{{ DateService.formatDateTime(job.dateTime) }}</td>-->
-<!--                <td class="text-end">-->
-<!--                  <div class="btn-group">-->
-<!--                    <button class="btn btn-sm btn-outline-primary"-->
-<!--                            (click)="openJob(String(job.id))">-->
-<!--                      <i class="bi bi-eye"></i>-->
-<!--                    </button>-->
-<!--                    <button class="btn btn-sm btn-outline-success"-->
-<!--                            (click)="downloadFilesJob(job)">-->
-<!--                      <i class="bi bi-download"></i>-->
-<!--                    </button>-->
-<!--                  </div>-->
-<!--                </td>-->
-<!--              </tr>-->
-<!--              </tbody>-->
-<!--            </table>-->
-<!--          </div>-->
-
-<!--          <div *ngIf="!loadingJobs && !jobs?.length" class="text-center p-4">-->
-<!--            <i class="bi bi-file-earmark-excel display-5 text-muted mb-3"></i>-->
-<!--            <p class="text-muted">Нет добавленных работ</p>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-
     </div>
   </div>
 </section>

@@ -18,12 +18,13 @@ import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../shared/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
+import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule, NumbersOnlyDirective],
   providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
@@ -306,7 +307,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   uploadedFilesMetadata: FileMetadata[] = [];
   needToRemoveFilesMetadata: FileMetadata[] = [];
 
+  uploadingFiles: boolean = false;
+
   onSelectedFiles(event: Event) {
+    this.uploadingFiles = true;
+
     this.files = []
     this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
     this.uploadedFilesMetadata = [];
@@ -335,6 +340,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           detail: 'Файлы загружены',
           life: 3000
         });
+        this.uploadingFiles = false;
       }).catch(error => {
         this.messageService.add({
           severity: 'error',
@@ -343,6 +349,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           life: 3000
         });
         (event.target as HTMLInputElement).value = '';
+        this.uploadingFiles = false;
       });
     }
   }
