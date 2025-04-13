@@ -168,9 +168,9 @@
                   <label class="form-label">Телефон <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true"
                          mask="+0 (000) 000-0000"
-                         [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}"
-                         [readonly]="this.currentUser.phone !== ''"
-                         [class.readonly-style]="this.currentUser.phone !== ''">
+                         [ngClass]="{'has-error': formAddJob.get('phone')?.invalid && formAddJob.get('phone')?.touched}">
+<!--                  [readonly]="this.currentUser.phone !== ''"-->
+<!--                  [class.readonly-style]="this.currentUser.phone !== ''"-->
                 </div>
 
                 <div class="col-12 col-md-4">
@@ -206,9 +206,9 @@
                          [showMaskTyped]="true"
                          mask="SSSS-SSSS-SSSS-SSSS"
                          placeholder="0000-0000-0000-0000"
-                         [patterns]="customOrcidPattern"
-                         [readonly]="this.currentUser.orcId !== ''"
-                         [class.readonly-style]="this.currentUser.orcId !== ''">
+                         [patterns]="customOrcidPattern">
+<!--                  [readonly]="this.currentUser.orcId !== ''"-->
+<!--                  [class.readonly-style]="this.currentUser.orcId !== ''"-->
                 </div>
 
                 <div class="col-12 col-md-4">
@@ -242,9 +242,9 @@
                   <input type="text" class="form-control"
                          formControlName="rincId"
                          [maxLength]="20"
-                         [readonly]="this.currentUser.rincId !== ''"
-                         [class.readonly-style]="this.currentUser.rincId !== ''"
                          appNumbersOnly>
+<!--                  [readonly]="this.currentUser.rincId !== ''"-->
+<!--                  [class.readonly-style]="this.currentUser.rincId !== ''"-->
                 </div>
 
                 <div class="col-12 col-md-4">
