@@ -3,18 +3,14 @@
     <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <div class="main">
       <!-- Заголовок -->
-      <div class="article-page d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <h2 class="h3 text-black mb-0 flex-grow-1" style="min-width: 300px;">
-          Мои статьи
-          <div *ngIf="currentConferenceId && loadingConference" class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Загрузка...</span>
-            </div>
-          </div>
-          <span *ngIf="currentConferenceId && !loadingConference" class="d-block d-md-inline text-truncate">
-            / {{currentConference.title}}
-          </span>
-        </h2>
+
+      <div *ngIf="loadingJobs && loadingConference" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Загрузка...</span>
+        </div>
+      </div>
+      <div *ngIf="!loadingJobs && !loadingConference">
+        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
       </div>
 
       <div *ngIf="loadingJobs" class="text-center">

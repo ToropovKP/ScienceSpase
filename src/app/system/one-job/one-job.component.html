@@ -4,6 +4,17 @@
     <p-confirm-dialog key="confirmPopup"/>
     <p-confirm-popup key="confirmDialog"/>
     <div class="main">
+
+      <div *ngIf="loadingJob" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Загрузка...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingJob">
+        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+      </div>
+
       <div *ngIf="!loadingJob" class="d-flex justify-content-between align-items-center mb-4">
         <div class="article-page">
           <h1 class="h2 mb-0 text-primary">
@@ -11,15 +22,6 @@
               {{ currentJob.title }}
             </span>
           </h1>
-        </div>
-        <div *ngIf="loadingJob" class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
-      </div>
-
-      <div *ngIf="loadingJob" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Загрузка...</span>
         </div>
       </div>
 

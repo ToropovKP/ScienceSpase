@@ -8,14 +8,15 @@ import {Conference} from "../shared/model/conference";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {MenuItem, MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
+import {Breadcrumb} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.css'],
-  imports: [CommonModule, ToastModule],
+  imports: [CommonModule, ToastModule, Breadcrumb],
   providers: [MessageService]
 })
 export class JobsComponent implements OnInit, OnDestroy {
@@ -25,6 +26,9 @@ export class JobsComponent implements OnInit, OnDestroy {
   currentConferenceId!: string;
   currentConference!: Conference;
   currentUser!: User;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -64,10 +68,18 @@ export class JobsComponent implements OnInit, OnDestroy {
       this.currentConferenceId = e;
       this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
         this.jobs = data;
+        this.homeItem = {
+          icon: 'bi bi-house-door',
+          routerLink: '/'
+        };
+        this.breadcrumbItems = [
+          { label: 'Мои статьи', routerLink: `/jobs` }
+        ]
         this.loadingJobs = false;
         if (this.currentConferenceId !== undefined) {
           this.httpService.getConference(this.currentConferenceId).then((conf) => {
             this.currentConference = conf;
+            this.breadcrumbItems?.push({ label: this.getShortConferenceTitle() })
             this.loadingConference = false;
           }).catch(error => {
             this.messageService.add({
@@ -79,6 +91,8 @@ export class JobsComponent implements OnInit, OnDestroy {
             this.loadingConference = false;
           });
           this.jobs = this.jobs.filter(job => String(job.conferenceId) === this.currentConferenceId)
+        } else {
+          this.loadingConference = false;
         }
       }).catch(error => {
         this.messageService.add({
@@ -90,6 +104,11 @@ export class JobsComponent implements OnInit, OnDestroy {
         this.loadingJobs = false;
       });
     })
+  }
+
+  getShortConferenceTitle(): string {
+    const title = this.currentConference?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
   openJob(id: bigint) {

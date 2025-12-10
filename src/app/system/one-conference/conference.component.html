@@ -9,12 +9,13 @@
         </div>
       </div>
 
+      <div *ngIf="!loadingConference">
+        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+      </div>
+
       <!-- Заголовок и статус -->
       <div *ngIf="!loadingConference" class="header-container">
-        <div class="title-flex-wrapper">
-          <h1 class="conference-title">
-            {{ currentConference.title }}
-          </h1>
+        <div class="header-content">
           <span class="status-badge"
                 [ngClass]="{
                   'bg-success': currentConference.status === 'ACTIVE',
@@ -23,12 +24,53 @@
                 }">
             {{ conferenceStatusMap[currentConference.status] }}
           </span>
+
+          <!-- Название конференции -->
+          <h1 class="conference-title">
+            {{ currentConference.title }}
+          </h1>
+
+          <!-- Кнопки действий (только для десктопа) -->
+          <div class="desktop-actions">
+            <button *ngIf="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE' && !addingJob"
+                    class="btn btn-action btn-add"
+                    (click)="addJob()"
+                    pTooltip="Добавить работу" tooltipPosition="bottom">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+
+            <button *ngIf="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null && !addingJob"
+                    class="btn btn-action btn-my-works"
+                    (click)="openJob()"
+                    pTooltip="Мои работы" tooltipPosition="bottom">
+              <i class="bi bi-files"></i>
+            </button>
+
+            <button *ngIf="isUserAuthorized() && isModeratorOfThisConference() && !addingJob"
+                    class="btn btn-action btn-edit"
+                    (click)="editConference()"
+                    pTooltip="Редактировать конференцию" tooltipPosition="bottom">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Мобильное предупреждение -->
+        <div *ngIf="isModeratorOfThisConference()" class="mobile-warning alert alert-warning mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Редактирование доступно только с компьютера. Для управления конференцией
+          воспользуйтесь десктопной версией сайта.
+        </div>
+
+        <div *ngIf="!isModeratorOfThisConference()" class="mobile-warning alert alert-warning mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Добавление работ доступно только с компьютера. Воспользуйтесь десктопной версией сайта.
         </div>
       </div>
 
       <div *ngIf="!loadingConference">
         <!-- Основная информация -->
-        <div class="row g-4 mb-4">
+        <div *ngIf="!addingJob" class="row g-4 mb-4">
           <div class="col-md-4">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
@@ -74,7 +116,7 @@
         </div>
 
         <!-- Секции -->
-        <div class="card shadow-sm mb-4">
+        <div *ngIf="!addingJob" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
           </div>
@@ -93,7 +135,7 @@
         </div>
 
         <!-- Описание -->
-        <div class="card shadow-sm mb-4">
+        <div *ngIf="!addingJob" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>
           </div>
@@ -309,26 +351,6 @@
               </div>
             </form>
           </div>
-        </div>
-
-        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
-          <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && !addingJob"
-                  class="btn btn-primary px-4"
-                  (click)="addJob()">
-            <i class="bi bi-plus-lg me-2"></i>Добавить работу
-          </button>
-
-          <button *ngIf="!isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null && !addingJob"
-                  class="btn btn-outline-primary px-4"
-                  (click)="openJob()">
-            <i class="bi bi-files me-2"></i>Мои работы
-          </button>
-
-          <button *ngIf="isModeratorOfThisConference() && !addingJob"
-                  class="btn btn-warning px-4"
-                  (click)="editConference()">
-            <i class="bi bi-pencil-square me-2"></i>Редактировать
-          </button>
         </div>
       </div>
     </div>

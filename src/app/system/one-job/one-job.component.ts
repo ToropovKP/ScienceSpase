@@ -15,7 +15,7 @@ import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToastModule} from "primeng/toast";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
@@ -25,12 +25,13 @@ import {orcidPattern} from "../../app.constants";
 import {FileMetadata} from "../shared/model/file.metadata";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {LinkifyPipe} from "../shared/pipes/linkify.pipe";
+import {Breadcrumb} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe, ConfirmPopupModule, LinkifyPipe],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe, ConfirmPopupModule, LinkifyPipe, Breadcrumb],
   providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -59,6 +60,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   reviewByCurrentUser!: Review;
 
   updatingJob: boolean = false;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -219,6 +223,31 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
           this.currentJob = data
           this.currentJob.files = this.currentJob.files.sort((a, b) => a.uploadTime > b.uploadTime ? 1 : -1)
 
+          this.homeItem = {
+            icon: 'bi bi-house-door',
+            routerLink: '/'
+          };
+          this.breadcrumbItems = [];
+
+          if (this.currentJob.userId !== this.currentUser.id) {
+            if (!this.isReviewer()) {
+              this.breadcrumbItems.push(
+                  {
+                    label: this.getShortConferenceTitle(),
+                    routerLink: `/conference/${this.currentJob.conferenceId}`
+                  },
+                  {label: this.currentJob.userName});
+            }
+          } else {
+            this.breadcrumbItems.push({label: 'Мои статьи', routerLink: `/jobs`},
+                {
+                  label: this.getShortConferenceTitle(),
+                  routerLink: `/conference/${this.currentJob.conferenceId}`
+                });
+          }
+
+          this.breadcrumbItems.push({label: this.getShortJobTitle()});
+
           const pattern2 = /^\/jobs\/.+$/;
           if (currentPath.match(pattern2)) {
             if (this.currentJob.userId !== this.currentUser.id) {
@@ -340,6 +369,16 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       return this.isModerator()
     }
     return false;
+  }
+
+  getShortConferenceTitle(): string {
+    const title = this.currentJob?.conferenceTitle || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
+  }
+
+  getShortJobTitle(): string {
+    const title = this.currentJob?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
   updateMark(tag: string, mark: number) {

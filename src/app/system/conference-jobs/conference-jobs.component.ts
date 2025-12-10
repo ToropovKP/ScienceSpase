@@ -13,15 +13,16 @@ import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {MenuItem, MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
+import {Breadcrumb} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule, ToastModule, ClickOutsideDirective],
+  imports: [CommonModule, ToastModule, ClickOutsideDirective, Breadcrumb],
   providers: [MessageService]
 })
 export class ConferenceJobsComponent implements OnInit, OnDestroy {
@@ -38,6 +39,9 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
   currentSections!: Section[];
 
   currentUser!: User;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -78,6 +82,14 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
+        this.homeItem = {
+          icon: 'bi bi-house-door',
+          routerLink: '/'
+        };
+        this.breadcrumbItems = [
+          { label: this.getShortConferenceTitle(), routerLink: `/conference/${this.currentConferenceId}` },
+          { label: 'Участники' }
+        ]
         this.sectionFilters = [...new Set(data.sections.map(section => section.title))].filter(Boolean);
         if (!this.isModeratorOfThisConferenceOrReviewer()) {
           this.router.navigate(['not-found']);
@@ -191,6 +203,11 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
   isReviewer(): boolean {
     return this.authService.hasRole('REVIEWER')
+  }
+
+  getShortConferenceTitle(): string {
+    const title = this.currentConference?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
   openJob(id: string) {

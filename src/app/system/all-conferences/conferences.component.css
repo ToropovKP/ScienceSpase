@@ -9,6 +9,39 @@
   min-height: 100vh;
 }
 
+.page-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  color: var(--old-h1-accent);
+}
+
+@media (max-width: 992px) {
+  .conference-title {
+    width: 100%;
+  }
+}
+
+/* Десктоп */
+@media (min-width: 992px) {
+  .page-title {
+    font-size: 2rem;
+    max-width: calc(100% - 140px);
+  }
+}
+
+@media (max-width: 767px) {
+  .page-title {
+    font-size: 1.5rem;
+    max-width: 100%;
+    padding-right: 0;
+  }
+}
+
 .conf-list {
   scrollbar-width: thin;
   scrollbar-color: var(--old-accent) transparent;

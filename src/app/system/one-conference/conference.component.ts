@@ -14,17 +14,19 @@ import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {MenuItem, MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../shared/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
 import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
+import {Tooltip} from "primeng/tooltip";
+import {BreadcrumbModule} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule, NumbersOnlyDirective],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, BreadcrumbModule, PopoverModule, NumbersOnlyDirective, Tooltip],
   providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
@@ -46,6 +48,9 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   currentUserJobId!: string;
 
   addingJob: boolean = false;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -101,6 +106,13 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
+        this.homeItem = {
+          icon: 'bi bi-house-door',
+          routerLink: '/'
+        };
+        this.breadcrumbItems = [
+          { label: this.getShortConferenceTitle() }
+        ]
         this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
         this.currentAdmins = this.currentConference.admins;
 
@@ -162,6 +174,10 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     });
   }
 
+  isUserAuthorized(): boolean {
+    return this.currentUser !== undefined && this.currentUser != null;
+  }
+
   isAdmin(): boolean {
     return this.authService.hasRole('ADMIN');
   }
@@ -186,6 +202,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
   isReviewer(): boolean {
     return this.authService.hasRole('REVIEWER')
+  }
+
+  getShortConferenceTitle(): string {
+    const title = this.currentConference?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
   get authors(): FormArray {

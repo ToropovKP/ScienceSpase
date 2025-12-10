@@ -1,10 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, SecurityContext} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
-import {CommonModule} from "@angular/common";
+import {CommonModule, Location} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
 import {AuthService} from "../shared/services/auth.service";
 import {ConfirmationService, MessageService} from "primeng/api";
@@ -15,6 +15,7 @@ import {passwordMatchValidator} from "../shared/validators/password.match.valida
 import {PopoverModule} from "primeng/popover";
 import {orcidPattern} from "../../app.constants";
 import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-profile',
@@ -33,17 +34,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileUser!: User;
   profileUserId!: string;
 
-  editProfile: boolean = false;
-  editPassword: boolean = false;
-  showNewPasswordFields: boolean = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+  isUpdating = false;
+
+  showActionButtons = false;
+  originalProfileData: any;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
               private route: ActivatedRoute,
+              private location: Location,
               private httpService: HttpService,
               private authService: AuthService,
               private confirmationService: ConfirmationService,
-              private messageService: MessageService) {
+              private messageService: MessageService,
+              private sanitizer: DomSanitizer) {
   }
 
   private destroy$ = new Subject<void>();
@@ -63,6 +70,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.router.navigate(['not-found']);
       }
     });
+    this.router.events.pipe(
+        filter(event => event instanceof NavigationStart),
+        takeUntil(this.destroy$)
+    ).subscribe(event => {
+      if (this.formProfile.dirty) {
+        if (!confirm('У вас есть несохраненные изменения. Продолжить?')) {
+          this.location.go(this.location.path());
+          throw new Error('Navigation cancelled');
+        }
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -76,6 +94,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       lastName: new FormControl('', Validators.required),
       middleName: new FormControl('',),
       phone: new FormControl('', Validators.required),
+      email: new FormControl('', Validators.required),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
@@ -127,19 +146,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.formProfile.controls['lastName'].setValue(this.profileUser.lastName)
     this.formProfile.controls['middleName'].setValue(this.profileUser.middleName)
     this.formProfile.controls['phone'].setValue(this.profileUser.phone)
+    this.formProfile.controls['email'].setValue(this.profileUser.email)
     this.formProfile.controls['organization'].setValue(this.profileUser.organization)
     this.formProfile.controls['academicDegree'].setValue(this.profileUser.academicDegree)
     this.formProfile.controls['academicTitle'].setValue(this.profileUser.academicTitle)
     this.formProfile.controls['orcId'].setValue(this.profileUser.orcId)
     this.formProfile.controls['rincId'].setValue(this.profileUser.rincId)
+    this.formProfile.valueChanges.subscribe(() => {
+      this.showActionButtons = this.formProfile.dirty;
+    })
+    this.originalProfileData = {...this.formProfile.value};
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    if (this.formProfile.dirty) {
+      $event.returnValue = true;
+    }
   }
 
   isAdmin(): boolean {
     return this.authService.hasRole('ADMIN');
-  }
-
-  allowToChange(): boolean {
-    return this.showButtonsToChange() && this.editProfile;
   }
 
   showButtonsToChange(): boolean {
@@ -179,69 +206,61 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  changeProfile() {
-    this.editProfile = true;
-  }
-
   cancelProfile() {
-    this.editProfile = false;
-    this.formProfile.reset()
-    this.updateUserInfoForm()
+    this.formProfile.reset(this.originalProfileData);
+    this.showActionButtons = false;
   }
 
-  saveProfile() {
-    let requestUser = {
-      "firstName": this.formProfile.value.firstName,
-      "lastName": this.formProfile.value.lastName,
-      "middleName": this.formProfile.value.middleName,
-      "phone": this.formProfile.value.phone,
-      "organization": this.formProfile.value.organization,
-      "academicDegree": this.formProfile.value.academicDegree,
-      "academicTitle": this.formProfile.value.academicTitle,
-      "orcId": (this.formProfile.value.orcId).toUpperCase(),
-      "rincId": this.formProfile.value.rincId,
-    }
+  async saveProfile() {
+    if (this.formProfile.invalid) return;
 
-    this.profileUser.firstName = this.formProfile.value.firstName
-    this.profileUser.lastName = this.formProfile.value.lastName
-    this.profileUser.middleName = this.formProfile.value.middleName
-    this.profileUser.phone = this.formProfile.value.phone
-    this.profileUser.organization = this.formProfile.value.organization
-    this.profileUser.academicDegree = this.formProfile.value.academicDegree
-    this.profileUser.academicTitle = this.formProfile.value.academicTitle
-    this.profileUser.orcId = this.formProfile.value.orcId
-    this.profileUser.rincId = this.formProfile.value.rincId
+    const requestUser = {
+      firstName: this.formProfile.value.firstName,
+      lastName: this.formProfile.value.lastName,
+      middleName: this.formProfile.value.middleName,
+      organization: this.formProfile.value.organization,
+      academicDegree: this.formProfile.value.academicDegree,
+      academicTitle: this.formProfile.value.academicTitle,
+      orcId: this.formProfile.value.orcId?.toUpperCase(),
+      rincId: this.formProfile.value.rincId
+    };
 
-    this.httpService.updateUserInfo(requestUser).then(() => {
-      return this.authService.getCurrentUser()
-    }).then((updatedUser) => {
+    try {
+      await this.httpService.updateUserInfo(requestUser);
+      const updatedUser = await this.authService.getCurrentUser();
+
+      this.updateUserInfoForm()
+      this.formProfile.markAsPristine();
+      this.showActionButtons = false;
+
       this.messageService.add({
         severity: 'success',
         summary: 'Успешно',
         detail: 'Данные успешно обновлены',
         life: 3000
       });
-    }).catch(error => {
-      console.log(error)
-      if (error.status === 429) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Отклонено',
-          detail: 'Слишком много запросов на изменение профиля. Попробуйте позже',
-          life: 3000
-        });
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось обновить профиль',
-          life: 3000
-        });
-      }
-    });
-    this.editProfile = false;
-    this.formProfile.reset()
-    this.updateUserInfoForm()
+
+    } catch (error: any) {
+      this.handleProfileError(error);
+    }
+  }
+
+  private handleProfileError(error: any) {
+    if (error.status === 429) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Отклонено',
+        detail: 'Слишком много запросов. Попробуйте позже',
+        life: 3000
+      });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Ошибка',
+        detail: 'Не удалось обновить профиль',
+        life: 3000
+      });
+    }
   }
 
   confirmRole(event: Event) {
@@ -314,74 +333,106 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  initiatePasswordChange() {
-    this.editPassword = true;
-    this.showNewPasswordFields = false;
-    this.securityForm.get('currentPassword')?.enable();
-  }
-
-  verifyCurrentPassword() {
-    const currentPassword = this.securityForm.value.currentPassword;
-    console.log(currentPassword)
-    let object = {
-      "password": currentPassword
+  checkPasswordStrength() {
+    // Триггерим проверку только если поле не пустое
+    if (this.securityForm.get('password')?.value) {
+      this.getPasswordStrength();
     }
-    this.httpService.verifyCurrentPassword(object).then(data => {
-      if (data) {
-        this.showNewPasswordFields = true;
-        this.securityForm.get('currentPassword')?.disable();
-      } else {
-        this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
-      }
-    }).catch(error => {
-      if (error.status === 429) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Отклонено',
-          detail: 'Слишком много запросов на проверку пароля. Попробуйте позже',
-          life: 3000
-        });
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
-      }
-    });
   }
 
-  updatePassword() {
-    if (this.securityForm.valid) {
-      const newPassword = this.securityForm.value.password;
-      console.log(newPassword)
-      let object = {
-        "password": newPassword
+  getPasswordStrength(): number {
+    const password = this.securityForm.get('password')?.value || '';
+
+    let strength = 0;
+    const requirements = [
+      password.length >= 8,
+      /[A-Z]/.test(password),
+      /[0-9]/.test(password),
+      /[^A-Za-z0-9]/.test(password)
+    ];
+
+    strength = (requirements.filter(Boolean)).length * 25;
+    return Math.min(strength, 100);
+  }
+
+  getPasswordStrengthText(): string {
+    const strength = this.getPasswordStrength();
+    if (strength < 50) return 'Слабый';
+    if (strength < 75) return 'Средний';
+    return 'Сильный';
+  }
+
+  getPasswordStrengthClass(): string {
+    const strength = this.getPasswordStrength();
+    if (strength < 50) return 'bg-danger';
+    if (strength < 75) return 'bg-warning';
+    return 'bg-success';
+  }
+
+  // Обновленный метод для обработки смены пароля
+  async handlePasswordChange() {
+    if (this.securityForm.invalid) return;
+
+    this.isUpdating = true;
+
+    try {
+      // 1. Сначала проверяем текущий пароль
+      const currentPassword = this.sanitizer.sanitize(SecurityContext.HTML, this.securityForm.value.currentPassword);
+      const isCurrentValid = await this.httpService.verifyCurrentPassword({password: currentPassword});
+
+      if (!isCurrentValid) {
+        this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
+        this.isUpdating = false;
+        return;
       }
-      this.httpService.updatePassword(object).then(() => {
-        this.cancelPasswordChange()
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Успешно',
-          detail: 'Пароль успешно изменен',
-          life: 3000
-        });
-      }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+
+      // 2. Если текущий пароль верный, обновляем на новый
+      const newPassword = this.sanitizer.sanitize(SecurityContext.HTML, this.securityForm.value.password);
+      await this.httpService.updatePassword({password: newPassword});
+
+      // 3. Успешное завершение
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Пароль успешно изменен',
+        life: 3000
+      });
+
+      this.securityForm.reset();
+
+    } catch (error: any) {
+      this.handlePasswordError(error);
+    } finally {
+      this.isUpdating = false;
+    }
+  }
+
+  private handlePasswordError(error: any) {
+    if (error.status === 429) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Отклонено',
+        detail: 'Слишком много запросов. Попробуйте позже',
+        life: 3000
+      });
+    } else if (error.status === 401) {
+      this.securityForm.get('currentPassword')?.setErrors({incorrect: true});
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Ошибка',
+        detail: 'Не удалось изменить пароль. Попробуйте позже',
+        life: 3000
       });
     }
   }
 
-  cancelPasswordChange() {
+  resetPasswordForm() {
     this.securityForm.reset();
-    this.showNewPasswordFields = false;
-    this.editPassword = false;
+    this.securityForm.get('currentPassword')?.enable();
+    this.showCurrentPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
   }
 
   toPage(link: string) {

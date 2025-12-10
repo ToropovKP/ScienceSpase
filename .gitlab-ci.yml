@@ -19,6 +19,7 @@ Build frontend:
     - echo "${CI_REGISTRY_IMAGE}/kograf-frontend:${CI_COMMIT_SHORT_SHA}"
   
 Deploy:
+  when: manual
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   stage: deploy

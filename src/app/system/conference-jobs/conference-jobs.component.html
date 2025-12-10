@@ -9,11 +9,12 @@
         </div>
       </div>
 
+      <div *ngIf="!loadingConference">
+        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+      </div>
+
       <div *ngIf="!loadingConference" class="header-container">
-        <div class="title-flex-wrapper">
-          <h1 class="conference-title">
-            {{ currentConference.title }}
-          </h1>
+        <div class="header-content">
           <span class="status-badge"
                 [ngClass]="{
                   'bg-success': currentConference.status === 'ACTIVE',
@@ -22,6 +23,11 @@
                 }">
             {{ conferenceStatusMap[currentConference.status] }}
           </span>
+
+          <!-- Название конференции -->
+          <h1 class="conference-title">
+            {{ currentConference.title }}
+          </h1>
         </div>
       </div>
 
