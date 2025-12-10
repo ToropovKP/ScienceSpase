@@ -1,7 +1,0 @@
-<div
-  *ngFor="let alert of alerts"
-  class="{{ cssClass(alert) }} kograf-alert position-absolute start-50 translate-middle-x"
->
-  <div><pre>{{alert.message}}</pre></div>
-  <button type="button" class="btn-close" (click)="removeAlert(alert)"></button>
-</div>

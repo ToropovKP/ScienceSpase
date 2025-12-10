@@ -1,16 +1,16 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <div class="main">
       <!-- Заголовок и кнопка создания -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 text-black mb-0">
+        <h1 class="page-title">
           Конференции
-        </h2>
+        </h1>
         <button *ngIf="isAdmin()"
-                class="btn btn-primary rounded-circle"
+                class="btn btn-primary d-flex align-items-center"
                 (click)="createConference()">
-          <i class="bi bi-plus-lg fs-5"></i>
+          <span>Создать</span>
         </button>
       </div>
 

@@ -1,313 +1,339 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" />
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <p-confirm-popup />
     <div *ngIf="profileUser" class="main">
       <!-- Шапка профиля -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h2 class="h5 mb-0">
-            <i class="bi bi-person-badge me-2"></i>Профиль пользователя
-          </h2>
-        </div>
-        <div class="card-body">
-          <div class="row align-items-center">
+      <div *ngIf="showButtonsToChange() && !profileUser.verified" class="mb-4">
+        <div >
+          <div class="row align-items-end">
             <div class="col-md-6 mb-3 mb-md-0">
-              <div class="text-muted">Email: {{profileUser.email}}</div>
-              <div *ngIf="showButtonsToChange() && !profileUser.verified"
-                   class="alert alert-danger mt-2 mb-0">
+              <div class="alert alert-danger mt-2 mb-0">
                 <i class="bi bi-envelope-exclamation me-2"></i>
                 Подтвердите аккаунт через письмо
                 <a class="alert-link ms-2" (click)="sendRepeatLink()">Отправить повторно</a>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Кнопки админа -->
-            <div *ngIf="isAdmin()" class="col-md-6">
-              <div class="d-flex gap-2 flex-wrap justify-content-md-end">
-                <button class="btn btn-sm btn-dark"
-                        *ngIf="profileUser.role == 'MEMBER'"
-                        (click)="confirmRole($event)">
-                  Назначить администратором
-                </button>
-                <button class="btn btn-sm btn-dark"
-                        *ngIf="profileUser.role == 'MODERATOR'"
-                        (click)="confirmRole($event)">
-                  Назначить участником
-                </button>
-                <button class="btn btn-sm btn-danger"
-                        *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'ACTIVE'"
-                        (click)="confirmStatus($event)">
-                  Заблокировать
-                </button>
-                <button class="btn btn-sm btn-success"
-                        *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'BANNED'"
-                        (click)="confirmStatus($event)">
-                  Разблокировать
-                </button>
+      <div *ngIf="isAdmin()" class="mb-4">
+        <div >
+          <div class="row align-items-end">
+              <div class="col-md-12">
+                <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+                  <button class="btn btn-sm btn-dark"
+                          *ngIf="profileUser.role == 'MEMBER'"
+                          (click)="confirmRole($event)">
+                    Назначить администратором
+                  </button>
+                  <button class="btn btn-sm btn-dark"
+                          *ngIf="profileUser.role == 'MODERATOR'"
+                          (click)="confirmRole($event)">
+                    Назначить участником
+                  </button>
+                  <button class="btn btn-sm btn-danger"
+                          *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'ACTIVE'"
+                          (click)="confirmStatus($event)">
+                    Заблокировать
+                  </button>
+                  <button class="btn btn-sm btn-success"
+                          *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'BANNED'"
+                          (click)="confirmStatus($event)">
+                    Разблокировать
+                  </button>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
 
       <!-- Форма редактирования -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Основная информация</h5>
+        <div class="card-header bg-primary text-white position-relative">
+          <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Основная информация</h5>
+
+          <!-- Кнопки действий в шапке -->
+          <div *ngIf="showActionButtons" class="position-absolute end-0 top-50 translate-middle-y me-3 d-flex gap-2">
+            <button class="btn btn-outline-light"
+                    (click)="saveProfile()"
+                    [disabled]="formProfile.invalid">
+              <i class="bi bi-check-lg me-1"></i> Сохранить
+            </button>
+            <button class="btn btn-light text-primary"
+                    (click)="cancelProfile()">
+              <i class="bi bi-x-lg me-1"></i> Отменить
+            </button>
+          </div>
         </div>
+
         <div class="card-body">
           <form [formGroup]="formProfile">
-            <div class="row g-3">
-              <!-- Персональные данные -->
-              <div class="col-md-4">
-                <label class="form-label">Фамилия</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="lastName"
-                       [maxlength]="30">
+            <!-- Личные данные -->
+            <div class="mb-4">
+              <h6 class="section-title mb-3"><i class="bi bi-person-vcard me-2"></i>Личные данные</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Фамилия</label>
+                  <input type="text" class="form-control"
+                         formControlName="lastName"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="30">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Имя</label>
+                  <input type="text" class="form-control"
+                         formControlName="firstName"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="30">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Отчество</label>
+                  <input type="text" class="form-control"
+                         formControlName="middleName"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="30">
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Имя</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="firstName"
-                       [maxlength]="30">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Отчество</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="middleName"
-                       [maxlength]="30">
-              </div>
+            </div>
 
-              <!-- Контакты -->
-              <div class="col-md-4">
-                <label class="form-label">Телефон</label>
-                <input type="text" class="form-control"
-                       mask="+0 (000) 000-0000"
-                       [readonly]="!allowToChange()"
-                       formControlName="phone">
+            <!-- Контактная информация -->
+            <div class="mb-4">
+              <h6 class="section-title mb-3"><i class="bi bi-telephone me-2"></i>Контактная информация</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Телефон</label>
+                  <input type="text" class="form-control readonly-style"
+                         mask="+0 (000) 000-0000"
+                         formControlName="phone"
+                         readonly>
+                  <small class="text-muted">Для изменения телефона обратитесь в поддержку</small>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Почта</label>
+                  <input type="text" class="form-control readonly-style"
+                         formControlName="email"
+                         readonly>
+                  <small class="text-muted">Для изменения почты обратитесь в поддержку</small>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Организация</label>
+                  <input type="text" class="form-control"
+                         formControlName="organization"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="100">
+                </div>
               </div>
-              <div class="col-md-8">
-                <label class="form-label">Организация</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="organization"
-                       [maxlength]="100">
-              </div>
+            </div>
 
-              <!-- Идентификаторы -->
-              <div class="col-md-4">
-                <label class="form-label">
-                  ORCID
-                  <i class="fas fa-question-circle hover-icon" (click)="op.show($event)"></i>
-                  <p-popover #op
-                             styleClass="fixed-width-popover"
-                             [style]="{maxWidth: '400px', width: '100%'}">
-                    <div class="popover-content">
-                      <div class="popover-header">
-                        <h5 class="popover-title">Что такое ORCID?</h5>
-                      </div>
-                      <div class="popover-body">
-                        <p class="popover-text">
-                          ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
-                          который позволяет установить связь между авторами и их работами.
-                          Формат: 16 цифр, например, <code>0000-0000-0000-0000</code>.
-                        </p>
-                        <div class="text-right">
-                          <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
-                             target="_blank"
-                             class="popover-link">
-                            Подробнее <i class="fas fa-external-link-alt ml-1"></i>
-                          </a>
+            <!-- Идентификаторы -->
+            <div class="mb-4">
+              <h6 class="section-title mb-3"><i class="bi bi-fingerprint me-2"></i>Идентификаторы</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label d-flex align-items-center">
+                    ORCID
+                    <i class="bi bi-info-circle hover-icon ms-2" (click)="op.show($event)"></i>
+                    <p-popover #op
+                               styleClass="fixed-width-popover"
+                               [style]="{maxWidth: '400px', width: '100%'}">
+                      <div class="popover-content">
+                        <div class="popover-header">
+                          <h5 class="popover-title">Что такое ORCID?</h5>
+                        </div>
+                        <div class="popover-body">
+                          <p class="popover-text">
+                            ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
+                            который позволяет установить связь между авторами и их работами.
+                            Формат: 16 цифр и/или латинских букв, например, <code>0000-0000-0000-0000</code>.
+                          </p>
+                          <div class="text-right">
+                            <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
+                               target="_blank"
+                               class="popover-link">
+                              Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </p-popover>
-                </label>
-                <input type="text" class="form-control"
-                       mask="0000-0000-0000-0000"
-                       [readonly]="!allowToChange()"
-                       formControlName="orcId">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">
-                  РИНЦ ID (Author ID)
-                  <i class="fas fa-question-circle hover-icon" (click)="opRinc.show($event)"></i>
-                  <p-popover #opRinc
-                             styleClass="fixed-width-popover"
-                             [style]="{maxWidth: '400px', width: '100%'}">
-                    <div class="popover-content">
-                      <div class="popover-header">
-                        <h5 class="popover-title">Что такое РИНЦ ID?</h5>
-                      </div>
-                      <div class="popover-body">
-                        <p class="popover-text">
-                          РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
-                          Позволяет однозначно идентифицировать исследователя и его публикации. Формат:
-                          <code>0000-0000</code> (8 цифр).
-                        </p>
-                        <div class="text-right">
-                          <a href="https://www.hse.ru/scholarly-integration/howtofindid"
-                             target="_blank"
-                             class="popover-link">
-                            Подробнее <i class="fas fa-external-link-alt ml-1"></i>
-                          </a>
+                    </p-popover>
+                  </label>
+                  <input type="text" class="form-control text-uppercase"
+                         mask="SSSS-SSSS-SSSS-SSSS"
+                         placeholder="0000-0000-0000-0000"
+                         [patterns]="customOrcidPattern"
+                         [showMaskTyped]="true"
+                         formControlName="orcId"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label d-flex align-items-center">
+                    РИНЦ ID (Author ID)
+                    <i class="bi bi-info-circle hover-icon ms-2" (click)="opRinc.show($event)"></i>
+                    <p-popover #opRinc
+                               styleClass="fixed-width-popover"
+                               [style]="{maxWidth: '400px', width: '100%'}">
+                      <div class="popover-content">
+                        <div class="popover-header">
+                          <h5 class="popover-title">Что такое РИНЦ ID?</h5>
+                        </div>
+                        <div class="popover-body">
+                          <p class="popover-text">
+                            РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
+                            Позволяет однозначно идентифицировать исследователя и его публикации.
+                          </p>
+                          <div class="text-right">
+                            <a href="https://www.hse.ru/scholarly-integration/howtofindid"
+                               target="_blank"
+                               class="popover-link">
+                              Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </p-popover>
-                </label>
-                <input type="text" class="form-control"
-                       mask="0000-0000"
-                       [readonly]="!allowToChange()"
-                       formControlName="rincId">
+                    </p-popover>
+                  </label>
+                  <input type="text" class="form-control"
+                         formControlName="rincId"
+                         [maxLength]="20"
+                         appNumbersOnly
+                         [readOnly]="this.profileUser.id !== this.currentUser.id">
+                </div>
               </div>
-              <div class="col-md-4">
-              </div>
+            </div>
 
-              <!-- Ученая информация -->
-              <div class="col-md-4">
-                <label class="form-label">Ученая степень</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="academicDegree"
-                       [maxlength]="30">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Ученое звание</label>
-                <input type="text" class="form-control"
-                       [readonly]="!allowToChange()"
-                       formControlName="academicTitle"
-                       [maxlength]="30">
+            <!-- Академическая информация -->
+            <div class="mb-2">
+              <h6 class="section-title mb-3"><i class="bi bi-mortarboard me-2"></i>Академическая информация</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Ученая степень</label>
+                  <input type="text" class="form-control"
+                         formControlName="academicDegree"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="100">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Ученое звание</label>
+                  <input type="text" class="form-control"
+                         formControlName="academicTitle"
+                         [readOnly]="this.profileUser.id !== this.currentUser.id"
+                         [maxlength]="100">
+                </div>
               </div>
             </div>
           </form>
-        </div>
-
-        <!-- Кнопки управления -->
-        <div *ngIf="showButtonsToChange()" class="card-footer">
-          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <button type="button" class="btn btn-secondary"
-                    *ngIf="editProfile"
-                    (click)="cancelProfile()">
-              Отменить
-            </button>
-            <button type="button" class="btn btn-primary"
-                    *ngIf="!editProfile"
-                    (click)="changeProfile()">
-              Изменить
-            </button>
-            <button type="button" class="btn btn-success"
-                    *ngIf="editProfile"
-                    [disabled]="formProfile.invalid"
-                    (click)="saveProfile()">
-              Сохранить
-            </button>
-          </div>
         </div>
       </div>
 
 
       <!-- Секция безопасности -->
-      <div *ngIf="showButtonsToChange()"
-           class="card shadow-sm mt-4">
+      <div *ngIf="showButtonsToChange()" class="card shadow-sm mt-4">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Безопасность</h5>
         </div>
         <div class="card-body">
-          <form [formGroup]="securityForm">
-            <!-- Основная кнопка -->
-            <div *ngIf="!editPassword">
-              <button type="button"
-                      class="btn btn-outline-primary"
-                      (click)="initiatePasswordChange()">
-                Изменить пароль
-              </button>
-            </div>
-
+          <form [formGroup]="securityForm" (ngSubmit)="handlePasswordChange()">
             <!-- Текущий пароль -->
-            <div *ngIf="editPassword && !showNewPasswordFields" class="password-section">
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label">Текущий пароль</label>
-                  <input type="password"
-                         class="form-control"
-                         formControlName="currentPassword"
-                         [class.is-invalid]="securityForm.get('currentPassword')?.invalid">
-                  <div class="invalid-feedback">
-                    <div *ngIf="securityForm.get('currentPassword')?.hasError('required')">
-                      Введите текущий пароль
-                    </div>
-                    <div *ngIf="securityForm.get('currentPassword')?.hasError('incorrect')">
-                      Неверный пароль
-                    </div>
-                  </div>
+            <div class="mb-3 position-relative">
+              <label for="currentPassword" class="form-label">Текущий пароль</label>
+              <input [type]="showCurrentPassword ? 'text' : 'password'"
+                     id="currentPassword"
+                     class="form-control pe-4"
+                     formControlName="currentPassword"
+                     [class.is-invalid]="securityForm.get('currentPassword')?.invalid">
+              <i class="bi bi-eye{{ showCurrentPassword ? '-slash' : '' }} password-toggle"
+                 (click)="showCurrentPassword = !showCurrentPassword"></i>
+              <div class="invalid-feedback">
+                <div *ngIf="securityForm.get('currentPassword')?.hasError('required')">
+                  Введите текущий пароль
                 </div>
-
-                <div class="col-12">
-                  <div class="d-flex gap-2">
-                    <button type="button"
-                            class="btn btn-primary"
-                            (click)="verifyCurrentPassword()"
-                            [disabled]="securityForm.get('currentPassword')?.invalid">
-                      Проверить
-                    </button>
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            (click)="cancelPasswordChange()">
-                      Отмена
-                    </button>
-                  </div>
+                <div *ngIf="securityForm.get('currentPassword')?.hasError('incorrect')">
+                  Неверный пароль
                 </div>
               </div>
             </div>
 
-            <!-- Новый пароль (оставляем как было) -->
-            <div *ngIf="showNewPasswordFields" class="new-password-section">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Новый пароль</label>
-                  <input type="password"
-                         class="form-control"
-                         formControlName="password"
-                         [class.is-invalid]="securityForm.get('password')?.invalid">
-                  <div *ngIf="securityForm.get('password')?.invalid"
-                       class="invalid-feedback">
-                    Минимум 8 символов
+            <!-- Новый пароль -->
+            <div class="mb-3 position-relative">
+              <label for="newPassword" class="form-label d-flex align-items-center">
+                Новый пароль
+                <i class="bi bi-info-circle ms-2 text-primary hover-icon"
+                   (click)="passwordRulesPopover.show($event)"></i>
+                <p-popover #passwordRulesPopover
+                           styleClass="password-rules-popover"
+                           [style]="{maxWidth: '400px'}">
+                  <div class="popover-content">
+                    <div class="popover-header">
+                      <h5 class="popover-title">Требования к паролю</h5>
+                    </div>
+                    <div class="popover-body">
+                      <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Минимум 8 символов</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Хотя бы одна цифра</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Хотя бы одна заглавная буква</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{'Спецсимволы (!@#$%^&*)'}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </p-popover>
+              </label>
+              <input [type]="showNewPassword ? 'text' : 'password'"
+                     id="newPassword"
+                     class="form-control pe-4"
+                     formControlName="password"
+                     [class.is-invalid]="securityForm.get('password')?.invalid"
+                     (input)="checkPasswordStrength()">
+              <i class="bi bi-eye{{ showNewPassword ? '-slash' : '' }} password-toggle"
+                 (click)="showNewPassword = !showNewPassword"></i>
+              <div *ngIf="securityForm.get('password')?.value && securityForm.get('password')?.valid"
+                   class="password-strength mt-2">
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar"
+                       [ngClass]="getPasswordStrengthClass()"
+                       [style.width.%]="getPasswordStrength()">
                   </div>
                 </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Подтвердите пароль</label>
-                  <input type="password"
-                         class="form-control"
-                         formControlName="confirmedPassword"
-                         [class.is-invalid]="securityForm.hasError('passwordMismatch')">
-                  <div *ngIf="securityForm.hasError('passwordMismatch')"
-                       class="invalid-feedback">
-                    Пароли не совпадают
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <div class="d-flex gap-2">
-                    <button type="button"
-                            class="btn btn-success"
-                            (click)="updatePassword()"
-                            [disabled]="securityForm.invalid">
-                      Сохранить
-                    </button>
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            (click)="cancelPasswordChange()">
-                      Отмена
-                    </button>
-                  </div>
-                </div>
+                <small class="text-muted">Надежность: {{ getPasswordStrengthText() }}</small>
               </div>
+              <div *ngIf="securityForm.get('password')?.invalid && securityForm.get('password')?.touched"
+                   class="invalid-feedback">
+                Пароль не соответствует требованиям
+              </div>
+            </div>
+
+            <!-- Подтверждение пароля -->
+            <div class="mb-4 position-relative">
+              <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+              <input [type]="showConfirmPassword ? 'text' : 'password'"
+                     id="confirmPassword"
+                     class="form-control pe-4"
+                     formControlName="confirmedPassword"
+                     [class.is-invalid]="securityForm.hasError('passwordMismatch')">
+              <i class="bi bi-eye{{ showConfirmPassword ? '-slash' : '' }} password-toggle"
+                 (click)="showConfirmPassword = !showConfirmPassword"></i>
+              <div class="invalid-feedback">
+                Пароли не совпадают
+              </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-flex gap-2">
+              <button type="submit"
+                      class="btn btn-primary flex-grow-1"
+                      [disabled]="securityForm.invalid || isUpdating">
+                <span *ngIf="!isUpdating">Изменить пароль</span>
+                <span *ngIf="isUpdating" class="d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Сохранение...
+          </span>
+              </button>
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="resetPasswordForm()">
+                Отмена
+              </button>
             </div>
           </form>
         </div>

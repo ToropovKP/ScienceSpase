@@ -1,21 +1,21 @@
 export class Comment {
-  private _id!: string;
+  private _id!: bigint;
   private _jobId!: bigint;
   private _userId!: bigint;
   private _firstName!: string;
   private _lastName!: string;
-  private _middleName!: string;
   private _message!: string;
-  private _dateTime!: Date;
+  private _dateTime!: Date
+  private _read!: boolean;
 
   constructor() {
   }
 
-  get id(): string {
+  get id(): bigint {
     return this._id;
   }
 
-  set id(value: string) {
+  set id(value: bigint) {
     this._id = value;
   }
 
@@ -51,14 +51,6 @@ export class Comment {
     this._lastName = value;
   }
 
-  get middleName(): string {
-    return this._middleName;
-  }
-
-  set middleName(value: string) {
-    this._middleName = value;
-  }
-
   get message(): string {
     return this._message;
   }
@@ -73,5 +65,13 @@ export class Comment {
 
   set dateTime(value: Date) {
     this._dateTime = value;
+  }
+
+  get read(): boolean {
+    return this._read;
+  }
+
+  set read(value: boolean) {
+    this._read = value;
   }
 }

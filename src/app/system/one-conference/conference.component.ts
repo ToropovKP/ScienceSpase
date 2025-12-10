@@ -9,26 +9,30 @@ import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
 import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
-import {conferenceStatusMap} from "../../app.constants";
+import {conferenceStatusMap, orcidPattern} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {MenuItem, MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../shared/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
+import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
+import {Tooltip} from "primeng/tooltip";
+import {BreadcrumbModule} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, PopoverModule],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, BreadcrumbModule, PopoverModule, NumbersOnlyDirective, Tooltip],
   providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
+  protected readonly customOrcidPattern = orcidPattern;
   protected readonly DateService = DateService;
 
   sections: Section[] = []
@@ -44,6 +48,9 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   currentUserJobId!: string;
 
   addingJob: boolean = false;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -84,7 +91,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
-      orcId: new FormControl('', [Validators.required, Validators.minLength(12)]),
+      orcId: new FormControl('', /*[Validators.required, Validators.minLength(12)]*/),
       rincId: new FormControl('', /*[Validators.required, Validators.minLength(8)]*/),
       section: new FormControl('', [Validators.required]),
       files: new FormControl('', [Validators.required]),
@@ -99,6 +106,13 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
       this.httpService.getConference(this.currentConferenceId).then((data) => {
         this.currentConference = data;
+        this.homeItem = {
+          icon: 'bi bi-house-door',
+          routerLink: '/'
+        };
+        this.breadcrumbItems = [
+          { label: this.getShortConferenceTitle() }
+        ]
         this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
         this.currentAdmins = this.currentConference.admins;
 
@@ -125,7 +139,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           detail: 'Ошибка на стороне сервера',
           life: 3000
         });
-        if (error.status == '404') {
+        if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
       });
@@ -160,6 +174,10 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     });
   }
 
+  isUserAuthorized(): boolean {
+    return this.currentUser !== undefined && this.currentUser != null;
+  }
+
   isAdmin(): boolean {
     return this.authService.hasRole('ADMIN');
   }
@@ -184,6 +202,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
   isReviewer(): boolean {
     return this.authService.hasRole('REVIEWER')
+  }
+
+  getShortConferenceTitle(): string {
+    const title = this.currentConference?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
   get authors(): FormArray {
@@ -223,12 +246,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       this.authors.push(this.createAuthor());
     }
   }
-
-  // addAuthor() {
-  //   if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
-  //     this.authors.push(this.createAuthor());
-  //   }
-  // }
 
   checkUsers() {
     if (this.currentUser && this.currentUser.verified) {
@@ -311,7 +328,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   uploadedFilesMetadata: FileMetadata[] = [];
   needToRemoveFilesMetadata: FileMetadata[] = [];
 
+  uploadingFiles: boolean = false;
+
   onSelectedFiles(event: Event) {
+    this.uploadingFiles = true;
+
     this.files = []
     this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
     this.uploadedFilesMetadata = [];
@@ -340,6 +361,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           detail: 'Файлы загружены',
           life: 3000
         });
+        this.uploadingFiles = false;
       }).catch(error => {
         this.messageService.add({
           severity: 'error',
@@ -348,6 +370,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           life: 3000
         });
         (event.target as HTMLInputElement).value = '';
+        this.uploadingFiles = false;
       });
     }
   }
@@ -375,11 +398,10 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
     this.savingJob = true;
     let requestUser = {
-      "id": this.currentUser.id,
       "phone": this.formAddJob.value.phone,
       "academicDegree": this.formAddJob.value.academicDegree,
       "academicTitle": this.formAddJob.value.academicTitle,
-      "orcId": this.formAddJob.value.orcId,
+      "orcId": this.formAddJob.value.orcId ? (this.formAddJob.value.orcId).toUpperCase() : undefined,
       "rincId": this.formAddJob.value.rincId,
       "organization": this.formAddJob.value.organization,
     }
@@ -439,7 +461,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         life: 3000
       });
 
-      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid))
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), false)
       .then(() => {
         this.needToRemoveFilesMetadata = []
         this.uploadedFilesMetadata = []

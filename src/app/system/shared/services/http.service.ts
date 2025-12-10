@@ -172,6 +172,11 @@ export class HttpService {
     return await firstValueFrom(this.http.post<Job>(`${baseUrl}/api/v1/job`, JSON.stringify(request), this.httpOptions));
   }
 
+  async updateJob(request: object): Promise<Job> {
+    this.updateHeaders();
+    return await firstValueFrom(this.http.put<Job>(`${baseUrl}/api/v1/job`, JSON.stringify(request), this.httpOptions));
+  }
+
   async getUserOneJob(id: string): Promise<Job> {
     this.updateHeaders();
     return await firstValueFrom(this.http.get<Job>(`${baseUrl}/api/v1/job?id=${id}`, this.httpOptions));
@@ -217,12 +222,12 @@ export class HttpService {
     }));
   }
 
-  async deleteFiles(files: string[]): Promise<void> {
+  async deleteFiles(files: string[], existsLinkedJob: boolean): Promise<void> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${localStorage.getItem('token')}`,
       Accept: 'application/json',
     });
-    return await firstValueFrom(this.http.post<void>(`${baseUrl}/api/v1/files/deleteFiles`, files, {
+    return await firstValueFrom(this.http.post<void>(`${baseUrl}/api/v1/files/deleteFiles?existsLinkedJob=${existsLinkedJob}`, files, {
       observe: 'body',
       headers: headers
     }));

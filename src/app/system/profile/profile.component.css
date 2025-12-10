@@ -109,6 +109,95 @@
   transform: scale(1.1);
 }
 
+/* Новые стили */
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--old-accent);
+}
+
+.readonly-style {
+  background-color: var(--old-bg-row);
+  cursor: not-allowed;
+}
+
+/* Стили для кнопок в шапке */
+.card-header .btn-outline-light {
+  border-color: rgba(255,255,255,0.5);
+  color: white;
+  transition: all 0.2s;
+}
+
+.card-header .btn-outline-light:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: white;
+}
+
+.card-header .btn-light {
+  background: white;
+  color: var(--old-accent);
+  transition: all 0.2s;
+}
+
+.card-header .btn-light:hover {
+  background: rgba(255,255,255,0.9);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 38px;
+  cursor: pointer;
+  color: var(--old-accent);
+  transition: all 0.2s;
+}
+
+.password-toggle:hover {
+  color: var(--old-accent-hover);
+}
+
+/* Попап с правилами */
+::ng-deep .password-rules-popover {
+  font-family: inherit;
+}
+
+::ng-deep .password-rules-popover .p-popover-content {
+  padding: 0;
+}
+
+.popover-content {
+  padding: 1rem;
+}
+
+.popover-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.popover-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.popover-body {
+  padding: 1rem;
+}
+
+/* Индикатор сложности пароля (появляется только при вводе) */
+.password-strength {
+  transition: all 0.3s ease;
+}
+
+.progress {
+  background-color: #e9ecef;
+  border-radius: 2px;
+}
+
+.progress-bar {
+  transition: width 0.5s ease;
+}
+
 ::ng-deep .fixed-width-popover {
   max-width: 400px !important;
   width: 400px !important;

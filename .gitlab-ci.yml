@@ -1,0 +1,44 @@
+stages:
+  - build
+  - deploy
+
+Build frontend:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/kograf-frontend:${CI_COMMIT_SHORT_SHA}"
+    - echo "${CI_REGISTRY_IMAGE}/kograf-frontend:${CI_COMMIT_SHORT_SHA}"
+  
+Deploy:
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  stage: deploy
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "mkdir -p '$DEPLOY_PATH'/frontend/"
+    - scp -P $SSH_PORT docker-compose.yaml $SSH_USER@$SSH_HOST:$DEPLOY_PATH/frontend/docker-compose.yaml
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "echo VERSION='$CI_COMMIT_SHORT_SHA' > '$DEPLOY_PATH'/frontend/.env"
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker login -u '$CI_REGISTRY_USER'  -p '$CI_REGISTRY_PASSWORD' '$CI_REGISTRY'"
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker compose -f '$DEPLOY_PATH'/frontend/docker-compose.yaml pull"
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker compose -f '$DEPLOY_PATH'/frontend/docker-compose.yaml up -d"
+    - sleep 10
+    - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker compose -f '$DEPLOY_PATH'/frontend/docker-compose.yaml ps -a"
+  after_script:
+    - rm -rf ~/.ssh

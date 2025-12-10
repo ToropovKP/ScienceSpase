@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../shared/model/user";
@@ -15,23 +15,31 @@ import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToastModule} from "primeng/toast";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 import {filter} from "rxjs/operators";
+import {orcidPattern} from "../../app.constants";
+import {FileMetadata} from "../shared/model/file.metadata";
+import {ConfirmPopupModule} from "primeng/confirmpopup";
+import {LinkifyPipe} from "../shared/pipes/linkify.pipe";
+import {Breadcrumb} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe, ConfirmPopupModule, LinkifyPipe, Breadcrumb],
   providers: [ConfirmationService, MessageService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
+
   protected readonly DateService = DateService;
+  protected readonly customOrcidPattern = orcidPattern;
 
   reviewsMarks = [1, 2, 3, 4, 5];
   model: Record<string, number> = {}
@@ -43,12 +51,18 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   currentConference!: Conference;
 
   formAddJob!: FormGroup;
+  formUpdateJob!: FormGroup;
   formReview!: FormGroup;
   formComment!: FormGroup;
   currentUser!: User;
 
   existReviewByCurrentUser: boolean = false;
   reviewByCurrentUser!: Review;
+
+  updatingJob: boolean = false;
+
+  homeItem: MenuItem | undefined;
+  breadcrumbItems: MenuItem[] | undefined;
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -95,15 +109,19 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   initializeForms() {
     this.formAddJob = this.formBuilder.group({
       title: new FormControl('',),
-      authors: this.formBuilder.array([]),
       description: new FormControl('',),
       phone: new FormControl('',),
+      email: new FormControl('',),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
       orcId: new FormControl('',),
       rincId: new FormControl('',),
       section: new FormControl('',),
+    })
+
+    this.formUpdateJob = this.formBuilder.group({
+      files: new FormControl('', [Validators.required])
     })
 
     this.formComment = this.formBuilder.group({
@@ -203,6 +221,32 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.httpService.getUserOneJob(this.currentJobId).then((data) => {
           this.currentJob = data
+          this.currentJob.files = this.currentJob.files.sort((a, b) => a.uploadTime > b.uploadTime ? 1 : -1)
+
+          this.homeItem = {
+            icon: 'bi bi-house-door',
+            routerLink: '/'
+          };
+          this.breadcrumbItems = [];
+
+          if (this.currentJob.userId !== this.currentUser.id) {
+            if (!this.isReviewer()) {
+              this.breadcrumbItems.push(
+                  {
+                    label: this.getShortConferenceTitle(),
+                    routerLink: `/conference/${this.currentJob.conferenceId}`
+                  },
+                  {label: this.currentJob.userName});
+            }
+          } else {
+            this.breadcrumbItems.push({label: 'Мои статьи', routerLink: `/jobs`},
+                {
+                  label: this.getShortConferenceTitle(),
+                  routerLink: `/conference/${this.currentJob.conferenceId}`
+                });
+          }
+
+          this.breadcrumbItems.push({label: this.getShortJobTitle()});
 
           const pattern2 = /^\/jobs\/.+$/;
           if (currentPath.match(pattern2)) {
@@ -256,7 +300,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             detail: 'Ошибка на стороне сервера',
             life: 3000
           });
-          if (error.status == '404') {
+          if (error.status === 404) {
             this.router.navigate(['not-found']);
           }
         })
@@ -268,13 +312,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   updateUserInfo() {
     this.httpService.getUserInfoById(String(this.currentJob.userId)).then((data) => {
       this.jobUser = data
-      this.authors.clear();
-      this.currentJob.coAuthors.forEach(author => {
-        this.authors.push(this.createAuthor(author.fullName, author.organization, author.email));
-      })
       this.formAddJob.controls['title'].setValue(this.currentJob.title)
       this.formAddJob.controls['description'].setValue(this.currentJob.description)
       this.formAddJob.controls['phone'].setValue(this.jobUser.phone)
+      this.formAddJob.controls['email'].setValue(this.jobUser.email)
       this.formAddJob.controls['organization'].setValue(this.jobUser.organization)
       this.formAddJob.controls['academicDegree'].setValue(this.jobUser.academicDegree)
       this.formAddJob.controls['academicTitle'].setValue(this.jobUser.academicTitle)
@@ -330,6 +371,16 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     return false;
   }
 
+  getShortConferenceTitle(): string {
+    const title = this.currentJob?.conferenceTitle || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
+  }
+
+  getShortJobTitle(): string {
+    const title = this.currentJob?.title || '';
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
+  }
+
   updateMark(tag: string, mark: number) {
     this.model[tag] = mark;
   }
@@ -346,18 +397,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       review.userId = this.currentUser.id;
       this.reviewByCurrentUser = review;
     })
-  }
-
-  get authors(): FormArray {
-    return this.formAddJob.get('authors') as FormArray;
-  }
-
-  createAuthor(fullName: string = '', organization: string = '', email: string = ''): FormGroup {
-    return this.formBuilder.group({
-      fullName: [fullName],
-      organization: [organization],
-      email: [email],
-    });
   }
 
   downloadFile(fileName: string) {
@@ -391,15 +430,17 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       "firstName": this.currentUser.firstName,
       "lastName": this.currentUser.lastName,
       "middleName": this.currentUser.middleName,
-      "message": this.formComment.value.message
+      "message": this.formComment.value.message.trim()
     };
     this.chatService.sendMessage(`/app/send`, message);
     this.formComment.reset()
+    this.resetTextarea();
   }
 
   confirmDelete(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
+      key: 'confirmPopup',
       message: 'Вы уверены, что хотите удалить статью?<br>Все связанные с ней данные и файлы будут удалены.',
       header: 'Подтверждение',
       closable: true,
@@ -425,11 +466,165 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
             life: 3000
           });
         })
-      },
-      reject: () => {
-        this.messageService.add({severity: 'secondary', summary: 'Отменено', detail: 'Действие отменено', life: 3000});
       }
     });
+  }
+
+  confirmDeleteFile(event: Event, uuid: string) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      key: 'confirmDialog',
+      message: 'Удалить файл?',
+      rejectButtonProps: {
+        label: 'Отменить',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Да',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.deleteFile(uuid)
+      }
+    });
+  }
+
+  deleteFile(uuid: string) {
+    this.httpService.deleteFiles([uuid], true).then(() => {
+      this.currentJob.files = this.currentJob.files.filter(file => file.uuid !== uuid);
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось удалить файл',
+        life: 3000
+      });
+    });
+  }
+
+  savingJob: boolean = false;
+
+  addJob() {
+    this.updatingJob = true;
+  }
+
+  cancelJob() {
+    this.updatingJob = false;
+    this.formUpdateJob.reset();
+  }
+
+  files: File[] = [];
+  uploadedFilesMetadata: FileMetadata[] = [];
+  needToRemoveFilesMetadata: FileMetadata[] = [];
+
+  onSelectedFiles(event: Event) {
+    this.files = []
+    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
+    this.uploadedFilesMetadata = [];
+    let files = (event.target as HTMLInputElement).files;
+
+    if (files !== null) {
+      for (let i = 0; i < files.length; i++) {
+        let file = files.item(i);
+        if (file !== null) {
+          this.files.push(file);
+        }
+      }
+    }
+
+    if (this.files.length !== 0) {
+      const formData: FormData = new FormData();
+      this.files.forEach((file) => {
+        formData.append("files", file);
+      })
+
+      this.httpService.uploadFiles(formData).then((data) => {
+        this.uploadedFilesMetadata.push(...data)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успешно',
+          detail: 'Файлы загружены',
+          life: 3000
+        });
+      }).catch(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Возникла непредвиденная ошибка',
+          detail: 'Не удалось загрузить файлы',
+          life: 3000
+        });
+        (event.target as HTMLInputElement).value = '';
+      });
+    }
+  }
+
+  updateJob() {
+    this.savingJob = true;
+
+    let filesForUpload: object[] = []
+    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
+
+    let request = {
+      "id": this.currentJob.id,
+      "files": filesForUpload
+    };
+    this.httpService.updateJob(request).then((data) => {
+      this.updatingJob = false;
+      this.savingJob = false;
+      this.currentJob = data
+      this.currentJob.files = this.currentJob.files.sort((a, b) => a.uploadTime > b.uploadTime ? 1 : -1)
+      this.formUpdateJob.reset()
+
+      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), false)
+      .then(() => {
+        this.needToRemoveFilesMetadata = []
+        this.uploadedFilesMetadata = []
+        this.files = []
+      });
+    }).catch(error => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Возникла непредвиденная ошибка',
+        detail: 'Не удалось добавить файлы',
+        life: 3000
+      });
+      this.savingJob = false;
+    });
+  }
+
+  handleEnterKey(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+    const messageControl = this.formComment.get('message');
+
+    if (!messageControl?.value?.trim()) {
+      keyboardEvent.preventDefault();
+      return;
+    }
+
+    if (!keyboardEvent.shiftKey) {
+      if (!this.formComment.invalid) {
+        this.createComment();
+      }
+      keyboardEvent.preventDefault();
+    }
+  }
+
+  resetTextarea() {
+    const textarea = this.messageInput.nativeElement;
+    textarea.style.height = 'auto';
+    textarea.rows = 1;
+    this.formComment.patchValue({message: ''});
+  }
+
+  adjustTextareaHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    const maxHeight = parseFloat(getComputedStyle(textarea).maxHeight);
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
   }
 
   toPage(link: string) {

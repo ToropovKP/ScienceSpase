@@ -79,3 +79,20 @@
   color: var(--old-danger) !important;
 }
 
+.p-breadcrumb {
+  background: transparent !important;
+  border: none;
+  padding: 0.5rem 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+::ng-deep .p-breadcrumb {
+  background: transparent !important;
+  border: none;
+  padding: 0.5rem 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+::ng-deep .p-breadcrumb .p-menuitem-text {
+  color: var(--old-h1-accent);
+}

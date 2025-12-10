@@ -8,7 +8,7 @@ interface DateValidationErrors {
 export function dateValidator(): ValidatorFn {
   return (control: AbstractControl): DateValidationErrors | null => {
     const value = new Date(control.value);
-    const minYear = 1900;
+    const minYear = new Date().getFullYear();
     const maxYear = new Date().getFullYear() + 5;
 
     if (value.getFullYear() < minYear) {
