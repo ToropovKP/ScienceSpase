@@ -9,8 +9,15 @@
           <span class="visually-hidden">Загрузка...</span>
         </div>
       </div>
-      <div *ngIf="!loadingJobs && !loadingConference">
-        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div *ngIf="!loadingJobs && !loadingConference">
+          <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+        </div>
+        <button *ngIf="!loadingJobs && jobs?.length" class="btn btn-primary d-flex align-items-center"
+                (click)="addJob()">
+          <span>Добавить работу</span>
+        </button>
       </div>
 
       <div *ngIf="loadingJobs" class="text-center">
@@ -23,6 +30,14 @@
       <div *ngIf="!loadingJobs && !jobs?.length" class="text-center py-5 bg-light rounded-3">
         <div class="h4 text-muted mb-3">Нет добавленных статей</div>
         <i class="bi bi-file-earmark-x fs-1 text-secondary"></i>
+
+        <!-- Кнопка удаления -->
+        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
+          <button class="btn btn-primary px-4"
+                  (click)="addJob()">
+            Добавить работу
+          </button>
+        </div>
       </div>
 
       <!-- Список статей -->

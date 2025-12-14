@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {Section} from "../shared/model/section";
 import {map, Subject, takeUntil} from "rxjs";
@@ -7,18 +7,14 @@ import {Conference} from "../shared/model/conference";
 import {User} from "../shared/model/user";
 import {HttpService} from "../shared/services/http.service";
 import {UserBase} from "../shared/model/user.base";
-import {AuthorDto} from "../shared/dto/author.dto";
 import {CommonModule} from "@angular/common";
-import {conferenceStatusMap, orcidPattern} from "../../app.constants";
-import {NgxMaskDirective} from "ngx-mask";
+import {conferenceStatusMap} from "../../app.constants";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MenuItem, MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {FileMetadata} from "../shared/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
-import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
 import {Tooltip} from "primeng/tooltip";
 import {BreadcrumbModule} from "primeng/breadcrumb";
 
@@ -26,34 +22,27 @@ import {BreadcrumbModule} from "primeng/breadcrumb";
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ToastModule, BreadcrumbModule, PopoverModule, NumbersOnlyDirective, Tooltip],
+  imports: [ReactiveFormsModule, CommonModule, ToastModule, BreadcrumbModule, PopoverModule, Tooltip],
   providers: [MessageService]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
-  protected readonly customOrcidPattern = orcidPattern;
   protected readonly DateService = DateService;
-
-  sections: Section[] = []
-  currentSection!: Section | undefined;
 
   currentConference: Conference = new Conference();
   currentConferenceId!: string;
   countUsers: number = 0;
   currentAdmins!: UserBase[];
+  sections: Section[] = []
 
-  formAddJob!: FormGroup;
   currentUser!: User;
   currentUserJobId!: string;
-
-  addingJob: boolean = false;
 
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private formBuilder: FormBuilder,
-              private router: Router,
+  constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
               private messageService: MessageService,
@@ -73,29 +62,12 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         this.currentUser = user;
       }
     });
-    this.initializeForms();
     this.loadAllData()
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  initializeForms() {
-    this.formAddJob = this.formBuilder.group({
-      title: new FormControl('', [Validators.required]),
-      authors: this.formBuilder.array([this.createAuthor()]),
-      description: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
-      organization: new FormControl('', [Validators.required]),
-      academicDegree: new FormControl('',),
-      academicTitle: new FormControl('',),
-      orcId: new FormControl('', /*[Validators.required, Validators.minLength(12)]*/),
-      rincId: new FormControl('', /*[Validators.required, Validators.minLength(8)]*/),
-      section: new FormControl('', [Validators.required]),
-      files: new FormControl('', [Validators.required]),
-    })
   }
 
   loadingConference: boolean = true;
@@ -111,7 +83,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           routerLink: '/'
         };
         this.breadcrumbItems = [
-          { label: this.getShortConferenceTitle() }
+          {label: this.getShortConferenceTitle()}
         ]
         this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
         this.currentAdmins = this.currentConference.admins;
@@ -150,13 +122,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     if (!this.currentUser) {
       return;
     }
-    this.formAddJob.controls['phone'].setValue(this.currentUser.phone)
-    this.formAddJob.controls['organization'].setValue(this.currentUser.organization)
-    this.formAddJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
-    this.formAddJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
-    this.formAddJob.controls['orcId'].setValue(this.currentUser.orcId)
-    this.formAddJob.controls['rincId'].setValue(this.currentUser.rincId)
-
     this.httpService.getUserJobs(String(this.currentUser.id)).then((data) => {
       data.forEach((job) => {
         if (String(job.conferenceId) === this.currentConferenceId) {
@@ -209,44 +174,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
 
-  get authors(): FormArray {
-    return this.formAddJob.get('authors') as FormArray;
-  }
-
-  createAuthor(fullName: string = '', organization: string = '', email: string = ''): FormGroup {
-    return this.formBuilder.group({
-      fullName: [fullName],
-      organization: [organization],
-      email: [email],
-    });
-  }
-
-  disableAuthor(index: number) {
-    const author = this.authors.at(index);
-    if (author.get('fullName')?.value !== '') {
-      author.get('fullName')?.disable();
-      author.get('organization')?.disable();
-      author.get('email')?.disable();
-      if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
-        this.authors.push(this.createAuthor());
-      }
-    }
-  }
-
-  enableAuthor(index: number) {
-    const author = this.authors.at(index);
-    author.get('fullName')?.enable();
-    author.get('organization')?.enable();
-    author.get('email')?.enable();
-  }
-
-  removeAuthor(index: number) {
-    this.authors.removeAt(index);
-    if (this.authors.value.length === 4) {
-      this.authors.push(this.createAuthor());
-    }
-  }
-
   checkUsers() {
     if (this.currentUser && this.currentUser.verified) {
       this.toPage(`/conference/${this.currentConferenceId}/jobs`);
@@ -289,8 +216,10 @@ export class ConferenceComponent implements OnInit, OnDestroy {
 
   addJob() {
     if (this.currentUser && this.currentUser.verified) {
-      this.addingJob = true;
-      this.updateUserInfo()
+      let navigationExtras: NavigationExtras = {
+        queryParams: {'conferenceId': this.currentConferenceId},
+      };
+      this.toPageExtras(`/jobs/create`, navigationExtras)
     } else if (!this.currentUser) {
       this.messageService.add({
         severity: 'warn',
@@ -308,179 +237,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     }
   }
 
-  cancelJob() {
-    this.addingJob = false;
-    this.formAddJob.reset();
-    this.authors.clear();
-    const control = this.formAddJob.controls['authors'] as FormArray;
-    control.clear()
-    control.push(this.createAuthor())
-  }
-
   openJob() {
     let navigationExtras: NavigationExtras = {
       queryParams: {'conferenceId': this.currentConferenceId},
     };
     this.toPageExtras(`/jobs`, navigationExtras)
-  }
-
-  files: File[] = [];
-  uploadedFilesMetadata: FileMetadata[] = [];
-  needToRemoveFilesMetadata: FileMetadata[] = [];
-
-  uploadingFiles: boolean = false;
-
-  onSelectedFiles(event: Event) {
-    this.uploadingFiles = true;
-
-    this.files = []
-    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...this.uploadedFilesMetadata];
-    this.uploadedFilesMetadata = [];
-    let files = (event.target as HTMLInputElement).files;
-
-    if (files !== null) {
-      for (let i = 0; i < files.length; i++) {
-        let file = files.item(i);
-        if (file !== null) {
-          this.files.push(file);
-        }
-      }
-    }
-
-    if (this.files.length !== 0) {
-      const formData: FormData = new FormData();
-      this.files.forEach((file) => {
-        formData.append("files", file);
-      })
-
-      this.httpService.uploadFiles(formData).then((data) => {
-        this.uploadedFilesMetadata.push(...data)
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Успешно',
-          detail: 'Файлы загружены',
-          life: 3000
-        });
-        this.uploadingFiles = false;
-      }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось загрузить файлы',
-          life: 3000
-        });
-        (event.target as HTMLInputElement).value = '';
-        this.uploadingFiles = false;
-      });
-    }
-  }
-
-  savingJob: boolean = false;
-
-  createJob() {
-    if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
-      return;
-    } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-      return;
-    }
-
-    this.savingJob = true;
-    let requestUser = {
-      "phone": this.formAddJob.value.phone,
-      "academicDegree": this.formAddJob.value.academicDegree,
-      "academicTitle": this.formAddJob.value.academicTitle,
-      "orcId": this.formAddJob.value.orcId ? (this.formAddJob.value.orcId).toUpperCase() : undefined,
-      "rincId": this.formAddJob.value.rincId,
-      "organization": this.formAddJob.value.organization,
-    }
-
-    this.httpService.updateUserInfoByJob(requestUser).then(() => {
-      return this.authService.getCurrentUser()
-    }).then((updatedUser) => {
-    }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось обновить профиль',
-        life: 3000
-      });
-    });
-
-    const authorsDtos: AuthorDto[] = [];
-    for (let i = 0; i < this.authors.length; i++) {
-      let author = this.authors.at(i);
-      let fullName = author.get('fullName')?.value;
-      let organization = author.get('organization')?.value;
-      let email = author.get('email')?.value;
-      if (fullName !== '') {
-        const authorDto = new AuthorDto();
-        authorDto.setFullName(fullName);
-        authorDto.setOrganization(organization);
-        authorDto.setEmail(email);
-        authorsDtos.push(authorDto);
-      }
-    }
-    let filesForUpload: object[] = []
-    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
-
-    let request = {
-      "title": this.formAddJob.value.title,
-      "coAuthors": authorsDtos,
-      "description": this.formAddJob.value.description,
-      "userName": this.currentUser.firstName,
-      "userId": this.currentUser.id,
-      "sectionId": this.currentSection?.id,
-      "sectionTitle": this.currentSection?.title,
-      "conferenceId": this.currentConference?.id,
-      "conferenceTitle": this.currentConference?.title,
-      "files": filesForUpload
-    };
-    this.httpService.createJob(request).then((data) => {
-      this.currentUserJobId = String(data.id)
-
-      this.toPage(`/conference/${this.currentConference.id}`)
-      this.addingJob = false;
-      this.savingJob = false;
-      this.formAddJob.reset()
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Успешно',
-        detail: 'Работа создана',
-        life: 3000
-      });
-
-      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), false)
-      .then(() => {
-        this.needToRemoveFilesMetadata = []
-        this.uploadedFilesMetadata = []
-        this.files = []
-      });
-    }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось создать работу',
-        life: 3000
-      });
-      this.savingJob = false;
-    });
-  }
-
-  updateSection(event: Event) {
-    let sectionName: string = (event.target as HTMLOptionElement).value;
-    this.currentSection = this.sections.find((e) => e.title === sectionName);
   }
 
   getLeadersString(leaders: UserBase[]) {

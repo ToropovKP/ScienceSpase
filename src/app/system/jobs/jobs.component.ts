@@ -73,13 +73,13 @@ export class JobsComponent implements OnInit, OnDestroy {
           routerLink: '/'
         };
         this.breadcrumbItems = [
-          { label: 'Мои статьи', routerLink: `/jobs` }
+          {label: 'Мои статьи', routerLink: `/jobs`}
         ]
         this.loadingJobs = false;
         if (this.currentConferenceId !== undefined) {
           this.httpService.getConference(this.currentConferenceId).then((conf) => {
             this.currentConference = conf;
-            this.breadcrumbItems?.push({ label: this.getShortConferenceTitle() })
+            this.breadcrumbItems?.push({label: this.getShortConferenceTitle()})
             this.loadingConference = false;
           }).catch(error => {
             this.messageService.add({
@@ -112,7 +112,11 @@ export class JobsComponent implements OnInit, OnDestroy {
   }
 
   openJob(id: bigint) {
-    this.toPage(`/jobs/${id}`)
+    this.toPage(`/job/${id}`)
+  }
+
+  addJob() {
+    this.toPage(`/jobs/create`)
   }
 
   toPage(link: string) {
