@@ -15,13 +15,34 @@
         <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
       </div>
 
-      <div *ngIf="!loadingJob" class="d-flex justify-content-between align-items-center mb-4">
-        <div class="article-page">
-          <h1 class="h2 mb-0 text-primary">
-            <span class="title-text" [title]="currentJob.title">
-              {{ currentJob.title }}
-            </span>
+      <div *ngIf="!loadingJob" class="header-container">
+        <div class="header-content">
+          <h1 class="job-title">
+            {{ currentJob.title }}
           </h1>
+
+          <!-- Кнопки действий (только для десктопа) -->
+          <div class="desktop-actions">
+            <button *ngIf="isUserJob()"
+                    class="btn btn-action btn-edit"
+                    (click)="editJob()"
+                    pTooltip="Редактировать работу" tooltipPosition="bottom">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+
+            <button *ngIf="isUserJob()"
+                    class="btn btn-action btn-danger"
+                    (click)="confirmDelete($event)"
+                    pTooltip="Удалить работу" tooltipPosition="bottom">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Мобильное предупреждение -->
+        <div *ngIf="isUserJob()" class="mobile-warning alert alert-warning mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Редактирование доступно только с компьютера.
         </div>
       </div>
 
@@ -30,6 +51,8 @@
         <div *ngIf="loadingConference" class="text-center">
           <div class="spinner-border text-primary" role="status"></div>
         </div>
+
+        <!-- Карточки конференции -->
         <div *ngIf="!loadingConference" class="row g-4 mb-4">
           <div class="col-md-4">
             <div class="card h-100 shadow-sm">
@@ -67,7 +90,7 @@
           </div>
         </div>
 
-
+        <!-- Блок аннотации -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Аннотация</h5>
@@ -77,7 +100,8 @@
           </div>
         </div>
 
-        <div class="card shadow-sm mb-4" *ngIf="!isReviewer() && currentJob.coAuthors.length !== 0">
+        <!-- Блок со-авторов -->
+        <div *ngIf="!isReviewer() && currentJob.coAuthors.length !== 0" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Соавторы</h5>
           </div>
@@ -101,15 +125,15 @@
         </div>
 
         <!-- Блок с основной информацией -->
-        <div class="card shadow-sm mb-4">
+        <div *ngIf="!isReviewer()" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Основная информация</h5>
           </div>
           <div class="card-body">
-            <form [formGroup]="formAddJob">
+            <form [formGroup]="formJob">
 
               <!-- Контактные данные -->
-              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
+              <div class="row g-3 mb-3">
                 <div class="col-md-4">
                   <label class="form-label">Почта</label>
                   <input [readonly]="true" type="text" class="form-control"
@@ -127,8 +151,8 @@
                 </div>
               </div>
 
-              <!-- Контактные данные -->
-              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
+              <!-- Научные данные -->
+              <div class="row g-3 mb-3">
                 <div class="col-md-3">
                   <label class="form-label">ORCID</label>
                   <input [readonly]="true" type="text" class="form-control text-uppercase"
@@ -151,7 +175,7 @@
                 </div>
               </div>
 
-              <div *ngIf="!isReviewer()" class="row g-3 mb-3">
+              <div class="row g-3 mb-3">
                 <div class="col-md-12">
                   <label class="form-label">Секция</label>
                   <input [readonly]="true" type="text" class="form-control"
@@ -161,7 +185,7 @@
 
               <!-- Секция и файлы -->
               <div class="row g-3">
-                <div *ngIf="!isReviewer()" class="col-md-12">
+                <div class="col-md-12">
                   <label class="form-label">Файлы</label>
                   <div class="list-group">
                     <a *ngFor="let file of currentJob.files"
@@ -172,13 +196,12 @@
                         <span>{{ file.originalName }}</span>
                       </div>
                       <small
-                          class="text-muted file-date mt-2 mt-md-0 me-3">Добавлено: {{ file.uploadTime | date:'dd.MM.yyyy HH:mm' }}</small>
-                      <i *ngIf="isUserJob() && currentJob.files.length > 1" class="bi bi-x text-danger"
-                         (click)="confirmDeleteFile($event, file.uuid); $event.stopPropagation()"></i>
+                          class="text-muted file-date mt-2 mt-md-0">Добавлено: {{ file.uploadTime | date:'dd.MM.yyyy HH:mm' }}</small>
                     </a>
                   </div>
                 </div>
               </div>
+
             </form>
           </div>
         </div>
@@ -260,7 +283,7 @@
         </div>
 
         <!-- Чат -->
-        <div *ngIf="!isReviewer() && !updatingJob" class="card shadow-sm mb-4">
+        <div *ngIf="!isReviewer()" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Чат</h5>
           </div>
@@ -313,57 +336,6 @@
           </div>
         </div>
 
-        <div *ngIf="updatingJob" class="card shadow-sm mb-4">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-file-earmark-plus me-2"></i>Добавление файлов</h5>
-          </div>
-          <div class="card-body">
-            <form [formGroup]="formUpdateJob" class="row g-3">
-              <div class="mb-3">
-                <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
-                <input type="file"
-                       class="form-control"
-                       formControlName="files"
-                       accept=".docx,.pdf"
-                       multiple
-                       (change)="onSelectedFiles($event)"
-                       [ngClass]="{'has-error': formUpdateJob.get('files')?.invalid && formUpdateJob.get('files')?.touched}">
-                <div class="form-text">Допустимые форматы: DOCX, PDF</div>
-              </div>
-
-              <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-secondary" (click)="cancelJob()">Отмена</button>
-                <button type="submit"
-                        class="btn btn-primary"
-                        [disabled]="formUpdateJob.invalid || savingJob"
-                        (click)="updateJob()">
-                  <span *ngIf="!savingJob">Сохранить файлы</span>
-                  <span *ngIf="savingJob">
-                  <span class="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"></span>
-                  Сохранение...
-                </span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Кнопка удаления -->
-        <div *ngIf="!isReviewer()" class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
-          <!--        <div *ngIf="!isReviewer()" class="text-center mt-4">-->
-          <button *ngIf="isUserJob() && !updatingJob"
-                  class="btn btn-primary px-4"
-                  (click)="addJob()">
-            <i class="bi bi-plus-lg me-2"></i>Добавить файлы
-          </button>
-          <button *ngIf="isUserJob() && !updatingJob"
-                  class="btn btn-danger px-5"
-                  (click)="confirmDelete($event)">
-            <i class="bi bi-trash me-2"></i>Удалить работу
-          </button>
-        </div>
       </div>
     </div>
   </div>

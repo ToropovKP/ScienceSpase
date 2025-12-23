@@ -211,7 +211,7 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
   }
 
   openJob(id: string) {
-    this.toPage(`conference/${this.currentConferenceId}/jobs/${id}`)
+    this.toPage(`conference/${this.currentConferenceId}/job/${id}`)
   }
 
   downloadFilesJob(job: Job) {
