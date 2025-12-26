@@ -10,6 +10,7 @@ import {ProfileComponent} from "./system/profile/profile.component";
 import {VerifyAccountComponent} from "./system/verify-account/verify-account.component";
 import {RestorePasswordComponent} from "./system/restore-account/restore-password.component";
 import {NotFoundComponent} from "./system/not-found/not-found.component";
+import {JobCreateComponent} from "./system/one-job-create/job-create.component";
 
 export const appRoutes: Routes = [
   {
@@ -33,7 +34,7 @@ export const appRoutes: Routes = [
     component: ConferenceJobsComponent
   },
   {
-    path: 'conference/:confId/jobs/:id',
+    path: 'conference/:confId/job/:id',
     component: OneJobComponent
   },
   {
@@ -45,8 +46,16 @@ export const appRoutes: Routes = [
     component: JobsComponent
   },
   {
-    path: 'jobs/:id',
+    path: 'jobs/create',
+    component: JobCreateComponent
+  },
+  {
+    path: 'job/:id',
     component: OneJobComponent
+  },
+  {
+    path: 'job/:id/edit',
+    component: JobCreateComponent
   },
   {
     path: 'all-users',
