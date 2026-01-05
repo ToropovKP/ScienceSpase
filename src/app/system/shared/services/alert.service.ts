@@ -54,19 +54,19 @@ export class AlertService {
   }
 
   success(message: string, options?: AlertOptions) {
-    this.alert(new Alert({...options, type: AlertType.Success, message}));
+    this.alert({...options, type: AlertType.Success, message} as Alert);
   }
 
   error(message: string, options?: AlertOptions) {
-    this.alert(new Alert({...options, type: AlertType.Error, message}));
+    this.alert({...options, type: AlertType.Error, message} as Alert);
   }
 
   info(message: string, options?: AlertOptions) {
-    this.alert(new Alert({...options, type: AlertType.Info, message}));
+    this.alert({...options, type: AlertType.Info, message} as Alert);
   }
 
   warn(message: string, options?: AlertOptions) {
-    this.alert(new Alert({...options, type: AlertType.Warning, message}));
+    this.alert({...options, type: AlertType.Warning, message} as Alert);
   }
 
   // main alert method
@@ -77,6 +77,6 @@ export class AlertService {
 
   // clear alerts
   clear(id = this.defaultId) {
-    this.subject.next(new Alert({id}));
+    this.subject.next({id} as Alert);
   }
 }

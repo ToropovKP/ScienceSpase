@@ -426,7 +426,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
       this.httpService.uploadFiles(formData).then((data) => {
         if (this.currentJob === undefined) {
-          this.currentJob = new Job();
+          this.currentJob = {} as Job;
           this.currentJob.files = [];
         }
         this.currentJob?.files?.push(...data)

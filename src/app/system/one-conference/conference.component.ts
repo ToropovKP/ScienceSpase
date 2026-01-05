@@ -40,7 +40,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   protected readonly conferenceStatusMap = conferenceStatusMap;
   protected readonly DateService = DateService;
 
-  currentConference: Conference = new Conference();
+  currentConference: Conference = {} as Conference;
   currentConferenceId!: string;
   countUsers: number = 0;
   currentAdmins!: UserBase[];

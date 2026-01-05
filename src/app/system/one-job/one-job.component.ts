@@ -60,7 +60,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   model: Record<string, number> = {}
 
   currentJobId!: string;
-  currentJob: Job = new Job();
+  currentJob: Job = {} as Job;
   jobUser!: User;
   currentComments!: Comment[];
   currentConference!: Conference;
@@ -386,7 +386,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     request.setText(this.formReview.value.text)
     this.httpService.reviewJob(this.currentJobId, request).then((data) => {
       this.existReviewByCurrentUser = true
-      let review: Review = new Review();
+      let review: Review = {} as Review;
       review.reviews = request.getReviews();
       review.text = request.getText();
       review.userId = this.currentUser.id;
