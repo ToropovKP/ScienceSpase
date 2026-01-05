@@ -8,6 +8,7 @@ import {provideAnimationsAsync} from "@angular/platform-browser/animations/async
 import {providePrimeNG} from "primeng/config";
 import Aura from '@primeng/themes/aura';
 import {AuthService} from "./system/shared/services/auth.service";
+import {MessageService} from "primeng/api";
 
 const maskConfig: Partial<NgxMaskConfig> = {
   validation: false,
@@ -72,6 +73,7 @@ export const appConfig: ApplicationConfig = {
         })),
     provideHttpClient(withInterceptorsFromDi()),
     provideEnvironmentNgxMask(maskConfig),
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),
+    MessageService
   ]
 };

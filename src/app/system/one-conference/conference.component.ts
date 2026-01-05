@@ -11,19 +11,29 @@ import {CommonModule} from "@angular/common";
 import {conferenceStatusMap} from "../../app.constants";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MenuItem, MessageService} from "primeng/api";
+import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {PopoverModule} from "primeng/popover";
 import {Tooltip} from "primeng/tooltip";
-import {BreadcrumbModule} from "primeng/breadcrumb";
+import {NotificationService} from "../shared/services/notification.service";
+import {AuthGuardService} from "../shared/services/auth-guard.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, ToastModule, BreadcrumbModule, PopoverModule, Tooltip],
-  providers: [MessageService]
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    PopoverModule,
+    Tooltip,
+    LoadingSpinnerComponent,
+    BreadcrumbWrapperComponent,
+    ToastContainerComponent
+  ]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
 
@@ -42,11 +52,14 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private notificationService: NotificationService,
+    private authService: AuthService,
+    private authGuardService: AuthGuardService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -92,12 +105,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           this.httpService.getConferenceUsers(this.currentConferenceId).then((data) => {
             this.countUsers = data
           }).catch(error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Возникла непредвиденная ошибка',
-              detail: 'Ошибка на стороне сервера',
-              life: 3000
-            });
+            this.notificationService.showServerError();
           });
         }
 
@@ -105,12 +113,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         this.loadingConference = false;
       }).catch(error => {
         this.loadingConference = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+        this.notificationService.showServerError();
         if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
@@ -130,12 +133,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
         }
       })
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Ошибка на стороне сервера',
-        life: 3000
-      });
+      this.notificationService.showServerError();
     });
   }
 
@@ -144,11 +142,11 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   }
 
   isAdmin(): boolean {
-    return this.authService.hasRole('ADMIN');
+    return this.authGuardService.isAdmin();
   }
 
   isModerator(): boolean {
-    return this.authService.hasRole('MODERATOR') || this.isAdmin();
+    return this.authGuardService.isModerator();
   }
 
   isModeratorOfThisConference(): boolean {
@@ -175,66 +173,24 @@ export class ConferenceComponent implements OnInit, OnDestroy {
   }
 
   checkUsers() {
-    if (this.currentUser && this.currentUser.verified) {
+    this.authGuardService.executeIfAuthorized(this.currentUser, () => {
       this.toPage(`/conference/${this.currentConferenceId}/jobs`);
-    } else if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
-    } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-    }
+    });
   }
 
   editConference() {
-    if (this.currentUser && this.currentUser.verified) {
+    this.authGuardService.executeIfAuthorized(this.currentUser, () => {
       this.toPage(`/conference/${this.currentConferenceId}/edit`);
-    } else if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
-    } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-    }
+    });
   }
 
   addJob() {
-    if (this.currentUser && this.currentUser.verified) {
+    this.authGuardService.executeIfAuthorized(this.currentUser, () => {
       let navigationExtras: NavigationExtras = {
         queryParams: {'conferenceId': this.currentConferenceId},
       };
-      this.toPageExtras(`/jobs/create`, navigationExtras)
-    } else if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
-    } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-    }
+      this.toPageExtras(`/jobs/create`, navigationExtras);
+    });
   }
 
   openJob() {

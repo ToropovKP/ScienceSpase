@@ -7,8 +7,11 @@ import {HttpService} from "../shared/services/http.service";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {NotificationService} from "../shared/services/notification.service";
+import {AuthGuardService} from "../shared/services/auth-guard.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 import {Subject, takeUntil} from "rxjs";
 import {filter} from "rxjs/operators";
 
@@ -16,8 +19,12 @@ import {filter} from "rxjs/operators";
   selector: 'app-conferences',
   templateUrl: './conferences.component.html',
   styleUrls: ['./conferences.component.css'],
-  imports: [CommonModule, ToastModule],
-  providers: [MessageService]
+  imports: [
+    CommonModule,
+    LoadingSpinnerComponent,
+    EmptyStateComponent,
+    ToastContainerComponent
+  ]
 })
 export class ConferencesComponent implements OnInit, OnDestroy {
 
@@ -25,14 +32,16 @@ export class ConferencesComponent implements OnInit, OnDestroy {
   protected readonly DateService = DateService;
 
   conferences: Conference[] = [];
-  currentUser!: User;
+  currentUser: User | null = null;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private authService: AuthService,
-              private messageService: MessageService) {
-
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private authGuardService: AuthGuardService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -59,44 +68,30 @@ export class ConferencesComponent implements OnInit, OnDestroy {
   loadingConference: boolean = true;
 
   loadAllData() {
-    this.currentUser = this.authService.getUserInfo()!;
+    this.currentUser = this.authService.getUserInfo();
 
     this.httpService.getConferences().then((data) => {
-      this.conferences = data;
+      this.conferences = data || [];
       this.loadingConference = false;
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Ошибка на стороне сервера',
-        life: 3000
-      });
+      // Для неавторизованных пользователей (401, 403) не показываем ошибку, просто пустой список
+      const status = error?.status || error?.error?.status;
+      if (status !== 401 && status !== 403) {
+        this.notificationService.showServerError();
+      }
+      this.conferences = [];
       this.loadingConference = false;
     });
   }
 
   isAdmin(): boolean {
-    return this.authService.hasRole('ADMIN');
+    return this.authGuardService.isAdmin();
   }
 
   createConference() {
-    if (this.currentUser && this.currentUser.verified) {
+    this.authGuardService.executeIfAuthorized(this.currentUser, () => {
       this.toPage('/conferences/create');
-    } else if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
-    } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-    }
+    });
   }
 
   openConf(id: bigint): void {

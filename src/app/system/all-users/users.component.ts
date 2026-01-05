@@ -5,19 +5,27 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../shared/services/http.service";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 import {Subject, takeUntil} from "rxjs";
 import {filter} from "rxjs/operators";
+import {NotificationService} from "../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
-  imports: [CommonModule, ToastModule, FirstWordPipe, ShortNamePipe],
-  providers: [MessageService]
+  imports: [
+    CommonModule,
+    FirstWordPipe,
+    ShortNamePipe,
+    LoadingSpinnerComponent,
+    EmptyStateComponent,
+    ToastContainerComponent
+  ]
 })
 export class UsersComponent implements OnInit, OnDestroy {
 
@@ -26,11 +34,13 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   users: User[] = [];
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private notificationService: NotificationService,
+    private authService: AuthService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -62,12 +72,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.users = data
       this.loadingData = false;
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Ошибка на стороне сервера',
-        life: 3000
-      });
+      this.notificationService.showServerError();
       this.loadingData = false;
     });
   }

@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <app-toast-container />
     <div class="main">
       <!-- Заголовок -->
       <div class="card shadow-sm mb-4">
@@ -11,11 +11,7 @@
         </div>
       </div>
 
-      <div *ngIf="loadingData" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
-      </div>
+      <app-loading-spinner *ngIf="loadingData" message="Загрузка пользователей..." />
 
       <!-- Таблица пользователей -->
       <div *ngIf="!loadingData" class="mobile-scroll-container">
@@ -35,10 +31,11 @@
 
             <!-- Список пользователей -->
             <div class="user-list ">
-              <div *ngIf="!users?.length" class="empty-state">
-                <i class="bi bi-person-x-fill"></i>
-                <p>Нет зарегистрированных пользователей</p>
-              </div>
+              <app-empty-state
+                *ngIf="!users?.length"
+                title="Нет зарегистрированных пользователей"
+                icon="bi bi-person-x-fill"
+              />
 
               <div class="user-item" *ngFor="let user of users">
                 <div class="row g-0 align-items-center ">
