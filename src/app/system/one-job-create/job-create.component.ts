@@ -11,25 +11,38 @@ import {CommonModule, Location} from "@angular/common";
 import {orcidPattern} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../shared/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
 import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
-import {BreadcrumbModule} from "primeng/breadcrumb";
 import {Job} from "../shared/model/job";
 import {Author} from "../shared/model/author";
 import {HttpResponse} from "@angular/common/http";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {NotificationService} from "../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 
 @Component({
   selector: 'app-job-create',
   templateUrl: './job-create.component.html',
   styleUrls: ['./job-create.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, ConfirmDialogModule, ConfirmPopupModule, NgxMaskDirective, ToastModule, BreadcrumbModule, PopoverModule, NumbersOnlyDirective],
-  providers: [ConfirmationService, MessageService]
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    ConfirmDialogModule,
+    ConfirmPopupModule,
+    NgxMaskDirective,
+    PopoverModule,
+    NumbersOnlyDirective,
+    LoadingSpinnerComponent,
+    BreadcrumbWrapperComponent,
+    ToastContainerComponent
+  ],
+  providers: [ConfirmationService]
 })
 export class JobCreateComponent implements OnInit, OnDestroy {
 
@@ -64,14 +77,16 @@ export class JobCreateComponent implements OnInit, OnDestroy {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private formBuilder: FormBuilder,
-              private router: Router,
-              private route: ActivatedRoute,
-              private location: Location,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private confirmationService: ConfirmationService,
-              private authService: AuthService) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private location: Location,
+    private httpService: HttpService,
+    private notificationService: NotificationService,
+    private confirmationService: ConfirmationService,
+    private authService: AuthService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -182,7 +197,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
           {label: 'Редактирование'}
         ]
         this.httpService.getConferences().then((data) => {
-          this.conferences = data;
+          this.conferences = data.filter((e) => e.status === 'ACTIVE');
 
           if (this.conferenceParamId) {
             this.currentConferenceId = this.conferenceParamId;
@@ -204,12 +219,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
           this.loadingConference = false;
         }).catch(error => {
           this.loadingConference = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Возникла непредвиденная ошибка',
-            detail: 'Ошибка на стороне сервера',
-            life: 3000
-          });
+          this.notificationService.showServerError();
           if (error.status === 404) {
             this.router.navigate(['not-found']);
           }
@@ -217,12 +227,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         this.loadingJob = false;
       }).catch(error => {
         this.loadingJob = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+        this.notificationService.showServerError();
         if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
@@ -232,7 +237,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         {label: 'Добавление работы'}
       ]
       this.httpService.getConferences().then((data) => {
-        this.conferences = data;
+        this.conferences = data.filter((e) => e.status === 'ACTIVE');
         if (this.conferenceParamId) {
           this.currentConferenceId = this.conferenceParamId;
           this.currentConference = this.conferences.find((e) => String(e.id) === this.conferenceParamId);
@@ -242,12 +247,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         this.loadingConference = false;
       }).catch(error => {
         this.loadingConference = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+        this.notificationService.showServerError();
         if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
@@ -362,12 +362,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     this.httpService.downloadFile(fileName).then(response => {
       this.processDownloadFile(response)
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось скачать файл',
-        life: 3000
-      });
+      this.notificationService.showFileDownloadError();
     });
   }
 
@@ -431,7 +426,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
       this.httpService.uploadFiles(formData).then((data) => {
         if (this.currentJob === undefined) {
-          this.currentJob = new Job();
+          this.currentJob = {} as Job;
           this.currentJob.files = [];
         }
         this.currentJob?.files?.push(...data)
@@ -439,20 +434,10 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
         this.files = [];
         (event.target as HTMLInputElement).value = '';
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Успешно',
-          detail: 'Файлы загружены',
-          life: 3000
-        });
+        this.notificationService.showSuccess('Успешно', 'Файлы загружены');
         this.uploadingFiles = false;
       }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось загрузить файлы',
-          life: 3000
-        });
+        this.notificationService.showError('Не удалось загрузить файлы');
         this.files = [];
         (event.target as HTMLInputElement).value = '';
         this.uploadingFiles = false;
@@ -462,12 +447,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
   saveJob() {
     if (this.currentJob?.files?.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо прикрепить файлы',
-        life: 3000
-      });
+      this.notificationService.showWarning('Отклонено', 'Необходимо прикрепить файлы');
       return;
     }
     if (this.isEditMode) {
@@ -479,20 +459,10 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
   createJob() {
     if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Отклонено',
-        detail: 'Необходимо выполнить вход в аккаунт',
-        life: 3000
-      });
+      this.notificationService.showWarning('Отклонено', 'Необходимо выполнить вход в аккаунт');
       return;
     } else if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
+      this.notificationService.showWarning('Подтвердите аккаунт', 'Проверьте почту и подтвердите свой аккаунт');
       return;
     }
 
@@ -510,12 +480,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       return this.authService.getCurrentUser()
     }).then((updatedUser) => {
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось обновить профиль',
-        life: 3000
-      });
+      this.notificationService.showError('Не удалось обновить профиль');
     });
 
     const authorsDtos: AuthorDto[] = [];
@@ -550,12 +515,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     };
 
     this.httpService.createJob(request).then((data) => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Успешно',
-        detail: 'Работа создана',
-        life: 3000
-      });
+      this.notificationService.showSuccess('Успешно', 'Работа создана');
 
       this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), true)
       .then(() => {
@@ -565,21 +525,11 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         this.toPage(`/job/${data.id}`)
         this.savingJob = false;
       }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось удалить файлы',
-          life: 3000
-        });
+        this.notificationService.showError('Не удалось удалить файлы');
         this.savingJob = false;
       });
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось создать работу',
-        life: 3000
-      });
+      this.notificationService.showError('Не удалось создать работу');
       this.savingJob = false;
     });
   }
@@ -615,12 +565,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
     this.httpService.updateJob(request).then((data) => {
       this.formJob.reset()
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Успешно',
-        detail: 'Работа создана',
-        life: 3000
-      });
+      this.notificationService.showSuccess('Успешно', 'Работа обновлена');
 
       this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), true)
       .then(() => {
@@ -631,22 +576,11 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         this.savingJob = false;
       }).catch(error => {
         this.savingJob = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось удалить файлы',
-          life: 3000
-        });
+        this.notificationService.showError('Не удалось удалить файлы');
       });
-      ;
     }).catch(error => {
       this.savingJob = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось добавить файлы',
-        life: 3000
-      });
+      this.notificationService.showError('Не удалось обновить работу');
     });
   }
 

@@ -5,92 +5,62 @@
     <div *ngIf="profileUser" class="main">
       <!-- Шапка профиля -->
       <div *ngIf="showButtonsToChange() && !profileUser.verified" class="mb-4">
-        <div >
-          <div class="row align-items-end">
-            <div class="col-md-6 mb-3 mb-md-0">
-              <div class="alert alert-danger mt-2 mb-0">
-                <i class="bi bi-envelope-exclamation me-2"></i>
-                Подтвердите аккаунт через письмо
-                <a class="alert-link ms-2" (click)="sendRepeatLink()">Отправить повторно</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="isAdmin()" class="mb-4">
-        <div >
-          <div class="row align-items-end">
-              <div class="col-md-12">
-                <div class="d-flex gap-2 flex-wrap justify-content-md-end">
-                  <button class="btn btn-sm btn-dark"
-                          *ngIf="profileUser.role == 'MEMBER'"
-                          (click)="confirmRole($event)">
-                    Назначить администратором
-                  </button>
-                  <button class="btn btn-sm btn-dark"
-                          *ngIf="profileUser.role == 'MODERATOR'"
-                          (click)="confirmRole($event)">
-                    Назначить участником
-                  </button>
-                  <button class="btn btn-sm btn-danger"
-                          *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'ACTIVE'"
-                          (click)="confirmStatus($event)">
-                    Заблокировать
-                  </button>
-                  <button class="btn btn-sm btn-success"
-                          *ngIf="profileUser.role != 'ADMIN' && profileUser.status == 'BANNED'"
-                          (click)="confirmStatus($event)">
-                    Разблокировать
-                  </button>
-                </div>
-              </div>
-          </div>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
+          <i class="bi bi-envelope-exclamation mr-2"></i>
+          Подтвердите аккаунт через письмо
+          <a class="ml-2 text-red-700 underline hover:text-red-800 cursor-pointer" (click)="sendRepeatLink()">Отправить повторно</a>
         </div>
       </div>
 
       <!-- Форма редактирования -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white position-relative">
-          <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Основная информация</h5>
+      <div class="bg-white rounded-lg shadow-sm mb-4 border border-gray-200">
+        <div class="bg-accent text-text-primary-color rounded-t-lg px-6 py-4 relative">
+          <h5 class="text-lg font-semibold mb-0 flex items-center">
+            <i class="bi bi-person-badge mr-2"></i>Основная информация
+          </h5>
 
           <!-- Кнопки действий в шапке -->
-          <div *ngIf="showActionButtons" class="position-absolute end-0 top-50 translate-middle-y me-3 d-flex gap-2">
-            <button class="btn btn-outline-light"
+          <div *ngIf="showActionButtons" class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+            <button class="px-4 py-2 rounded bg-accent text-text-primary-color border border-white hover:bg-green-600 hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     (click)="saveProfile()"
                     [disabled]="formProfile.invalid">
-              <i class="bi bi-check-lg me-1"></i> Сохранить
+              <i class="bi bi-check-lg mr-1"></i> Сохранить
             </button>
-            <button class="btn btn-light text-primary"
+            <button class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
                     (click)="cancelProfile()">
-              <i class="bi bi-x-lg me-1"></i> Отменить
+              <i class="bi bi-x-lg mr-1"></i> Отменить
             </button>
           </div>
         </div>
 
-        <div class="card-body">
+        <div class="p-6">
           <form [formGroup]="formProfile">
             <!-- Личные данные -->
-            <div class="mb-4">
-              <h6 class="section-title mb-3"><i class="bi bi-person-vcard me-2"></i>Личные данные</h6>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label">Фамилия</label>
-                  <input type="text" class="form-control"
+            <div class="mb-6">
+              <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+                <i class="bi bi-person-vcard mr-2"></i>Личные данные
+              </h6>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Фамилия</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="lastName"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="30">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Имя</label>
-                  <input type="text" class="form-control"
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Имя</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="firstName"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="30">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Отчество</label>
-                  <input type="text" class="form-control"
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Отчество</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="middleName"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="30">
@@ -99,27 +69,32 @@
             </div>
 
             <!-- Контактная информация -->
-            <div class="mb-4">
-              <h6 class="section-title mb-3"><i class="bi bi-telephone me-2"></i>Контактная информация</h6>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label">Телефон</label>
-                  <input type="text" class="form-control readonly-style"
+            <div class="mb-6">
+              <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+                <i class="bi bi-telephone mr-2"></i>Контактная информация
+              </h6>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Телефон</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-row cursor-not-allowed"
                          mask="+0 (000) 000-0000"
                          formControlName="phone"
                          readonly>
-                  <small class="text-muted">Для изменения телефона обратитесь в поддержку</small>
+                  <small class="text-text-secondary-color text-xs mt-1 block">Для изменения телефона обратитесь в поддержку</small>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Почта</label>
-                  <input type="text" class="form-control readonly-style"
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Почта</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-row cursor-not-allowed"
                          formControlName="email"
                          readonly>
-                  <small class="text-muted">Для изменения почты обратитесь в поддержку</small>
+                  <small class="text-text-secondary-color text-xs mt-1 block">Для изменения почты обратитесь в поддержку</small>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Организация</label>
-                  <input type="text" class="form-control"
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Организация</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="organization"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="100">
@@ -128,13 +103,15 @@
             </div>
 
             <!-- Идентификаторы -->
-            <div class="mb-4">
-              <h6 class="section-title mb-3"><i class="bi bi-fingerprint me-2"></i>Идентификаторы</h6>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label d-flex align-items-center">
+            <div class="mb-6">
+              <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+                <i class="bi bi-fingerprint mr-2"></i>Идентификаторы
+              </h6>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1 flex items-center">
                     ORCID
-                    <i class="bi bi-info-circle hover-icon ms-2" (click)="op.show($event)"></i>
+                    <i class="bi bi-info-circle cursor-pointer ml-2 text-text-secondary-color hover:text-accent transition-colors" (click)="op.show($event)"></i>
                     <p-popover #op
                                styleClass="fixed-width-popover"
                                [style]="{maxWidth: '400px', width: '100%'}">
@@ -159,7 +136,8 @@
                       </div>
                     </p-popover>
                   </label>
-                  <input type="text" class="form-control text-uppercase"
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 uppercase focus:outline-none focus:border-h1-accent transition-colors"
                          mask="SSSS-SSSS-SSSS-SSSS"
                          placeholder="0000-0000-0000-0000"
                          [patterns]="customOrcidPattern"
@@ -167,10 +145,10 @@
                          formControlName="orcId"
                          [readOnly]="this.profileUser.id !== this.currentUser.id">
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label d-flex align-items-center">
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1 flex items-center">
                     РИНЦ ID (Author ID)
-                    <i class="bi bi-info-circle hover-icon ms-2" (click)="opRinc.show($event)"></i>
+                    <i class="bi bi-info-circle cursor-pointer ml-2 text-text-secondary-color hover:text-accent transition-colors" (click)="opRinc.show($event)"></i>
                     <p-popover #opRinc
                                styleClass="fixed-width-popover"
                                [style]="{maxWidth: '400px', width: '100%'}">
@@ -194,7 +172,8 @@
                       </div>
                     </p-popover>
                   </label>
-                  <input type="text" class="form-control"
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="rincId"
                          [maxLength]="20"
                          appNumbersOnly
@@ -204,19 +183,23 @@
             </div>
 
             <!-- Академическая информация -->
-            <div class="mb-2">
-              <h6 class="section-title mb-3"><i class="bi bi-mortarboard me-2"></i>Академическая информация</h6>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Ученая степень</label>
-                  <input type="text" class="form-control"
+            <div class="mb-4">
+              <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+                <i class="bi bi-mortarboard mr-2"></i>Академическая информация
+              </h6>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Ученая степень</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="academicDegree"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="100">
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label">Ученое звание</label>
-                  <input type="text" class="form-control"
+                <div>
+                  <label class="block text-sm font-medium text-h1-accent mb-1">Ученое звание</label>
+                  <input type="text"
+                         class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
                          formControlName="academicTitle"
                          [readOnly]="this.profileUser.id !== this.currentUser.id"
                          [maxlength]="100">
@@ -227,25 +210,27 @@
         </div>
       </div>
 
-
       <!-- Секция безопасности -->
-      <div *ngIf="showButtonsToChange()" class="card shadow-sm mt-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Безопасность</h5>
+      <div *ngIf="showButtonsToChange()" class="bg-white rounded-lg shadow-sm mt-4 border border-gray-200">
+        <div class="bg-accent text-text-primary-color rounded-t-lg px-6 py-4">
+          <h5 class="text-lg font-semibold mb-0 flex items-center">
+            <i class="bi bi-shield-lock mr-2"></i>Безопасность
+          </h5>
         </div>
-        <div class="card-body">
+        <div class="p-6">
           <form [formGroup]="securityForm" (ngSubmit)="handlePasswordChange()">
             <!-- Текущий пароль -->
-            <div class="mb-3 position-relative">
-              <label for="currentPassword" class="form-label">Текущий пароль</label>
+            <div class="mb-4 relative">
+              <label for="currentPassword" class="block text-sm font-medium text-h1-accent mb-1">Текущий пароль</label>
               <input [type]="showCurrentPassword ? 'text' : 'password'"
                      id="currentPassword"
-                     class="form-control pe-4"
-                     formControlName="currentPassword"
-                     [class.is-invalid]="securityForm.get('currentPassword')?.invalid">
-              <i class="bi bi-eye{{ showCurrentPassword ? '-slash' : '' }} password-toggle"
+                     class="w-full px-4 py-2 pr-10 border rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                     [class.border-red-500]="securityForm.get('currentPassword')?.invalid && securityForm.get('currentPassword')?.touched"
+                     [class.border-accent]="!securityForm.get('currentPassword')?.invalid || !securityForm.get('currentPassword')?.touched"
+                     formControlName="currentPassword">
+              <i class="bi bi-eye{{ showCurrentPassword ? '-slash' : '' }} absolute right-3 top-9 cursor-pointer text-accent hover:text-accent-hover transition-colors"
                  (click)="showCurrentPassword = !showCurrentPassword"></i>
-              <div class="invalid-feedback">
+              <div *ngIf="securityForm.get('currentPassword')?.invalid && securityForm.get('currentPassword')?.touched" class="text-red-500 text-xs mt-1">
                 <div *ngIf="securityForm.get('currentPassword')?.hasError('required')">
                   Введите текущий пароль
                 </div>
@@ -256,10 +241,10 @@
             </div>
 
             <!-- Новый пароль -->
-            <div class="mb-3 position-relative">
-              <label for="newPassword" class="form-label d-flex align-items-center">
+            <div class="mb-4 relative">
+              <label for="newPassword" class="block text-sm font-medium text-h1-accent mb-1 flex items-center">
                 Новый пароль
-                <i class="bi bi-info-circle ms-2 text-primary hover-icon"
+                <i class="bi bi-info-circle ml-2 text-accent cursor-pointer hover:text-accent-hover transition-colors"
                    (click)="passwordRulesPopover.show($event)"></i>
                 <p-popover #passwordRulesPopover
                            styleClass="password-rules-popover"
@@ -269,11 +254,11 @@
                       <h5 class="popover-title">Требования к паролю</h5>
                     </div>
                     <div class="popover-body">
-                      <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Минимум 8 символов</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Хотя бы одна цифра</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Хотя бы одна заглавная буква</li>
-                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{'Спецсимволы (!@#$%^&*)'}}</li>
+                      <ul class="list-none">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-green-500 mr-2"></i>Минимум 8 символов</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-green-500 mr-2"></i>Хотя бы одна цифра</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-green-500 mr-2"></i>Хотя бы одна заглавная буква</li>
+                        <li><i class="bi bi-check-circle-fill text-green-500 mr-2"></i>Спецсимволы (!&#64;#$%^&amp;*)</li>
                       </ul>
                     </div>
                   </div>
@@ -281,56 +266,59 @@
               </label>
               <input [type]="showNewPassword ? 'text' : 'password'"
                      id="newPassword"
-                     class="form-control pe-4"
+                     class="w-full px-4 py-2 pr-10 border rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                     [class.border-red-500]="securityForm.get('password')?.invalid && securityForm.get('password')?.touched"
+                     [class.border-accent]="!securityForm.get('password')?.invalid || !securityForm.get('password')?.touched"
                      formControlName="password"
-                     [class.is-invalid]="securityForm.get('password')?.invalid"
                      (input)="checkPasswordStrength()">
-              <i class="bi bi-eye{{ showNewPassword ? '-slash' : '' }} password-toggle"
+              <i class="bi bi-eye{{ showNewPassword ? '-slash' : '' }} absolute right-3 top-9 cursor-pointer text-accent hover:text-accent-hover transition-colors"
                  (click)="showNewPassword = !showNewPassword"></i>
               <div *ngIf="securityForm.get('password')?.value && securityForm.get('password')?.valid"
-                   class="password-strength mt-2">
-                <div class="progress" style="height: 4px;">
-                  <div class="progress-bar"
+                   class="mt-2">
+                <div class="h-1 bg-gray-200 rounded overflow-hidden">
+                  <div class="h-full transition-all duration-500"
                        [ngClass]="getPasswordStrengthClass()"
                        [style.width.%]="getPasswordStrength()">
                   </div>
                 </div>
-                <small class="text-muted">Надежность: {{ getPasswordStrengthText() }}</small>
+                <small class="text-text-secondary-color text-xs mt-1 block">Надежность: {{ getPasswordStrengthText() }}</small>
               </div>
               <div *ngIf="securityForm.get('password')?.invalid && securityForm.get('password')?.touched"
-                   class="invalid-feedback">
+                   class="text-red-500 text-xs mt-1">
                 Пароль не соответствует требованиям
               </div>
             </div>
 
             <!-- Подтверждение пароля -->
-            <div class="mb-4 position-relative">
-              <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+            <div class="mb-6 relative">
+              <label for="confirmPassword" class="block text-sm font-medium text-h1-accent mb-1">Подтвердите пароль</label>
               <input [type]="showConfirmPassword ? 'text' : 'password'"
                      id="confirmPassword"
-                     class="form-control pe-4"
-                     formControlName="confirmedPassword"
-                     [class.is-invalid]="securityForm.hasError('passwordMismatch')">
-              <i class="bi bi-eye{{ showConfirmPassword ? '-slash' : '' }} password-toggle"
+                     class="w-full px-4 py-2 pr-10 border rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                     [class.border-red-500]="securityForm.hasError('passwordMismatch') && securityForm.get('confirmedPassword')?.touched"
+                     [class.border-accent]="!securityForm.hasError('passwordMismatch') || !securityForm.get('confirmedPassword')?.touched"
+                     formControlName="confirmedPassword">
+              <i class="bi bi-eye{{ showConfirmPassword ? '-slash' : '' }} absolute right-3 top-9 cursor-pointer text-accent hover:text-accent-hover transition-colors"
                  (click)="showConfirmPassword = !showConfirmPassword"></i>
-              <div class="invalid-feedback">
+              <div *ngIf="securityForm.hasError('passwordMismatch') && securityForm.get('confirmedPassword')?.touched"
+                   class="text-red-500 text-xs mt-1">
                 Пароли не совпадают
               </div>
             </div>
 
             <!-- Кнопки -->
-            <div class="d-flex gap-2">
+            <div class="flex gap-2">
               <button type="submit"
-                      class="btn btn-primary flex-grow-1"
+                      class="flex-1 px-4 py-2 rounded bg-accent text-text-primary-color border border-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       [disabled]="securityForm.invalid || isUpdating">
                 <span *ngIf="!isUpdating">Изменить пароль</span>
-                <span *ngIf="isUpdating" class="d-flex align-items-center justify-content-center">
-            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            Сохранение...
-          </span>
+                <span *ngIf="isUpdating" class="flex items-center justify-center">
+                  <span class="spinner-border spinner-border-sm mr-2" aria-hidden="true"></span>
+                  Сохранение...
+                </span>
               </button>
               <button type="button"
-                      class="btn btn-outline-secondary"
+                      class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                       (click)="resetPasswordForm()">
                 Отмена
               </button>

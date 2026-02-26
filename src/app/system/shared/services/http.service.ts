@@ -12,6 +12,7 @@ import {Comment} from "../model/comment";
 import {ReviewDto} from "../dto/review.dto";
 import {baseUrl} from "../../../app.constants";
 import {FileMetadata} from "../model/file.metadata";
+import {PageResponse} from "../model/page.response";
 
 @Injectable({providedIn: 'root'})
 export class HttpService {
@@ -71,6 +72,18 @@ export class HttpService {
   async getUsers(): Promise<User[]> {
     this.updateHeaders();
     return await firstValueFrom(this.http.get<User[]>(`${baseUrl}/api/v1/user/all`, this.httpOptions));
+  }
+
+  async getUsersPaginated(page: number, size: number, filter?: string): Promise<PageResponse<User>> {
+    this.updateHeaders();
+    const body = filter ? { filter } : {};
+    return await firstValueFrom(
+      this.http.post<PageResponse<User>>(
+        `${baseUrl}/api/v1/user/all?page=${page}&size=${size}`,
+        JSON.stringify(body),
+        this.httpOptions
+      )
+    );
   }
 
   async getModerators(): Promise<UserBase[]> {

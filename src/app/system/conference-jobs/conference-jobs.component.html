@@ -1,16 +1,12 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true"/>
+    <app-toast-container />
     <div class="main">
 
-      <div *ngIf="loadingConference" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
-      </div>
+      <app-loading-spinner *ngIf="loadingConference" message="Загрузка конференции..." />
 
       <div *ngIf="!loadingConference">
-        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+        <app-breadcrumb-wrapper [items]="breadcrumbItems || []" [home]="homeItem"></app-breadcrumb-wrapper>
       </div>
 
       <div *ngIf="!loadingConference" class="header-container">
