@@ -58,7 +58,8 @@ export class RegistrationModalComponent {
       academicDegree: new FormControl('', []),
       academicTitle: new FormControl('', []),
       password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-      confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)])
+      confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      personalDataConsent: new FormControl(false, [Validators.requiredTrue])
     }, {
       validators: passwordMatchValidator
     });

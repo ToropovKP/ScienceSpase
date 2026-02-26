@@ -66,6 +66,23 @@
             <span *ngIf="userExists">Пользователь с таким email уже зарегистрирован</span>
           </div>
 
+          <div class="form-check d-flex align-items-center gap-2 mb-3">
+            <input
+              class="form-check-input border border-secondary"
+              type="checkbox"
+              id="personalDataConsent"
+              formControlName="personalDataConsent">
+            <label class="form-check-label mb-0 text-black" for="personalDataConsent">
+              Я ознакомился и согласен с
+              <a
+                href="https://www.nntu.ru/frontend/web/ngtu/files/universitet/documents/local_norm_akty/politika_obrabotka_pers_dannyh.pdf"
+                target="_blank"
+                rel="noopener noreferrer">
+                Политикой в отношении обработки персональных данных
+              </a>
+            </label>
+          </div>
+
           <p-button 
             class="w-100 btn-login" 
             label="Регистрация" 
@@ -76,9 +93,6 @@
             *ngIf="!showRegStatus" 
             [disabled]="formRegistration.invalid"/>
 
-          <small class="text-muted">
-            <span class="text-danger">*</span> Нажимая зарегистрироваться, вы соглашаетесь с <a href="">правилами</a>
-          </small>
         </form>
       </div>
     </div>

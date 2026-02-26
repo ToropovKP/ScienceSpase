@@ -234,20 +234,45 @@
                 <div class="form-text">Допустимые форматы: DOCX, PDF</div>
               </div>
 
+              <div class="col-12 mb-2" *ngIf="!isEditMode">
+                <div class="form-check d-flex align-items-center gap-2">
+                  <input
+                    class="form-check-input border border-secondary mt-0"
+                    type="checkbox"
+                    id="jobPersonalDataConsent"
+                    formControlName="personalDataConsent">
+                  <label class="form-check-label mb-0" for="jobPersonalDataConsent">
+                    Я ознакомился и согласен с
+                    <a
+                      href="https://www.nntu.ru/frontend/web/ngtu/files/universitet/documents/local_norm_akty/politika_obrabotka_pers_dannyh.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      Политикой в отношении обработки персональных данных
+                    </a>
+                  </label>
+                </div>
+              </div>
+
               <!-- Кнопки -->
               <div class="col-12 d-flex justify-content-end gap-2">
                 <button type="submit"
                         class="btn btn-primary"
                         [disabled]="formJob.invalid || savingJob || currentJob?.files?.length === 0"
                         (click)="saveJob()">
-                  <span *ngIf="!savingJob && !uploadingFiles">Сохранить работу</span>
-                  <span *ngIf="savingJob">
-                    <app-loading-spinner size="sm" />
-                    Сохранение...
-                  </span>
-                  <span *ngIf="uploadingFiles">
-                    <app-loading-spinner size="sm" />
-                    Отправка...
+                  <span class="d-inline-flex align-items-center gap-2">
+                    <app-loading-spinner
+                      *ngIf="savingJob || uploadingFiles"
+                      size="sm"
+                      message="" />
+                    <ng-container *ngIf="!savingJob && !uploadingFiles">
+                      Сохранить работу
+                    </ng-container>
+                    <ng-container *ngIf="savingJob">
+                      Сохранение...
+                    </ng-container>
+                    <ng-container *ngIf="uploadingFiles">
+                      Отправка...
+                    </ng-container>
                   </span>
                 </button>
               </div>

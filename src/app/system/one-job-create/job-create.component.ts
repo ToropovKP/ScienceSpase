@@ -149,6 +149,9 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       section: new FormControl('', [Validators.required]),
       // files: new FormControl('', [Validators.required]),
     })
+    if (!this.isEditMode) {
+      this.formJob.addControl('personalDataConsent', new FormControl(false, [Validators.requiredTrue]));
+    }
     if (this.isEditMode) {
       this.formJob.addControl('files', new FormControl('',))
     } else {
