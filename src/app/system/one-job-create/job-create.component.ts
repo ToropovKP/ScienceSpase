@@ -78,14 +78,14 @@ export class JobCreateComponent implements OnInit, OnDestroy {
   breadcrumbItems: MenuItem[] | undefined;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private location: Location,
-    private httpService: HttpService,
-    private notificationService: NotificationService,
-    private confirmationService: ConfirmationService,
-    private authService: AuthService
+      private formBuilder: FormBuilder,
+      private router: Router,
+      private route: ActivatedRoute,
+      private location: Location,
+      private httpService: HttpService,
+      private notificationService: NotificationService,
+      private confirmationService: ConfirmationService,
+      private authService: AuthService
   ) {
   }
 
@@ -197,7 +197,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
           {label: 'Редактирование'}
         ]
         this.httpService.getConferences().then((data) => {
-          this.conferences = data.filter((e) => e.status === 'ACTIVE');
+          this.conferences = data
 
           if (this.conferenceParamId) {
             this.currentConferenceId = this.conferenceParamId;
@@ -208,6 +208,9 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
           if (this.isEditMode && this.currentJob) {
             this.currentConference = this.conferences.find(e => e.id === this.currentJob?.conferenceId)
+            if (this.currentConference?.status !== 'ACTIVE') {
+              this.router.navigate(['not-found']);
+            }
             this.sections = this.currentConference?.sections!!;
             this.formJob.controls['conference'].setValue(this.currentConference);
             this.currentSection = this.sections.find(e => e.id === this.currentJob?.sectionId)
@@ -443,6 +446,56 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         this.uploadingFiles = false;
       });
     }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDropFiles(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const validFiles: File[] = [];
+      const allowedTypes = ['.docx', '.pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/pdf'];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+        const isValid = allowedTypes.includes(fileExtension) ||
+            allowedTypes.includes(file.type);
+
+        if (isValid) {
+          validFiles.push(file);
+        } else {
+          this.showFileError(file.name);
+        }
+      }
+
+      if (validFiles.length > 0) {
+        this.updateFormControlWithFiles(validFiles);
+      }
+    }
+  }
+
+  showFileError(fileName: string) {
+    this.notificationService.showWarning('Отклонено', `Файл "${fileName}" имеет недопустимый формат. Разрешены только DOCX и PDF.`);
+  }
+
+  updateFormControlWithFiles(files: File[]) {
+    const dataTransfer = new DataTransfer();
+    files.forEach(file => dataTransfer.items.add(file));
+
+    this.formJob.patchValue({
+      files: dataTransfer.files
+    });
+
+    this.formJob.get('files')?.markAsTouched();
   }
 
   saveJob() {

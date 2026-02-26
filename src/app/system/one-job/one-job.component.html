@@ -19,7 +19,7 @@
 
           <!-- Кнопки действий (только для десктопа) -->
           <div class="desktop-actions">
-            <button *ngIf="isUserJob()"
+            <button *ngIf="isUserJob() && allowEdit"
                     class="btn btn-action btn-edit"
                     (click)="editJob()"
                     pTooltip="Редактировать работу" tooltipPosition="bottom">

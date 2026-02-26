@@ -79,6 +79,8 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
+  allowEdit: boolean = true;
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -281,6 +283,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
             this.httpService.getConference(String(data.conferenceId)).then((conf) => {
               this.currentConference = conf;
+              if (conf.status !== 'ACTIVE') {
+                this.allowEdit = false;
+              }
               this.updateUserInfo()
               this.loadingConference = false;
             }).catch(error => {

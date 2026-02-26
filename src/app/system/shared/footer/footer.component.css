@@ -2,6 +2,7 @@
   font-size: 22px;
   white-space: nowrap;
   margin: 0 15px;
+  cursor: default;
 }
 
 @media (max-width: 992px) {
