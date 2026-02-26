@@ -1,80 +1,151 @@
 <section id="container__main">
   <div class="container">
     <app-toast-container />
+    <p-confirm-popup />
     <div class="main">
       <!-- Заголовок -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-          <h2 class="h4 mb-0">
-            <i class="bi bi-people-fill me-2"></i>Все пользователи
+      <div class="bg-white rounded-lg shadow-sm mb-4 border border-gray-200">
+        <div class="bg-accent text-text-primary-color rounded-t-lg px-6 py-4">
+          <h2 class="text-xl font-semibold mb-0 flex items-center">
+            <i class="bi bi-people-fill mr-2"></i>Все пользователи
           </h2>
         </div>
+      </div>
+
+      <!-- Поле фильтрации -->
+      <div *ngIf="isAdmin()" class="mb-4 relative">
+        <input
+          type="text"
+          [formControl]="filterName"
+          placeholder="Поиск по ФИО..."
+          class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors">
+        <button
+          *ngIf="filterName.value"
+          (click)="clearFilter()"
+          class="absolute border-transparent bg-transparent right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          type="button"
+          title="Очистить фильтр">
+          <i class="bi bi-x-circle-fill text-lg"></i>
+        </button>
       </div>
 
       <app-loading-spinner *ngIf="loadingData" message="Загрузка пользователей..." />
 
       <!-- Таблица пользователей -->
-      <div *ngIf="!loadingData" class="mobile-scroll-container">
-        <div class="card shadow-sm">
-          <div class="card-body p-0">
+      <div *ngIf="!loadingData" class="w-full overflow-x-auto rounded-lg">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="p-0">
             <!-- Заголовки таблицы -->
-            <div class="grid-header bg-primary text-white">
-              <div class="row g-0 align-items-center ">
-                <div class="col-2 ">Фамилия И.О.</div>
-                <div class="col-2 ">Телефон</div>
-                <div class="col-2 ">Почта</div>
-                <div class="col-2 text-center">Статус</div>
-                <div class="col-2 text-center">Роль</div>
-                <div class="col-2 text-center">Профиль</div>
+            <div class="bg-accent text-text-primary-color rounded-t-lg font-medium border-b-2 border-accent">
+              <div class="grid grid-cols-12 gap-0 items-center">
+                <div class="col-span-3 px-4 py-3 border-r border-border-black-light-2">ФИО</div>
+                <div class="col-span-2 px-4 py-3 border-r border-border-black-light-2">Почта</div>
+                <div class="col-span-2 px-4 py-3 border-r border-border-black-light-2 text-center">Статус</div>
+                <div class="col-span-2 px-4 py-3 border-r border-border-black-light-2 text-center">Роль</div>
+                <div class="col-span-3 px-4 py-3 text-center">Действия</div>
               </div>
             </div>
 
             <!-- Список пользователей -->
-            <div class="user-list ">
+            <div class="bg-white rounded-b-lg">
               <app-empty-state
                 *ngIf="!users?.length"
                 title="Нет зарегистрированных пользователей"
                 icon="bi bi-person-x-fill"
               />
 
-              <div class="user-item" *ngFor="let user of users">
-                <div class="row g-0 align-items-center ">
-                  <!-- Данные пользователя -->
-                  <div class="col-2 text-center text-truncate" [title]="user.lastName + ' ' + user.firstName + ' ' + user.middleName">
-                    {{ (user.lastName | firstWord | shortName:15) || '' }}
-                    {{ user.firstName | slice:0:1 }}.
-                    {{ user.middleName != '' ? (user.middleName | slice:0:1) + '.' : '' }}
+              <div *ngFor="let user of users" class="border-b border-border-white transition-colors hover:bg-bg-row last:border-b-0">
+                <div class="grid grid-cols-12 gap-0 items-center min-h-[50px]">
+                  <!-- ФИО -->
+                  <div class="col-span-3 px-4 py-3 border-r border-border-white truncate text-gray-700" 
+                       [title]="user.lastName + ' ' + user.firstName + ' ' + user.middleName">
+                    {{ (user.lastName + " " + user.firstName + " " + user.middleName) | shortName:30 }}
                   </div>
-                  <div class="col-2 text-truncate">{{ user.phone || '-' }}</div>
-                  <div class="col-2 text-truncate">{{ user.email }}</div>
-                  <div class="col-2 justify-content-center">
-                    <span class="badge" [ngClass]="{
-                      'bg-success': user.status === 'ACTIVE',
-                      'bg-danger': user.status !== 'ACTIVE'
-                    }">
+                  
+                  <!-- Почта -->
+                  <div class="col-span-2 px-4 py-3 border-r border-border-white truncate text-gray-700">{{ user.email }}</div>
+                  
+                  <!-- Статус -->
+                  <div class="col-span-2 px-4 py-3 border-r border-border-white flex items-center justify-center">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                          [ngClass]="{
+                            'bg-green-100 text-green-800': user.status === 'ACTIVE',
+                            'bg-red-100 text-red-800': user.status !== 'ACTIVE'
+                          }">
                       {{ userStatusMap[user.status] }}
                     </span>
                   </div>
-                  <div class="col-2 justify-content-center">
-                    <span class="badge" [ngClass]="{
-                      'bg-primary': user.role === 'ADMIN',
-                      'bg-secondary': user.role !== 'ADMIN'
-                    }">
+                  
+                  <!-- Роль -->
+                  <div class="col-span-2 px-4 py-3 border-r border-border-white flex items-center justify-center">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                          [ngClass]="{
+                            'bg-blue-100 text-blue-800': user.role === 'ADMIN',
+                            'bg-gray-100 text-gray-800': user.role !== 'ADMIN'
+                          }">
                       {{ userRoleMap[user.role] }}
                     </span>
                   </div>
-                  <div class="col-2 justify-content-center">
-                    <button class="btn btn-sm btn-link btn-profile"
-                            (click)="openProfile(user.id)"
-                            title="Открыть профиль">
-                      <i class="bi bi-box-arrow-up-right"></i>
-                    </button>
+                  
+                  <!-- Действия -->
+                  <div class="col-span-3 px-4 py-3 flex items-center justify-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap justify-center">
+                      <!-- Кнопка "Назначить модератором" (для участника) -->
+                      <button *ngIf="isAdmin() && user.role === 'MEMBER'"
+                              class="px-3 py-1.5 text-xs rounded border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                              (click)="confirmRole($event, user)"
+                              title="Назначить модератором">
+                        <i class="bi bi-person-check"></i>
+                      </button>
+                      
+                      <!-- Кнопка "Назначить участником" (для модератора) -->
+                      <button *ngIf="isAdmin() && user.role === 'MODERATOR'"
+                              class="px-3 py-1.5 text-xs rounded border border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors"
+                              (click)="confirmRole($event, user)"
+                              title="Назначить участником">
+                        <i class="bi bi-person-dash"></i>
+                      </button>
+                      
+                      <!-- Кнопка "Заблокировать" -->
+                      <button *ngIf="isAdmin() && user.role !== 'ADMIN' && user.status === 'ACTIVE'"
+                              class="px-3 py-1.5 text-xs rounded border border-red-300 bg-white text-red-700 hover:bg-red-50 transition-colors"
+                              (click)="confirmStatus($event, user)"
+                              title="Заблокировать">
+                        <i class="bi bi-lock"></i>
+                      </button>
+                      
+                      <!-- Кнопка "Разблокировать" -->
+                      <button *ngIf="isAdmin() && user.role !== 'ADMIN' && user.status === 'BANNED'"
+                              class="px-3 py-1.5 text-xs rounded border border-green-300 bg-white text-green-700 hover:bg-green-50 transition-colors"
+                              (click)="confirmStatus($event, user)"
+                              title="Разблокировать">
+                        <i class="bi bi-unlock"></i>
+                      </button>
+                      
+                      <!-- Кнопка "Профиль" -->
+                      <button class="px-3 py-1.5 text-xs rounded border border-gray-300 bg-white text-accent hover:bg-gray-50 hover:text-accent-hover transition-colors"
+                              (click)="openProfile(user.id)"
+                              title="Открыть профиль">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Пагинация -->
+      <div *ngIf="!loadingData && users?.length" class="mt-4">
+        <app-pagination
+          [currentPage]="currentPage"
+          [pageSize]="pageSize"
+          [total]="totalUsers"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)">
+        </app-pagination>
       </div>
 
     </div>

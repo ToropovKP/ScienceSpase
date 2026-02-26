@@ -99,6 +99,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           {label: this.getShortConferenceTitle()}
         ]
         this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
+        console.log(this.sections)
         this.currentAdmins = this.currentConference.admins;
 
         if (this.isModerator()) {

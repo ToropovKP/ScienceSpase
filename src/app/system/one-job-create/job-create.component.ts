@@ -197,7 +197,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
           {label: 'Редактирование'}
         ]
         this.httpService.getConferences().then((data) => {
-          this.conferences = data;
+          this.conferences = data.filter((e) => e.status === 'ACTIVE');
 
           if (this.conferenceParamId) {
             this.currentConferenceId = this.conferenceParamId;
@@ -237,7 +237,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
         {label: 'Добавление работы'}
       ]
       this.httpService.getConferences().then((data) => {
-        this.conferences = data;
+        this.conferences = data.filter((e) => e.status === 'ACTIVE');
         if (this.conferenceParamId) {
           this.currentConferenceId = this.conferenceParamId;
           this.currentConference = this.conferences.find((e) => String(e.id) === this.conferenceParamId);
