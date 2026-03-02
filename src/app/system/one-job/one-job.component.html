@@ -279,7 +279,7 @@
         </div>
 
         <!-- Чат -->
-        <div *ngIf="!isReviewer()" class="card shadow-sm mb-4">
+        <div *ngIf="!isReviewer() && allowEdit" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Чат</h5>
           </div>
