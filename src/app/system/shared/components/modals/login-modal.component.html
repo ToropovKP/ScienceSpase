@@ -1,0 +1,51 @@
+<div class="modal fade modal-signin" (keyup.enter)="login()" id="windowLogIn" tabindex="-1" aria-labelledby="windowLogIn" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" id="login">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header p-4 pt-4 pb-4 border-bottom-0">
+        <h2 class="fw-bold mb-0" style="color: #2D2D2D;">Вход в аккаунт</h2>
+        <button type="button" #closeModal class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearErrors()"></button>
+      </div>
+
+      <div class="modal-body p-4 pb-3 pt-0">
+        <form [formGroup]="loginForm">
+          <app-email-field
+            id="email-log"
+            label="Почта"
+            [required]="true"
+            [control]="emailControl">
+          </app-email-field>
+
+          <app-password-field
+            id="password-log"
+            inputId="password-log"
+            label="Пароль"
+            [required]="true"
+            [control]="passwordControl">
+          </app-password-field>
+
+          <div class="text-center text-red-600 pb-2">
+            <span *ngIf="invalidLogin">Неверные логин или пароль</span>
+            <span *ngIf="userBlockedLogin">Пользователь заблокирован</span>
+          </div>
+
+          <p-button 
+            class="w-100 btn-login" 
+            label="Вход" 
+            type="submit" 
+            [fluid]="true" 
+            [loading]="loading" 
+            (click)="login()" 
+            [disabled]="loginForm.invalid"/>
+
+          <small class="text-muted text-center d-block mt-2">
+            Забыли пароль? 
+            <a class="link-primary" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#windowRestore" (click)="openRestoreModal()">
+              Восстановить
+            </a>
+          </small>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

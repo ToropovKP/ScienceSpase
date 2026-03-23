@@ -1,3 +1,6 @@
+/* Минимальные кастомные стили только для специфичных случаев */
+/* Основные стили теперь используют Tailwind CSS */
+
 #container__main {
   background: url(/assets/pictures/home/pattern.svg);
 }
@@ -9,155 +12,7 @@
   min-height: 100vh;
 }
 
-.card {
-  background: var(--old-bg-card);
-  border: 1px solid var(--old-accent);
-}
-
-.card-header {
-  background: var(--old-accent) !important;
-  padding: 1rem;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-/* Формы */
-.form-label {
-  font-weight: 500;
-  color: var(--old-h1-accent);
-}
-
-.form-control {
-  border: 2px solid var(--old-accent);
-  background: var(--old-bg-card);
-  transition: border-color 0.2s;
-}
-
-.form-control:focus {
-  border-color: var(--old-h1-accent);
-  box-shadow: none;
-}
-
-.form-control[readonly] {
-  background-color: var(--old-bg-row);
-}
-
-.invalid-feedback {
-  /*display: block;*/
-  margin-top: 0.25rem;
-  color: var(--old-danger);
-  font-size: 0.875em;
-}
-
-.btn-outline-primary {
-  border-color: var(--old-accent);
-  color: var(--old-accent);
-}
-
-.btn-outline-primary:hover {
-  border-color: var(--old-accent);
-  background-color: var(--old-accent);
-  color: var(--old-text-primary-color);
-}
-
-/* Кнопки */
-.btn {
-  transition: all 0.2s;
-  min-width: 120px;
-}
-
-.btn-primary {
-  background: var(--old-accent);
-  border-color: var(--old-accent-hover);
-}
-
-.btn-primary:hover {
-  background: var(--old-accent-hover);
-}
-
-.alert-link {
-  cursor: pointer;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-  .card-header h2 {
-    font-size: 1.25rem;
-  }
-
-  .btn {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  .d-md-flex {
-    flex-direction: column;
-  }
-}
-
-.hover-icon {
-  cursor: pointer;
-  margin-left: 8px;
-  color: #6c757d;
-  transition: all 0.3s ease;
-}
-
-.hover-icon:hover {
-  color: #2196F3;
-  transform: scale(1.1);
-}
-
-/* Новые стили */
-.section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--old-accent);
-}
-
-.readonly-style {
-  background-color: var(--old-bg-row);
-  cursor: not-allowed;
-}
-
-/* Стили для кнопок в шапке */
-.card-header .btn-outline-light {
-  border-color: rgba(255,255,255,0.5);
-  color: white;
-  transition: all 0.2s;
-}
-
-.card-header .btn-outline-light:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: white;
-}
-
-.card-header .btn-light {
-  background: white;
-  color: var(--old-accent);
-  transition: all 0.2s;
-}
-
-.card-header .btn-light:hover {
-  background: rgba(255,255,255,0.9);
-}
-
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  top: 38px;
-  cursor: pointer;
-  color: var(--old-accent);
-  transition: all 0.2s;
-}
-
-.password-toggle:hover {
-  color: var(--old-accent-hover);
-}
-
-/* Попап с правилами */
+/* Специфичные стили для попапов PrimeNG */
 ::ng-deep .password-rules-popover {
   font-family: inherit;
 }
@@ -184,20 +39,6 @@
   padding: 1rem;
 }
 
-/* Индикатор сложности пароля (появляется только при вводе) */
-.password-strength {
-  transition: all 0.3s ease;
-}
-
-.progress {
-  background-color: #e9ecef;
-  border-radius: 2px;
-}
-
-.progress-bar {
-  transition: width 0.5s ease;
-}
-
 ::ng-deep .fixed-width-popover {
   max-width: 400px !important;
   width: 400px !important;
@@ -218,4 +59,27 @@
 ::ng-deep .fixed-width-popover .popover-body {
   word-break: normal;
   overflow-wrap: break-word;
+}
+
+/* Убираем градиент в обводке полей ввода */
+input[type="text"],
+input[type="password"] {
+  border-image: none !important;
+  border-style: solid !important;
+}
+
+/* Стили для полей ввода: синяя граница по умолчанию, черная при фокусе */
+.border-accent:focus {
+  border-color: var(--old-h1-accent) !important;
+}
+
+.border-accent:not(:focus) {
+  border-color: var(--old-accent) !important;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .main {
+    padding: 110px 15px 20px 15px;
+  }
 }

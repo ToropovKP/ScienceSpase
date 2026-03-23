@@ -1,7 +1,7 @@
 version: "3"
 services:
     frontend:
-      image: registry.gitlab.com/kograf/frontend/kograf-frontend:${VERSION}
+      image: registry.gitlab.com/science_space/frontend/kograf-frontend:${VERSION}
       container_name: kograf_frontend
       ports:
         - "80:80"

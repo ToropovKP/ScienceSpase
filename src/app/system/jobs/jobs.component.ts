@@ -7,17 +7,25 @@ import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../shared/model/conference";
 import {CommonModule} from "@angular/common";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MenuItem, MessageService} from "primeng/api";
+import {NotificationService} from "../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
+import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {Breadcrumb} from "primeng/breadcrumb";
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.css'],
-  imports: [CommonModule, ToastModule, Breadcrumb],
-  providers: [MessageService]
+  imports: [
+    CommonModule,
+    LoadingSpinnerComponent,
+    EmptyStateComponent,
+    BreadcrumbWrapperComponent,
+    ToastContainerComponent
+  ]
 })
 export class JobsComponent implements OnInit, OnDestroy {
 
@@ -30,11 +38,13 @@ export class JobsComponent implements OnInit, OnDestroy {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private notificationService: NotificationService,
+    private authService: AuthService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -82,12 +92,7 @@ export class JobsComponent implements OnInit, OnDestroy {
             this.breadcrumbItems?.push({label: this.getShortConferenceTitle()})
             this.loadingConference = false;
           }).catch(error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Возникла непредвиденная ошибка',
-              detail: 'Ошибка на стороне сервера',
-              life: 3000
-            });
+            this.notificationService.showServerError();
             this.loadingConference = false;
           });
           this.jobs = this.jobs.filter(job => String(job.conferenceId) === this.currentConferenceId)
@@ -95,12 +100,7 @@ export class JobsComponent implements OnInit, OnDestroy {
           this.loadingConference = false;
         }
       }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+        this.notificationService.showServerError();
         this.loadingJobs = false;
       });
     })

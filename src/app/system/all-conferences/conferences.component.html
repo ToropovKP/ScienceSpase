@@ -1,6 +1,6 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <app-toast-container />
     <div class="main">
       <!-- Заголовок и кнопка создания -->
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -14,17 +14,12 @@
         </button>
       </div>
 
-      <div *ngIf="loadingConference" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
-      </div>
+      <app-loading-spinner *ngIf="loadingConference" message="Загрузка конференций..." />
 
-      <!-- Список конференций -->
-      <div *ngIf="!loadingConference && !conferences?.length" class="text-center py-5 bg-light rounded-3">
-        <div class="h4 text-muted mb-3">Нет доступных конференций</div>
-        <i class="bi bi-calendar-x fs-1 text-secondary"></i>
-      </div>
+      <app-empty-state 
+        *ngIf="!loadingConference && !conferences?.length"
+        title="Нет доступных конференций"
+        iconClass="bi bi-calendar-x fs-1 text-secondary" />
 
       <div *ngIf="!loadingConference && conferences?.length" class="conf-list">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">

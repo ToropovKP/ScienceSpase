@@ -1,18 +1,14 @@
 <section id="container__main">
   <div class="container">
-    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true"/>
+    <app-toast-container />
     <p-confirm-dialog key="confirmPopup"/>
     <p-confirm-popup key="confirmDialog"/>
     <div class="main">
 
-      <div *ngIf="loadingJob" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
-      </div>
+      <app-loading-spinner *ngIf="loadingJob" message="Загрузка работы..." />
 
       <div *ngIf="!loadingJob">
-        <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem"></p-breadcrumb>
+        <app-breadcrumb-wrapper [items]="breadcrumbItems || []" [home]="homeItem"></app-breadcrumb-wrapper>
       </div>
 
       <div *ngIf="!loadingJob" class="header-container">
@@ -23,7 +19,7 @@
 
           <!-- Кнопки действий (только для десктопа) -->
           <div class="desktop-actions">
-            <button *ngIf="isUserJob()"
+            <button *ngIf="isUserJob() && allowEdit"
                     class="btn btn-action btn-edit"
                     (click)="editJob()"
                     pTooltip="Редактировать работу" tooltipPosition="bottom">
@@ -49,7 +45,7 @@
       <!-- Основной контент -->
       <div *ngIf="!loadingJob" class="content-wrapper">
         <div *ngIf="loadingConference" class="text-center">
-          <div class="spinner-border text-primary" role="status"></div>
+          <app-loading-spinner size="sm" />
         </div>
 
         <!-- Карточки конференции -->
@@ -218,7 +214,7 @@
                 <div class="mb-4">
                   <h6 class="mb-3">Критерии оценивания</h6>
                   <div *ngIf="loadingConference" class="text-center">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <app-loading-spinner size="sm" />
                   </div>
                   <div *ngIf="!loadingConference" class="row g-3">
                     <div *ngFor="let tag of currentConference.tags" class="col-md-6">
@@ -255,7 +251,7 @@
                 <div class="mb-4">
                   <h6 class="mb-3">Оценки по критериям</h6>
                   <div *ngIf="loadingConference" class="text-center">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <app-loading-spinner size="sm" />
                   </div>
                   <div *ngIf="!loadingConference" class="row g-3">
                     <div *ngFor="let tag of currentConference.tags" class="col-md-6">
@@ -283,7 +279,7 @@
         </div>
 
         <!-- Чат -->
-        <div *ngIf="!isReviewer()" class="card shadow-sm mb-4">
+        <div *ngIf="!isReviewer() && allowEdit" class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Чат</h5>
           </div>

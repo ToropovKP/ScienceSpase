@@ -1,53 +1,43 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router, RouterModule} from "@angular/router";
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {User} from "../model/user";
 import {HttpService} from "../services/http.service";
 import {CommonModule} from "@angular/common";
-import {NgxMaskDirective} from "ngx-mask";
-import {IftaLabelModule} from "primeng/iftalabel";
-import {InputTextModule} from "primeng/inputtext";
-import {PasswordModule} from "primeng/password";
-import {ButtonModule} from "primeng/button";
 import {AuthService} from "../services/auth.service";
-import {passwordMatchValidator} from "../validators/password.match.validator";
-import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
 import {FirstWordPipe} from "../pipes/first.word.pipe";
 import {ShortNamePipe} from "../pipes/short.name.pipe";
+import {LoginModalComponent} from "../components/modals/login-modal.component";
+import {RegistrationModalComponent} from "../components/modals/registration-modal.component";
+import {RestorePasswordModalComponent} from "../components/modals/restore-password-modal.component";
+import {ToastContainerComponent} from "../components/ui/toast-container.component";
 
 @Component({
   selector: 'app-header',
   templateUrl: 'header.component.html',
   styleUrls: ['header.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, RouterModule, NgxMaskDirective,
-    IftaLabelModule, InputTextModule, PasswordModule, ButtonModule, FirstWordPipe, ShortNamePipe, ToastModule, FirstWordPipe, ShortNamePipe],
-  providers: [MessageService]
+  imports: [
+    CommonModule,
+    RouterModule,
+    FirstWordPipe,
+    ShortNamePipe,
+    LoginModalComponent,
+    RegistrationModalComponent,
+    RestorePasswordModalComponent,
+    ToastContainerComponent
+  ]
 })
 export class HeaderComponent implements OnInit {
 
-  @ViewChild('closeModalLogIn') closeModalLogIn!: ElementRef
-  @ViewChild('closeModalReg') closeModalReg!: ElementRef
-  @ViewChild('closeModalRestore') closeModalRestore!: ElementRef
-  invalidLogin: boolean = false;
-  userBlockedLogin: boolean = false;
-  userBlockedReg: boolean = false;
-  userExists: boolean = false;
-  restoreEmailNotExist: boolean = false;
+  @ViewChild(LoginModalComponent) loginModal!: LoginModalComponent;
+  @ViewChild(RegistrationModalComponent) registrationModal!: RegistrationModalComponent;
 
-  loginForm!: FormGroup;
-  formRegistration!: FormGroup;
-  formRestore!: FormGroup;
   currentUser!: User;
 
-  showRegStatus!: User;
-
-  constructor(private router: Router,
-              private formBuilder: FormBuilder,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
-
+  constructor(
+    private router: Router,
+    private httpService: HttpService,
+    private authService: AuthService
+  ) {
   }
 
   ngOnInit() {
@@ -58,174 +48,9 @@ export class HeaderComponent implements OnInit {
     });
 
     this.authService.getCurrentUser()
-    .catch((error) => {
-      console.error('Failed to load user data', error);
-    });
-
-    this.initializeForms();
-  }
-
-  initializeForms() {
-    this.formRegistration = this.formBuilder.group({
-          firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
-          lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
-          middleName: new FormControl('', []),
-          phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
-          email: new FormControl('', [Validators.required, Validators.email]),
-          organization: new FormControl('', []),
-          academicDegree: new FormControl('', []),
-          academicTitle: new FormControl('', []),
-          password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-          confirmedPassword: new FormControl('', [Validators.required, Validators.minLength(6)])
-        },
-        {
-          validators: passwordMatchValidator
-        });
-    this.loginForm = this.formBuilder.group({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-    })
-    this.formRestore = this.formBuilder.group({
-      email: new FormControl('', [Validators.required, Validators.email]),
-    })
-  }
-
-  pressBtn(id: string): void {
-    document.getElementById(id)?.click();
-  }
-
-  clearBooleans() {
-    this.invalidLogin = false
-    this.userBlockedLogin = false
-    this.userExists = false;
-    this.userBlockedReg = false;
-    this.restoreEmailNotExist = false;
-  }
-
-  loading: boolean = false
-
-  login(): void {
-    this.loading = true;
-    let email: string = this.loginForm.value.email;
-    let request = {"email": email, "password": this.loginForm.value.password};
-    this.httpService.login(request).then((data) => {
-      this.invalidLogin = false
-      this.userBlockedLogin = false
-      this.closeModalLogIn.nativeElement.click()
-      localStorage.setItem("token", data.access_token);
-
-      return this.authService.getCurrentUser()
-    }).then((user) => {
-      if (user) {
-        this.currentUser = user;
-      }
-
-      this.loading = false;
-      this.loginForm.reset();
-      this.router.navigate(["/conferences"]);
-    }).catch((error) => {
-      this.loading = false;
-      if (error.error['code'] === 'USER_DOES_NOT_EXISTS') {
-        this.invalidLogin = true;
-        this.userBlockedLogin = false;
-      } else if (error.error['code'] === 'BANNED') {
-        this.invalidLogin = false
-        this.userBlockedLogin = true;
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
-      }
-    });
-  }
-
-  registration(): void {
-    this.loading = true;
-    let request = {
-      "firstName": this.formRegistration.value.firstName,
-      "lastName": this.formRegistration.value.lastName,
-      "middleName": this.formRegistration.value.middleName,
-      "phone": '7' + this.formRegistration.value.phone,
-      "email": this.formRegistration.value.email,
-      "organization": this.formRegistration.value.organization,
-      "academicDegree": this.formRegistration.value.academicDegree,
-      "academicTitle": this.formRegistration.value.academicTitle,
-      "password": this.formRegistration.value.password
-    };
-    this.httpService.registration(request).then((data) => {
-      this.loading = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Регистрация прошла успешно',
-        detail: 'На вашу почту отправлено письмо с подтверждением',
-        life: 3000
+      .catch((error) => {
+        console.error('Failed to load user data', error);
       });
-      this.userExists = false;
-      this.userBlockedReg = false;
-      this.closeModalReg.nativeElement.click()
-      this.showRegStatus = data;
-      this.loginForm.controls['email'].setValue(this.formRegistration.value.email)
-      this.loginForm.controls['password'].setValue(this.formRegistration.value.password)
-      this.login()
-      this.formRegistration.reset();
-    }).catch(error => {
-      this.loading = false;
-      if (error.error['code'] === 'USER_EXISTS') {
-        this.userExists = true;
-        this.userBlockedReg = false;
-      } else if (error.error['code'] === 'BANNED') {
-        this.userExists = false;
-        this.userBlockedReg = true;
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
-      }
-    })
-  }
-
-  restorePassword(): void {
-    this.loading = true;
-    let email: string = this.formRestore.value.email;
-    this.httpService.sendRestorePasswordLink(email).then((data) => {
-      if (data) {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Успешно',
-          detail: 'Письмо с инструкцией отправлено на почту',
-          life: 3000
-        });
-        this.restoreEmailNotExist = false;
-        this.closeModalRestore.nativeElement.click()
-      } else {
-        this.restoreEmailNotExist = true;
-      }
-      this.loading = false;
-      this.formRestore.reset();
-    }).catch((error) => {
-      this.loading = false;
-      if (error.status === 429) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Отклонено',
-          detail: 'Слишком много запросов на сброс пароля. Попробуйте позже',
-          life: 3000
-        });
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось отправить письмо',
-          life: 3000
-        });
-      }
-    });
   }
 
   checkLogin() {
@@ -238,14 +63,31 @@ export class HeaderComponent implements OnInit {
 
   logout() {
     this.httpService.logout().then(() => {
-      localStorage.clear()
-      this.authService.clearData()
-      this.toPage('')
+      localStorage.clear();
+      this.authService.clearData();
+      this.toPage('');
     });
   }
 
   toPage(link: string) {
     this.router.navigate([link]);
+  }
+
+  refreshCurrentUser(): void {
+    this.authService.getCurrentUser()
+      .catch((error) => {
+        console.error('Failed to refresh user data', error);
+      });
+  }
+
+  onRegistrationSuccess(credentials: { email: string; password: string }) {
+    // После успешной регистрации закрываем модальное окно регистрации
+    // и открываем модальное окно входа с заполненными данными
+    // Это можно сделать через сервис или напрямую через ViewChild
+    if (this.loginModal) {
+      // Устанавливаем значения в форму логина и открываем модальное окно
+      // Но проще просто открыть модальное окно логина - пользователь введет данные сам
+    }
   }
 
   isMobileMenuOpen = false;

@@ -1,0 +1,17 @@
+<p-iftalabel class="mb-3">
+  <input 
+    pInputText 
+    type="email"
+    [id]="id" 
+    [formControl]="control"
+    [placeholder]="placeholder"
+    autocomplete="email"
+    class="w-100"
+    [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+    [fluid]="true" />
+  <label [for]="id">
+    {{ label }}
+    <span *ngIf="required" class="text-danger">*</span>
+  </label>
+</p-iftalabel>
+

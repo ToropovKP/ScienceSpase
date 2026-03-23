@@ -12,18 +12,25 @@ import {UserBase} from "../shared/model/user.base";
 import {CommonModule} from "@angular/common";
 import {DateService} from "../shared/services/date.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MenuItem, MessageService} from "primeng/api";
+import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
-import {Breadcrumb} from "primeng/breadcrumb";
+import {NotificationService} from "../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 
 @Component({
   selector: 'app-conference-jobs',
   templateUrl: './conference-jobs.component.html',
   styleUrls: ['./conference-jobs.component.css'],
-  imports: [CommonModule, ToastModule, ClickOutsideDirective, Breadcrumb],
-  providers: [MessageService]
+  imports: [
+    CommonModule,
+    ClickOutsideDirective,
+    LoadingSpinnerComponent,
+    BreadcrumbWrapperComponent,
+    ToastContainerComponent
+  ]
 })
 export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
@@ -43,11 +50,13 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private notificationService: NotificationService,
+    private authService: AuthService
+  ) {
   }
 
   private destroy$ = new Subject<void>();
@@ -129,22 +138,12 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
           this.loadingJobs = false;
         }).catch(error => {
           this.loadingJobs = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Возникла непредвиденная ошибка',
-            detail: 'Ошибка на стороне сервера',
-            life: 3000
-          });
+          this.notificationService.showServerError();
         });
         this.loadingConference = false;
       }).catch(error => {
         this.loadingConference = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
+        this.notificationService.showServerError();
         if (error.status === 404) {
           this.router.navigate(['not-found']);
         }
@@ -217,12 +216,7 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
   downloadFilesJob(job: Job) {
     this.httpService.downloadFilesJob(String(job.id)).then(response => this.processDownloadFile(response))
     .catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось скачать файлы',
-        life: 3000
-      });
+      this.notificationService.showFileDownloadError();
     });
   }
 
@@ -230,23 +224,13 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
     if (this.isMasterModeratorOfThisConference()) {
       this.httpService.downloadFilesConference(this.currentConferenceId).then(response => this.processDownloadFile(response))
       .catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Не удалось скачать файлы',
-          life: 3000
-        });
+        this.notificationService.showFileDownloadError();
       });
     } else {
       this.currentSections.forEach((sec) =>
           this.httpService.downloadFilesSection(String(sec.id)).then(response => this.processDownloadFile(response))
           .catch(error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Возникла непредвиденная ошибка',
-              detail: 'Не удалось скачать файлы',
-              life: 3000
-            });
+            this.notificationService.showFileDownloadError();
           })
       );
     }

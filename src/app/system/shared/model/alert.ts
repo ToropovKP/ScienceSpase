@@ -1,16 +1,3 @@
-export class Alert {
-  id?: string;
-  type?: AlertType;
-  message?: string;
-  autoClose?: boolean;
-  keepAfterRouteChange?: boolean;
-  fade?: boolean;
-
-  constructor(init?: Partial<Alert>) {
-    Object.assign(this, init);
-  }
-}
-
 export enum AlertType {
   Success,
   Error,
@@ -18,7 +5,16 @@ export enum AlertType {
   Warning
 }
 
-export class AlertOptions {
+export interface Alert {
+  id?: string;
+  type?: AlertType;
+  message?: string;
+  autoClose?: boolean;
+  keepAfterRouteChange?: boolean;
+  fade?: boolean;
+}
+
+export interface AlertOptions {
   id?: string;
   autoClose?: boolean;
   keepAfterRouteChange?: boolean;

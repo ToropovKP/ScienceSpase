@@ -15,24 +15,39 @@ import {DateService} from "../shared/services/date.service";
 import {Review} from "../shared/model/review";
 import {ChatService} from "../shared/services/chat.service";
 import {AuthService} from "../shared/services/auth.service";
-import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {ToastModule} from "primeng/toast";
 import {FirstWordPipe} from "../shared/pipes/first.word.pipe";
 import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
 import {filter} from "rxjs/operators";
 import {orcidPattern} from "../../app.constants";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {LinkifyPipe} from "../shared/pipes/linkify.pipe";
-import {Breadcrumb} from "primeng/breadcrumb";
 import {Tooltip} from "primeng/tooltip";
+import {NotificationService} from "../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
 
 @Component({
   selector: 'app-one-job',
   templateUrl: './one-job.component.html',
   styleUrls: ['./one-job.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmDialogModule, ToastModule, FirstWordPipe, ShortNamePipe, FirstWordPipe, ShortNamePipe, ConfirmPopupModule, LinkifyPipe, Breadcrumb, Tooltip],
-  providers: [ConfirmationService, MessageService]
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    NgxMaskDirective,
+    ConfirmDialogModule,
+    FirstWordPipe,
+    ShortNamePipe,
+    ConfirmPopupModule,
+    LinkifyPipe,
+    Tooltip,
+    LoadingSpinnerComponent,
+    BreadcrumbWrapperComponent,
+    ToastContainerComponent
+  ],
+  providers: [ConfirmationService]
 })
 export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -45,7 +60,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   model: Record<string, number> = {}
 
   currentJobId!: string;
-  currentJob: Job = new Job();
+  currentJob: Job = {} as Job;
   jobUser!: User;
   currentComments!: Comment[];
   currentConference!: Conference;
@@ -64,14 +79,18 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   homeItem: MenuItem | undefined;
   breadcrumbItems: MenuItem[] | undefined;
 
-  constructor(private formBuilder: FormBuilder,
-              private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private chatService: ChatService,
-              private authService: AuthService,
-              private confirmationService: ConfirmationService,
-              private messageService: MessageService) {
+  allowEdit: boolean = true;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private chatService: ChatService,
+    private authService: AuthService,
+    private confirmationService: ConfirmationService,
+    private notificationService: NotificationService
+  ) {
   }
 
   @ViewChild('chatContainer', {static: false}) chatContainerRef!: ElementRef<HTMLElement>;
@@ -264,6 +283,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
             this.httpService.getConference(String(data.conferenceId)).then((conf) => {
               this.currentConference = conf;
+              if (conf.status !== 'ACTIVE') {
+                this.allowEdit = false;
+              }
               this.updateUserInfo()
               this.loadingConference = false;
             }).catch(error => {
@@ -277,22 +299,12 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.isInitialLoad = false;
               }
             }).catch(error => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Возникла непредвиденная ошибка',
-                detail: 'Ошибка на стороне сервера',
-                life: 3000
-              });
+              this.notificationService.showServerError();
             })
           }
 
         }).catch(error => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Возникла непредвиденная ошибка',
-            detail: 'Ошибка на стороне сервера',
-            life: 3000
-          });
+          this.notificationService.showServerError();
           if (error.status === 404) {
             this.router.navigate(['not-found']);
           }
@@ -317,12 +329,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       this.formJob.controls['section'].setValue(this.currentJob.sectionTitle)
       this.loadingJob = false;
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Ошибка на стороне сервера',
-        life: 3000
-      });
+      this.notificationService.showServerError();
       this.loadingJob = false;
     })
   }
@@ -384,7 +391,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     request.setText(this.formReview.value.text)
     this.httpService.reviewJob(this.currentJobId, request).then((data) => {
       this.existReviewByCurrentUser = true
-      let review: Review = new Review();
+      let review: Review = {} as Review;
       review.reviews = request.getReviews();
       review.text = request.getText();
       review.userId = this.currentUser.id;
@@ -396,12 +403,7 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     this.httpService.downloadFile(fileName).then(response => {
       this.processDownloadFile(response)
     }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось скачать файл',
-        life: 3000
-      });
+      this.notificationService.showFileDownloadError();
     });
   }
 
@@ -450,14 +452,9 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       accept: () => {
         this.httpService.deleteJob(String(this.currentJob.id)).then((data) => {
           this.toPage(`/conference/${this.currentJob.conferenceId}`);
-          this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Статья удалена', life: 3000});
+          this.notificationService.showSuccess('Успешно', 'Статья удалена');
         }).catch(error => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Возникла непредвиденная ошибка',
-            detail: 'Не удалось удалить работу',
-            life: 3000
-          });
+          this.notificationService.showError('Не удалось удалить работу');
         })
       }
     });

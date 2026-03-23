@@ -1,0 +1,17 @@
+<p-iftalabel class="mb-3">
+  <input 
+    pInputText 
+    prefix="+7 " 
+    mask="(000) 000-0000" 
+    [id]="id" 
+    [formControl]="control"
+    [placeholder]="placeholder"
+    autocomplete="tel"
+    [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+    [fluid]="true" />
+  <label [for]="id">
+    {{ label }}
+    <span *ngIf="required" class="text-danger">*</span>
+  </label>
+</p-iftalabel>
+

@@ -230,7 +230,7 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
         }
       });
 
-      const section = new Section();
+      const section = {} as Section;
       section.id = id || Number(0);
       section.title = title;
       section.leaders = leadersUserBase;
@@ -326,7 +326,7 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
         }
       });
 
-      const section = new Section();
+      const section = {} as Section;
       section.id = id || Number(null);
       section.title = title;
       section.leaders = leadersUserBase;
@@ -428,7 +428,7 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  createSection(section: Section = new Section()): FormGroup {
+  createSection(section: Section = {} as Section): FormGroup {
     const formGroup = this.formBuilder.group({
       id: [section.id],
       title: section.title != null ? [section.title] : [''],
