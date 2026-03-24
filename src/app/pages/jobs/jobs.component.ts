@@ -10,8 +10,9 @@ import {AuthService} from "../../shared/services/auth.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {EmptyStateComponent} from "../../shared/ui/empty-state.component";
-import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {JobsListToolbarComponent} from "../../features/job-list/ui/jobs-list-toolbar.component";
+import {JobCatalogGridComponent} from "../../features/job-list/ui/job-catalog-grid.component";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 
@@ -23,8 +24,9 @@ import {filter} from "rxjs/operators";
     CommonModule,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    JobsListToolbarComponent,
+    JobCatalogGridComponent
   ]
 })
 export class JobsComponent implements OnInit, OnDestroy {

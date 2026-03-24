@@ -1,0 +1,47 @@
+.text-area-control {
+  min-height: calc(1.5em * 1 + 12px);
+  max-height: calc(1.5em * 4 + 12px);
+  line-height: 1.5;
+  transition: height 0.2s;
+}
+
+.chat-container {
+  height: 400px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  padding: 10px;
+  background: var(--old-bg-card);
+  border-radius: 8px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  word-break: break-word;
+  white-space: pre-line;
+  line-height: 1.4;
+  margin: 2px 0;
+}
+
+.message-other {
+  background-color: var(--old-bg-row);
+  border: none;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.message-mine {
+  background-color: var(--old-accent);
+  color: var(--old-text-primary-color);
+  border: none;
+  align-self: flex-end;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    max-height: 300px;
+  }
+}

@@ -1,17 +1,17 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Conference} from "../../entities/conference/model/conference";
 import {User} from "../../entities/user/model/user";
-import {conferenceStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "../../shared/services/http.service";
 import {CommonModule} from "@angular/common";
-import {DateService} from "../../shared/services/date.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {AuthGuardService} from "../../shared/services/auth-guard.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {EmptyStateComponent} from "../../shared/ui/empty-state.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {ConferenceListPageHeaderComponent} from "../../features/conference-list/ui/conference-list-page-header.component";
+import {ConferenceCatalogGridComponent} from "../../features/conference-list/ui/conference-catalog-grid.component";
 import {Subject, takeUntil} from "rxjs";
 import {filter} from "rxjs/operators";
 
@@ -23,13 +23,12 @@ import {filter} from "rxjs/operators";
     CommonModule,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    ConferenceListPageHeaderComponent,
+    ConferenceCatalogGridComponent
   ]
 })
 export class ConferencesComponent implements OnInit, OnDestroy {
-
-  protected readonly conferenceStatusMap = conferenceStatusMap;
-  protected readonly DateService = DateService;
 
   conferences: Conference[] = [];
   currentUser: User | null = null;

@@ -10,15 +10,16 @@ import {HttpService} from "../../shared/services/http.service";
 import {Section} from "../../entities/conference/model/section";
 import {UserBase} from "../../entities/user/model/user.base";
 import {CommonModule} from "@angular/common";
-import {DateService} from "../../shared/services/date.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {ClickOutsideDirective} from "../../shared/lib/directives/click-outside.directive";
 import {NotificationService} from "../../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {ConferenceJobsHeaderComponent} from "../../features/conference-jobs-header/ui/conference-jobs-header.component";
+import {ConferenceSummaryCardsComponent} from "../../features/conference-summary-cards/ui/conference-summary-cards.component";
+import {ConferenceJobsListComponent} from "../../features/conference-jobs-list/ui/conference-jobs-list.component";
 
 @Component({
   selector: 'app-conference-jobs',
@@ -26,17 +27,17 @@ import {ToastContainerComponent} from "../../shared/ui/toast-container.component
   styleUrls: ['./conference-jobs.component.css'],
   imports: [
     CommonModule,
-    ClickOutsideDirective,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    ConferenceJobsHeaderComponent,
+    ConferenceSummaryCardsComponent,
+    ConferenceJobsListComponent
   ]
 })
 export class ConferenceJobsComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
-  protected readonly DateService = DateService;
-  protected readonly String = String;
 
   jobs: Job[] = [];
 
@@ -247,69 +248,7 @@ export class ConferenceJobsComponent implements OnInit, OnDestroy {
     }
   }
 
-  sortColumn: string = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
-
-  sort(column: string) {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
-    }
-
-    this.jobs.sort((a, b) => {
-      let valueA, valueB;
-
-      switch (column) {
-        case 'userName':
-          valueA = a.userName?.toLowerCase() || '';
-          valueB = b.userName?.toLowerCase() || '';
-          break;
-        case 'title':
-          valueA = a.title?.toLowerCase() || '';
-          valueB = b.title?.toLowerCase() || '';
-          break;
-        case 'sectionTitle':
-          valueA = a.sectionTitle?.toLowerCase() || '';
-          valueB = b.sectionTitle?.toLowerCase() || '';
-          break;
-        case 'dateTime':
-          valueA = new Date(a.dateTime).getTime();
-          valueB = new Date(b.dateTime).getTime();
-          break;
-        default:
-          return 0;
-      }
-
-      if (valueA < valueB) {
-        return this.sortDirection === 'asc' ? -1 : 1;
-      }
-      if (valueA > valueB) {
-        return this.sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }
-
   sectionFilters: string[] = [];
-  selectedSections: string[] = [];
-  showSectionFilter: boolean = false;
-
-  get filteredJobs() {
-    if (!this.selectedSections.length) return this.jobs;
-    return this.jobs.filter(job =>
-        this.selectedSections.includes(job.sectionTitle)
-    );
-  }
-
-  toggleSectionFilter(section: string) {
-    if (this.selectedSections.includes(section)) {
-      this.selectedSections = this.selectedSections.filter(s => s !== section);
-    } else {
-      this.selectedSections = [...this.selectedSections, section];
-    }
-  }
 
   toPage(link: string) {
     this.router.navigate([link]);

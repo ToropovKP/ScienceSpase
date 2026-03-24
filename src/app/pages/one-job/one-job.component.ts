@@ -1,33 +1,32 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../../entities/user/model/user";
 import {HttpService} from "../../shared/services/http.service";
 import {Job} from "../../entities/job/model/job";
 import {HttpResponse} from "@angular/common/http";
-import {Comment} from "../../entities/comment/model/comment";
 import {Conference} from "../../entities/conference/model/conference";
 import {ReviewDto} from "../../shared/dto/review.dto";
 import {CommonModule} from "@angular/common";
-import {NgxMaskDirective} from "ngx-mask";
-import {DateService} from "../../shared/services/date.service";
 import {Review} from "../../entities/job/model/review";
-import {ChatService} from "../../shared/services/chat.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {ConfirmationService, MenuItem} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {FirstWordPipe} from "../../shared/pipes/first.word.pipe";
-import {ShortNamePipe} from "../../shared/pipes/short.name.pipe";
 import {filter} from "rxjs/operators";
 import {orcidPattern} from "../../app.constants";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
-import {LinkifyPipe} from "../../shared/pipes/linkify.pipe";
-import {Tooltip} from "primeng/tooltip";
 import {NotificationService} from "../../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {JobConferenceSummaryComponent} from "../../features/job-conference-summary/ui/job-conference-summary.component";
+import {JobReadonlyDetailsComponent} from "../../features/job-readonly-details/ui/job-readonly-details.component";
+import {JobReviewPanelComponent} from "../../features/job-review/ui/job-review-panel.component";
+import {JobChatComponent} from "../../features/job-chat/ui/job-chat.component";
+import {JobViewHeaderComponent} from "../../features/job-view-header/ui/job-view-header.component";
+import {JobAbstractCardComponent} from "../../features/job-abstract-card/ui/job-abstract-card.component";
+import {JobCoauthorsListComponent} from "../../features/job-coauthors-list/ui/job-coauthors-list.component";
 
 @Component({
   selector: 'app-one-job',
@@ -36,24 +35,23 @@ import {ToastContainerComponent} from "../../shared/ui/toast-container.component
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    NgxMaskDirective,
     ConfirmDialogModule,
-    FirstWordPipe,
-    ShortNamePipe,
     ConfirmPopupModule,
-    LinkifyPipe,
-    Tooltip,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    JobConferenceSummaryComponent,
+    JobReadonlyDetailsComponent,
+    JobReviewPanelComponent,
+    JobChatComponent,
+    JobViewHeaderComponent,
+    JobAbstractCardComponent,
+    JobCoauthorsListComponent
   ],
   providers: [ConfirmationService]
 })
-export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
+export class OneJobComponent implements OnInit, OnDestroy {
 
-  @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
-
-  protected readonly DateService = DateService;
   protected readonly customOrcidPattern = orcidPattern;
 
   reviewsMarks = [1, 2, 3, 4, 5];
@@ -62,12 +60,10 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
   currentJobId!: string;
   currentJob: Job = {} as Job;
   jobUser!: User;
-  currentComments!: Comment[];
   currentConference!: Conference;
 
   formJob!: FormGroup;
   formReview!: FormGroup;
-  formComment!: FormGroup;
   currentUser!: User;
 
   existReviewByCurrentUser: boolean = false;
@@ -86,27 +82,13 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
-    private chatService: ChatService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private notificationService: NotificationService
   ) {
   }
 
-  @ViewChild('chatContainer', {static: false}) chatContainerRef!: ElementRef<HTMLElement>;
-
   private destroy$ = new Subject<void>();
-  private scrollTimeout: any;
-  private isUserScrolling = false;
-  private isInitialLoad = true;
-  private readonly SCROLL_THRESHOLD = 100;
-
-  ngAfterViewInit() {
-    this.initChatConnection();
-    if (!this.isReviewer()) {
-      this.startScrollManagement();
-    }
-  }
 
   ngOnInit() {
     this.authService.currentUser$
@@ -139,72 +121,14 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       section: new FormControl('',),
     })
 
-    this.formComment = this.formBuilder.group({
-      message: new FormControl('', [Validators.required]),
-    })
-
     this.formReview = this.formBuilder.group({
       text: new FormControl('',),
     })
   }
 
   ngOnDestroy() {
-    clearTimeout(this.scrollTimeout);
-    this.chatService.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private initChatConnection() {
-    this.chatService.connect().then(() => {
-      this.chatService.subscribeToJob(this.currentJobId, (message) => {
-        this.currentComments = [...this.currentComments, message];
-        this.scheduleScrollCheck();
-      });
-    }).catch(console.error);
-  }
-
-  private startScrollManagement() {
-    setTimeout(() => {
-      this.setupScrollListeners();
-      this.scrollToBottom();
-    }, 100);
-  }
-
-  private setupScrollListeners() {
-    const container = this.chatContainerRef?.nativeElement;
-    if (!container) return;
-
-    container.addEventListener('scroll', () => {
-      const {scrollTop, scrollHeight, clientHeight} = container;
-      this.isUserScrolling = scrollHeight - (scrollTop + clientHeight) > this.SCROLL_THRESHOLD;
-    });
-  }
-
-  private scheduleScrollCheck() {
-    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
-    this.scrollTimeout = setTimeout(() => {
-      this.scrollToBottomIfNeeded();
-    }, 50);
-  }
-
-  private scrollToBottomIfNeeded() {
-    if (!this.isUserScrolling) {
-      this.scrollToBottom();
-    }
-  }
-
-  private scrollToBottom() {
-    const container = this.chatContainerRef?.nativeElement;
-    if (container) {
-      // Небольшая задержка для обновления DOM
-      setTimeout(() => {
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: 'auto' // Меняем на 'auto' для первоначальной загрузки
-        });
-      }, 0);
-    }
   }
 
   loadAllData() {
@@ -292,15 +216,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
               this.loadingConference = false;
             });
 
-            this.httpService.getJobComments(this.currentJobId).then((data) => {
-              this.currentComments = data
-              if (this.isInitialLoad) {
-                this.scrollToBottom();
-                this.isInitialLoad = false;
-              }
-            }).catch(error => {
-              this.notificationService.showServerError();
-            })
           }
 
         }).catch(error => {
@@ -418,20 +333,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  createComment() {
-    const message = {
-      "jobId": this.currentJobId,
-      "userId": this.currentUser.id,
-      "firstName": this.currentUser.firstName,
-      "lastName": this.currentUser.lastName,
-      "middleName": this.currentUser.middleName,
-      "message": this.formComment.value.message.trim()
-    };
-    this.chatService.sendMessage(`/app/send`, message);
-    this.formComment.reset()
-    this.resetTextarea();
-  }
-
   confirmDelete(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
@@ -462,40 +363,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
 
   editJob() {
     this.toPage(`/job/${this.currentJob.id}/edit`);
-  }
-
-  handleEnterKey(event: Event) {
-    const keyboardEvent = event as KeyboardEvent;
-    const messageControl = this.formComment.get('message');
-
-    if (!messageControl?.value?.trim()) {
-      keyboardEvent.preventDefault();
-      return;
-    }
-
-    if (!keyboardEvent.shiftKey) {
-      if (!this.formComment.invalid) {
-        this.createComment();
-      }
-      keyboardEvent.preventDefault();
-    }
-  }
-
-  resetTextarea() {
-    const textarea = this.messageInput.nativeElement;
-    textarea.style.height = 'auto';
-    textarea.rows = 1;
-    this.formComment.patchValue({message: ''});
-  }
-
-  adjustTextareaHeight(event: Event) {
-    const textarea = event.target as HTMLTextAreaElement;
-    textarea.style.height = 'auto';
-    const maxHeight = parseFloat(getComputedStyle(textarea).maxHeight);
-    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-
-    textarea.style.height = `${newHeight}px`;
-    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
   }
 
   toPage(link: string) {

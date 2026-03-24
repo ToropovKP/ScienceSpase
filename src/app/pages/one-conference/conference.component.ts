@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {Section} from "../../entities/conference/model/section";
 import {map, Subject, takeUntil} from "rxjs";
@@ -9,36 +8,37 @@ import {HttpService} from "../../shared/services/http.service";
 import {UserBase} from "../../entities/user/model/user.base";
 import {CommonModule} from "@angular/common";
 import {conferenceStatusMap} from "../../app.constants";
-import {DateService} from "../../shared/services/date.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {PopoverModule} from "primeng/popover";
-import {Tooltip} from "primeng/tooltip";
 import {NotificationService} from "../../shared/services/notification.service";
 import {AuthGuardService} from "../../shared/services/auth-guard.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {ConferenceViewHeaderComponent} from "../../features/conference-view-header/ui/conference-view-header.component";
+import {ConferenceSummaryCardsComponent} from "../../features/conference-summary-cards/ui/conference-summary-cards.component";
+import {ConferenceSectionsListComponent} from "../../features/conference-sections-list/ui/conference-sections-list.component";
+import {ConferenceDescriptionCardComponent} from "../../features/conference-description-card/ui/conference-description-card.component";
 
 @Component({
   selector: 'app-one-conference',
   templateUrl: './conference.component.html',
   styleUrls: ['./conference.component.css'],
   imports: [
-    ReactiveFormsModule,
     CommonModule,
-    PopoverModule,
-    Tooltip,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    ConferenceViewHeaderComponent,
+    ConferenceSummaryCardsComponent,
+    ConferenceSectionsListComponent,
+    ConferenceDescriptionCardComponent
   ]
 })
 export class ConferenceComponent implements OnInit, OnDestroy {
 
   protected readonly conferenceStatusMap = conferenceStatusMap;
-  protected readonly DateService = DateService;
 
   currentConference: Conference = {} as Conference;
   currentConferenceId!: string;
@@ -198,10 +198,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
       queryParams: {'conferenceId': this.currentConferenceId},
     };
     this.toPageExtras(`/jobs`, navigationExtras)
-  }
-
-  getLeadersString(leaders: UserBase[]) {
-    return leaders.map((lead) => lead.lastName + " " + lead.firstName + (lead.middleName !== '' ? " " + lead.middleName : '')).join(", ")
   }
 
   toPage(link: string) {

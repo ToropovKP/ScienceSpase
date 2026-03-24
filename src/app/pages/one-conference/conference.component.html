@@ -9,129 +9,37 @@
         <app-breadcrumb-wrapper [items]="breadcrumbItems || []" [home]="homeItem"></app-breadcrumb-wrapper>
       </div>
 
-      <div *ngIf="!loadingConference" class="header-container">
-        <div class="header-content">
-          <span class="status-badge"
-                [ngClass]="{
-                  'bg-success': currentConference.status === 'ACTIVE',
-                  'bg-danger': currentConference.status === 'CLOSED',
-                  'bg-warning': currentConference.status === 'ON_HOLD'
-                }">
-            {{ conferenceStatusMap[currentConference.status] }}
-          </span>
-
-          <h1 class="conference-title">
-            {{ currentConference.title }}
-          </h1>
-
-          <div class="desktop-actions">
-            <button *ngIf="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE'"
-                    class="btn btn-action btn-add"
-                    (click)="addJob()"
-                    pTooltip="Добавить работу" tooltipPosition="bottom">
-              <i class="bi bi-plus-lg"></i>
-            </button>
-
-            <button *ngIf="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null"
-                    class="btn btn-action btn-my-works"
-                    (click)="openJob()"
-                    pTooltip="Мои работы" tooltipPosition="bottom">
-              <i class="bi bi-files"></i>
-            </button>
-
-            <button *ngIf="isUserAuthorized() && isModeratorOfThisConference()"
-                    class="btn btn-action btn-edit"
-                    (click)="editConference()"
-                    pTooltip="Редактировать конференцию" tooltipPosition="bottom">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-          </div>
-        </div>
-
-        <div *ngIf="isModeratorOfThisConference()" class="mobile-warning alert alert-warning mt-3">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          Редактирование доступно только с компьютера. Для управления конференцией
-          воспользуйтесь десктопной версией сайта.
-        </div>
-
-        <div *ngIf="!isModeratorOfThisConference()" class="mobile-warning alert alert-warning mt-3">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          Добавление работ доступно только с компьютера. Воспользуйтесь десктопной версией сайта.
-        </div>
-      </div>
+      <app-conference-view-header
+        *ngIf="!loadingConference"
+        [title]="currentConference.title"
+        [status]="currentConference.status"
+        [statusLabel]="conferenceStatusMap[currentConference.status]"
+        [showAddJob]="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE'"
+        [showMyWorks]="
+          isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE' && currentUserJobId != null
+        "
+        [showEditConference]="isUserAuthorized() && isModeratorOfThisConference()"
+        [isModeratorOfConference]="isModeratorOfThisConference()"
+        (addJob)="addJob()"
+        (myWorks)="openJob()"
+        (editConference)="editConference()"
+      />
 
       <div *ngIf="!loadingConference">
-        <div class="row g-4 mb-4">
-          <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title d-flex align-items-center">
-                  <i class="bi bi-building me-2"></i>Организация
-                </h5>
-                <p class="card-text">{{ currentConference.organization }}</p>
-              </div>
-            </div>
-          </div>
+        <app-conference-summary-cards
+          [organization]="currentConference.organization"
+          [startDate]="currentConference.startDate"
+          [endDate]="currentConference.endDate"
+          [countUsers]="countUsers"
+          [showParticipantsColumn]="isModeratorOfThisConference() || isReviewer()"
+          [showParticipantsCount]="isModeratorOfThisConference()"
+          [showParticipantsLink]="isModeratorOfThisConference() || isReviewer()"
+          (participantsClick)="checkUsers()"
+        />
 
-          <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title d-flex align-items-center">
-                  <i class="bi bi-calendar-range me-2"></i>Даты проведения
-                </h5>
-                <p class="card-text">
-                  {{ DateService.formatDate(currentConference.startDate) }} —
-                  {{ DateService.formatDate(currentConference.endDate) }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <app-conference-sections-list [sections]="sections" />
 
-          <div class="col-md-4" *ngIf="isModeratorOfThisConference() || isReviewer()">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title d-flex align-items-center">
-                  <i class="bi bi-people me-2"></i>Участники
-                </h5>
-                <p class="card-text">
-                  <span *ngIf="isModeratorOfThisConference()">{{ countUsers }}</span>
-                  <a *ngIf="isModeratorOfThisConference() || isReviewer()"
-                     (click)="checkUsers()"
-                     class="btn btn-link p-0 ms-2">
-                    Список участников <i class="bi bi-arrow-right"></i>
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
-          </div>
-          <div class="card-body p-0">
-            <div class="list-group list-group-flush">
-              <div *ngFor="let section of sections" class="list-group-item d-flex align-items-center py-3">
-                <div class="flex-grow-1">
-                  <h6 class="mb-1">{{ section.title }}</h6>
-                  <small class="text-muted text-break">
-                    Руководитель: {{ section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен' }}
-                  </small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-0 description-text">{{ currentConference.description }}</p>
-          </div>
-        </div>
+        <app-conference-description-card [description]="currentConference.description" />
       </div>
     </div>
   </div>

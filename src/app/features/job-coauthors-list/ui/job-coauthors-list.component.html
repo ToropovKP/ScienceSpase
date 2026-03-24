@@ -1,0 +1,22 @@
+<div *ngIf="coAuthors.length" class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Соавторы</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      <div *ngFor="let author of coAuthors" class="list-group-item d-flex align-items-center py-3">
+        <div class="flex-grow-1">
+          <h6 class="mb-1">{{ author.fullName }}</h6>
+          <div class="d-flex flex-column gap-1">
+            <small class="text-muted text-break">
+              Организация: {{ author.organization }}
+            </small>
+            <small class="text-muted text-break">
+              Почта: {{ author.email }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
