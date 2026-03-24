@@ -50,7 +50,7 @@ export class ConferencesComponent implements OnInit, OnDestroy {
     this.authService.currentUser$
     .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.route.snapshot.component != null) // Проверка активности
+        filter(() => this.route.snapshot.component != null)
     )
     .subscribe((user) => {
       if (user) {
@@ -74,7 +74,6 @@ export class ConferencesComponent implements OnInit, OnDestroy {
       this.conferences = data || [];
       this.loadingConference = false;
     }).catch(error => {
-      // Для неавторизованных пользователей (401, 403) не показываем ошибку, просто пустой список
       const status = error?.status || error?.error?.status;
       if (status !== 401 && status !== 403) {
         this.notificationService.showServerError();

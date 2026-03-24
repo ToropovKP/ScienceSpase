@@ -12,7 +12,6 @@
 .card {
   background: var(--old-bg-card);
   border: 1px solid var(--old-accent);
-  /*backdrop-filter: blur(2px);*/
 }
 
 .card-header {
@@ -62,18 +61,10 @@
   background-color: var(--old-bg-row);
 }
 
-/*.readonly-style {*/
-/*  background-color: #e9ecef !important;*/
-/*  border-color: #ced4da !important;*/
-/*  opacity: 1 !important;*/
-/*}*/
-
-/* Сохраняем видимость паттернов через тонкие акценты */
 .list-group-item {
   background: var(--old-bg-card);
 }
 
-/* Основная структура */
 .header-container {
   margin-bottom: 1.5rem;
   position: relative;
@@ -105,7 +96,6 @@
   color: var(--old-h1-accent);
 }
 
-/* Кнопки действий */
 .desktop-actions {
   display: flex;
   gap: 0.5rem;
@@ -146,7 +136,6 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Мобильная версия */
 @media (max-width: 992px) {
   .desktop-actions {
     display: none;
@@ -179,7 +168,6 @@
   }
 }
 
-/* Десктоп */
 @media (min-width: 992px) {
   .conference-title {
     font-size: 2rem;
@@ -192,7 +180,6 @@
   }
 }
 
-/* Мобильные */
 @media (max-width: 767px) {
   .conference-title {
     font-size: 1.5rem;

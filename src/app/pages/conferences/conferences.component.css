@@ -26,7 +26,6 @@
   }
 }
 
-/* Десктоп */
 @media (min-width: 992px) {
   .page-title {
     font-size: 2rem;

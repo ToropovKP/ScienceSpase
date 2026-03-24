@@ -2,7 +2,6 @@
   <div class="container">
     <app-toast-container />
     <div class="main">
-      <!-- Заголовок и кнопка создания -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="page-title">
           Конференции
@@ -16,7 +15,7 @@
 
       <app-loading-spinner *ngIf="loadingConference" message="Загрузка конференций..." />
 
-      <app-empty-state 
+      <app-empty-state
         *ngIf="!loadingConference && !conferences?.length"
         title="Нет доступных конференций"
         iconClass="bi bi-calendar-x fs-1 text-secondary" />
@@ -25,12 +24,10 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           <div class="col" *ngFor="let conf of conferences">
             <div class="card h-100 shadow-sm conf-item">
-              <!-- Заголовок карточки -->
               <div class="card-header bg-primary text-white">
                 <h3 class="h5 mb-0 text-truncate">{{ conf.title }}</h3>
               </div>
 
-              <!-- Тело карточки -->
               <div class="card-body">
                 <div class="d-flex flex-column gap-2">
                   <div class="d-flex align-items-center gap-2">
@@ -60,7 +57,6 @@
                 </div>
               </div>
 
-              <!-- Футер карточки -->
               <div class="card-footer bg-transparent border-top-0">
                 <button class="btn btn-outline-primary w-100"
                         (click)="openConf(conf.id)">

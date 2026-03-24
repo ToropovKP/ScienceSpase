@@ -68,7 +68,7 @@ export class ConferenceComponent implements OnInit, OnDestroy {
     this.authService.currentUser$
     .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.route.snapshot.component != null) // Проверка активности
+        filter(() => this.route.snapshot.component != null)
     )
     .subscribe((user) => {
       if (user) {
@@ -99,7 +99,6 @@ export class ConferenceComponent implements OnInit, OnDestroy {
           {label: this.getShortConferenceTitle()}
         ]
         this.sections = data.sections.sort((a, b) => Number(a.id) - Number(b.id))
-        console.log(this.sections)
         this.currentAdmins = this.currentConference.admins;
 
         if (this.isModerator()) {

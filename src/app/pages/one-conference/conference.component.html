@@ -9,7 +9,6 @@
         <app-breadcrumb-wrapper [items]="breadcrumbItems || []" [home]="homeItem"></app-breadcrumb-wrapper>
       </div>
 
-      <!-- Заголовок и статус -->
       <div *ngIf="!loadingConference" class="header-container">
         <div class="header-content">
           <span class="status-badge"
@@ -21,12 +20,10 @@
             {{ conferenceStatusMap[currentConference.status] }}
           </span>
 
-          <!-- Название конференции -->
           <h1 class="conference-title">
             {{ currentConference.title }}
           </h1>
 
-          <!-- Кнопки действий (только для десктопа) -->
           <div class="desktop-actions">
             <button *ngIf="isUserAuthorized() && !isAdmin() && currentConference.status == 'ACTIVE'"
                     class="btn btn-action btn-add"
@@ -51,7 +48,6 @@
           </div>
         </div>
 
-        <!-- Мобильное предупреждение -->
         <div *ngIf="isModeratorOfThisConference()" class="mobile-warning alert alert-warning mt-3">
           <i class="bi bi-exclamation-triangle me-2"></i>
           Редактирование доступно только с компьютера. Для управления конференцией
@@ -65,7 +61,6 @@
       </div>
 
       <div *ngIf="!loadingConference">
-        <!-- Основная информация -->
         <div class="row g-4 mb-4">
           <div class="col-md-4">
             <div class="card h-100 shadow-sm">
@@ -111,7 +106,6 @@
           </div>
         </div>
 
-        <!-- Секции -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
@@ -130,7 +124,6 @@
           </div>
         </div>
 
-        <!-- Описание -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0"><i class="bi bi-card-text me-2"></i>Описание</h5>

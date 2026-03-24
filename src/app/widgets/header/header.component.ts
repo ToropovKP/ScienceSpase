@@ -1,15 +1,15 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router, RouterModule} from "@angular/router";
-import {User} from "../../../entities/user/model/user";
-import {HttpService} from "../../../shared/services/http.service";
+import {User} from "../../entities/user/model/user";
+import {HttpService} from "../../shared/services/http.service";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../../../shared/services/auth.service";
-import {FirstWordPipe} from "../../../shared/pipes/first.word.pipe";
-import {ShortNamePipe} from "../../../shared/pipes/short.name.pipe";
-import {LoginModalComponent} from "../components/modals/login-modal.component";
-import {RegistrationModalComponent} from "../components/modals/registration-modal.component";
-import {RestorePasswordModalComponent} from "../components/modals/restore-password-modal.component";
-import {ToastContainerComponent} from "../../../shared/ui/toast-container.component";
+import {AuthService} from "../../shared/services/auth.service";
+import {FirstWordPipe} from "../../shared/pipes/first.word.pipe";
+import {ShortNamePipe} from "../../shared/pipes/short.name.pipe";
+import {LoginModalComponent} from "../../features/auth/ui/modals/login-modal.component";
+import {RegistrationModalComponent} from "../../features/auth/ui/modals/registration-modal.component";
+import {RestorePasswordModalComponent} from "../../features/auth/ui/modals/restore-password-modal.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 
 @Component({
   selector: 'app-header',

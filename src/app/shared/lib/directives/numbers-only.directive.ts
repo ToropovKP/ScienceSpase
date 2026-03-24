@@ -1,4 +1,4 @@
-import { Directive, HostListener, ElementRef } from '@angular/core';
+import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
   selector: '[appNumbersOnly]'
@@ -6,7 +6,8 @@ import { Directive, HostListener, ElementRef } from '@angular/core';
 export class NumbersOnlyDirective {
   constructor(private el: ElementRef) {}
 
-  @HostListener('input', ['$event']) onInput(event: Event) {
+  @HostListener('input', ['$event'])
+  onInput(event: Event) {
     const input = this.el.nativeElement as HTMLInputElement;
     const value = input.value;
     input.value = value.replace(/[^0-9]/g, '');

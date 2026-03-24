@@ -41,18 +41,17 @@
 .conference-text {
   word-break: break-word;
   overflow-wrap: anywhere;
-  max-width: calc(100% - 30px); /* Учитываем ширину иконки */
-  hyphens: auto; /* Автоматические переносы для поддерживающих браузеров */
+  max-width: calc(100% - 30px);
+  hyphens: auto;
 }
 
-/* Для лучшего отображения в flex-контейнере */
 .d-flex.align-items-center.gap-2 {
-  align-items: flex-start; /* Перенос строк в начале текста */
+  align-items: flex-start;
 }
 
 .bi-journal-text {
-  flex-shrink: 0; /* Фиксируем размер иконки */
-  margin-top: 2px; /* Выравнивание по базовой линии */
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .card-footer {
@@ -61,14 +60,6 @@
 
 .btn-outline-primary {
   transition: all 0.2s;
-  /*border-color: var(--old-accent);*/
-  /*color: var(--old-accent);*/
-}
-
-.btn-outline-primary:hover {
-  /*background-color: var(--old-accent);*/
-  /*border-color: var(--old-accent);*/
-  /*color: var(--old-text-color);*/
 }
 
 .text-success {

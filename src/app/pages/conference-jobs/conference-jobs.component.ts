@@ -14,7 +14,7 @@ import {DateService} from "../../shared/services/date.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {ClickOutsideDirective} from "../../shared/directives/click-outside.directive";
+import {ClickOutsideDirective} from "../../shared/lib/directives/click-outside.directive";
 import {NotificationService} from "../../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";

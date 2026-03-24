@@ -53,7 +53,7 @@ export class JobsComponent implements OnInit, OnDestroy {
     this.authService.currentUser$
     .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.route.snapshot.component != null) // Проверка активности
+        filter(() => this.route.snapshot.component != null)
     )
     .subscribe((user) => {
       if (user) {

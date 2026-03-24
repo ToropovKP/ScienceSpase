@@ -14,7 +14,7 @@ import {filter} from "rxjs/operators";
 import {passwordMatchValidator} from "../../shared/validators/password.match.validator";
 import {PopoverModule} from "primeng/popover";
 import {orcidPattern} from "../../app.constants";
-import {NumbersOnlyDirective} from "../../shared/directives/numbers-only.directive";
+import {NumbersOnlyDirective} from "../../shared/lib/directives/numbers-only.directive";
 import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({

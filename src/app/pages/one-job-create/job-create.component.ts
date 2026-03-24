@@ -15,7 +15,7 @@ import {ConfirmationService, MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../../entities/common/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
-import {NumbersOnlyDirective} from "../../shared/directives/numbers-only.directive";
+import {NumbersOnlyDirective} from "../../shared/lib/directives/numbers-only.directive";
 import {Job} from "../../entities/job/model/job";
 import {Author} from "../../entities/author/model/author";
 import {HttpResponse} from "@angular/common/http";

@@ -2,8 +2,6 @@
   <div class="container">
     <app-toast-container />
     <div class="main">
-      <!-- Заголовок -->
-
       <app-loading-spinner *ngIf="loadingJobs && loadingConference" message="Загрузка..." />
 
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,7 +16,7 @@
 
       <app-loading-spinner *ngIf="loadingJobs && !loadingConference" message="Загрузка статей..." />
 
-      <app-empty-state 
+      <app-empty-state
         *ngIf="!loadingJobs && !jobs?.length"
         title="Нет добавленных статей"
         iconClass="bi bi-file-earmark-x fs-1 text-secondary">
@@ -29,17 +27,14 @@
         </div>
       </app-empty-state>
 
-      <!-- Список статей -->
       <div *ngIf="!loadingJobs && jobs?.length" class="article-list">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           <div class="col" *ngFor="let job of jobs">
             <div class="card h-100 shadow-sm">
-              <!-- Заголовок -->
               <div class="card-header bg-primary text-white">
                 <h3 class="h5 mb-0 text-truncate">{{ job.title }}</h3>
               </div>
 
-              <!-- Тело карточки -->
               <div class="card-body">
                 <div class="d-flex flex-column gap-2">
                   <div class="d-flex align-items-center gap-2">
@@ -60,7 +55,6 @@
                 </div>
               </div>
 
-              <!-- Футер -->
               <div class="card-footer bg-transparent border-top-0">
                 <button class="btn btn-outline-primary w-100"
                         (click)="openJob(job.id)">
