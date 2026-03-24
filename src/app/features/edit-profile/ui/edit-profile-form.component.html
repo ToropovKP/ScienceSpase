@@ -1,0 +1,191 @@
+<div class="bg-white rounded-lg shadow-sm mb-4 border border-gray-200">
+  <div class="bg-accent text-text-primary-color rounded-t-lg px-6 py-4 relative">
+    <h5 class="text-lg font-semibold mb-0 flex items-center">
+      <i class="bi bi-person-badge mr-2"></i>Основная информация
+    </h5>
+
+    <div *ngIf="showActionButtons" class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+      <button class="px-4 py-2 rounded bg-accent text-text-primary-color border border-white hover:bg-green-600 hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="saveProfile()"
+              [disabled]="formProfile.invalid">
+        <i class="bi bi-check-lg mr-1"></i> Сохранить
+      </button>
+      <button class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+              (click)="cancelProfile()">
+        <i class="bi bi-x-lg mr-1"></i> Отменить
+      </button>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <form [formGroup]="formProfile">
+      <div class="mb-6">
+        <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+          <i class="bi bi-person-vcard mr-2"></i>Личные данные
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Фамилия</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="lastName"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="30">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Имя</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="firstName"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="30">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Отчество</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="middleName"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="30">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+          <i class="bi bi-telephone mr-2"></i>Контактная информация
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Телефон</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-row cursor-not-allowed"
+                   mask="+0 (000) 000-0000"
+                   formControlName="phone"
+                   readonly>
+            <small class="text-text-secondary-color text-xs mt-1 block">Для изменения телефона обратитесь в поддержку</small>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Почта</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-row cursor-not-allowed"
+                   formControlName="email"
+                   readonly>
+            <small class="text-text-secondary-color text-xs mt-1 block">Для изменения почты обратитесь в поддержку</small>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Организация</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="organization"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="100">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+          <i class="bi bi-fingerprint mr-2"></i>Идентификаторы
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1 flex items-center">
+              ORCID
+              <i class="bi bi-info-circle cursor-pointer ml-2 text-text-secondary-color hover:text-accent transition-colors" (click)="op.show($event)"></i>
+              <p-popover #op
+                         styleClass="fixed-width-popover"
+                         [style]="{maxWidth: '400px', width: '100%'}">
+                <div class="popover-content">
+                  <div class="popover-header">
+                    <h5 class="popover-title">Что такое ORCID?</h5>
+                  </div>
+                  <div class="popover-body">
+                    <p class="popover-text">
+                      ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
+                      который позволяет установить связь между авторами и их работами.
+                      Формат: 16 цифр и/или латинских букв, например, <code>0000-0000-0000-0000</code>.
+                    </p>
+                    <div class="text-right">
+                      <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
+                         target="_blank"
+                         class="popover-link">
+                        Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </p-popover>
+            </label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 uppercase focus:outline-none focus:border-h1-accent transition-colors"
+                   mask="SSSS-SSSS-SSSS-SSSS"
+                   placeholder="0000-0000-0000-0000"
+                   [patterns]="customOrcidPattern"
+                   [showMaskTyped]="true"
+                   formControlName="orcId"
+                   [readOnly]="!canEditProfile">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1 flex items-center">
+              РИНЦ ID (Author ID)
+              <i class="bi bi-info-circle cursor-pointer ml-2 text-text-secondary-color hover:text-accent transition-colors" (click)="opRinc.show($event)"></i>
+              <p-popover #opRinc
+                         styleClass="fixed-width-popover"
+                         [style]="{maxWidth: '400px', width: '100%'}">
+                <div class="popover-content">
+                  <div class="popover-header">
+                    <h5 class="popover-title">Что такое РИНЦ ID?</h5>
+                  </div>
+                  <div class="popover-body">
+                    <p class="popover-text">
+                      РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
+                      Позволяет однозначно идентифицировать исследователя и его публикации.
+                    </p>
+                    <div class="text-right">
+                      <a href="https://www.hse.ru/scholarly-integration/howtofindid"
+                         target="_blank"
+                         class="popover-link">
+                        Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </p-popover>
+            </label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="rincId"
+                   [maxLength]="20"
+                   appNumbersOnly
+                   [readOnly]="!canEditProfile">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h6 class="text-base font-semibold mb-3 pb-2 border-b border-accent text-h1-accent flex items-center">
+          <i class="bi bi-mortarboard mr-2"></i>Академическая информация
+        </h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Ученая степень</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="academicDegree"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="100">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-h1-accent mb-1">Ученое звание</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-card text-gray-700 focus:outline-none focus:ring-0 transition-colors"
+                   formControlName="academicTitle"
+                   [readOnly]="!canEditProfile"
+                   [maxlength]="100">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

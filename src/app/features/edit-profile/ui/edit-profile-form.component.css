@@ -1,0 +1,39 @@
+::ng-deep .fixed-width-popover {
+  max-width: 400px !important;
+  width: 400px !important;
+  min-width: unset !important;
+}
+
+::ng-deep .fixed-width-popover .p-popover-content {
+  white-space: normal !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+::ng-deep .fixed-width-popover .popover-content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::ng-deep .fixed-width-popover .popover-body {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.popover-content {
+  padding: 1rem;
+}
+
+.popover-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.popover-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.popover-body {
+  padding: 1rem;
+}
