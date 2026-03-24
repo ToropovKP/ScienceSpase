@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {conferenceStatusList, conferenceStatusMap} from "../../app.constants";
+import {conferenceStatusMap} from "../../app.constants";
 import {Section} from "../../entities/conference/model/section";
 import {map, Subject, takeUntil} from "rxjs";
 import {Conference} from "../../entities/conference/model/conference";
@@ -15,17 +15,27 @@ import {AuthService} from "../../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";
+import {ConferenceTagsManagerComponent} from "../../features/conference-tags/ui/conference-tags-manager.component";
+import {ConferenceSectionsManagerComponent} from "../../features/conference-sections/ui/conference-sections-manager.component";
+import {ConferenceAdminsSelectorComponent} from "../../features/conference-admins/ui/conference-admins-selector.component";
+import {ConferenceMainFieldsComponent} from "../../features/conference-main-fields/ui/conference-main-fields.component";
 
 @Component({
   selector: 'app-one-conference-create',
   templateUrl: './conference-create.component.html',
   styleUrls: ['./conference-create.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, ToastModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    ToastModule,
+    ConferenceTagsManagerComponent,
+    ConferenceSectionsManagerComponent,
+    ConferenceAdminsSelectorComponent,
+    ConferenceMainFieldsComponent
+  ],
   providers: [MessageService]
 })
 export class ConferenceCreateComponent implements OnInit, OnDestroy {
-
-  protected readonly conferenceStatusList = conferenceStatusList;
 
   currentConference!: Conference;
   currentConferenceId!: string;
@@ -85,7 +95,11 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
       date_start: new FormControl('', [Validators.required]),
       date_end: new FormControl('', [Validators.required]),
       sections: this.formBuilder.array([this.createSection()]),
-      tags: this.formBuilder.array([this.createTag()]),
+      tags: this.formBuilder.array([
+        this.formBuilder.group({
+          name: ['']
+        })
+      ]),
     })
   }
 
@@ -411,14 +425,6 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
     return this.formCreateConference.get('sections') as FormArray;
   }
 
-  leadSecArray(sectionIndex: number): FormArray {
-    return (this.sections.at(sectionIndex).get('leaders') as FormArray);
-  }
-
-  reviewSecArray(sectionIndex: number): FormArray {
-    return (this.sections.at(sectionIndex).get('reviewers') as FormArray);
-  }
-
   createUserControl(user: UserBase, isSelected: boolean): FormGroup {
     return this.formBuilder.group({
       id: [user.id],
@@ -508,93 +514,26 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
     this.formCreateConference.controls['confStatus'].disable()
   }
 
-  disableSection(index: number) {
-    const section = this.sections.at(index);
-
-    section.get('title')?.disable();
-
-    const leadersArray = section.get('leaders') as FormArray;
-    leadersArray.controls.forEach(control => {
-      control.get('selected')?.disable();
-    });
-    const reviewersArray = section.get('reviewers') as FormArray;
-    reviewersArray.controls.forEach(control => {
-      control.get('selected')?.disable();
-    });
-
-    if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.length < 5) {
-      this.sections.push(this.createSection());
-    }
-  }
-
-  enableSection(index: number) {
-    const section = this.sections.at(index);
-    section.get('title')?.enable();
-    const leadersArray = section.get('leaders') as FormArray;
-    leadersArray.controls.forEach(control => {
-      control.get('selected')?.enable();
-    });
-    const reviewersArray = section.get('reviewers') as FormArray;
-    reviewersArray.controls.forEach(control => {
-      control.get('selected')?.enable();
-    });
-  }
-
-  removeSection(index: number) {
-    this.sections.removeAt(index);
-    if (this.sections.at(this.sections.length - 1).get('title')?.value !== '' && this.sections.value.length === 4) {
-      this.sections.push(this.createSection());
-    }
-  }
-
-  isDisabledSection(index: number) {
-    return this.sections.at(index).get('title')?.disabled;
-  }
-
   get tags(): FormArray {
     return this.formCreateConference.get('tags') as FormArray;
-  }
-
-  createTag(name: string = ''): FormGroup {
-    return this.formBuilder.group({
-      name: [name]
-    });
   }
 
   fillTags(tags: string[]) {
     this.tags.clear();
     tags.forEach((tag) => {
-      const formGroup = this.createTag(tag);
+      const formGroup = this.formBuilder.group({
+        name: [tag]
+      });
       if (tag !== '') {
         formGroup.get('name')?.disable();
       }
       this.tags.push(formGroup);
     });
-    this.tags.push(this.createTag());
+    this.tags.push(this.formBuilder.group({
+      name: ['']
+    }));
 
     this.loadingTags = false;
-  }
-
-  disableTag(index: number) {
-    const tag = this.tags.at(index);
-    if (tag.get('name')?.value !== '') {
-      tag.get('name')?.disable();
-      if (this.tags.at(this.tags.length - 1).get('name')?.value !== '' && this.tags.value.length < 5) {
-        this.tags.push(this.createTag());
-      }
-    }
-  }
-
-  enableTag(index: number) {
-    const tag = this.tags.at(index);
-    tag.get('name')?.enable();
-  }
-
-  removeTag(index: number) {
-    this.tags.removeAt(index);
-    if (this.tags.value.length === 4) {
-      this.tags.push(this.createTag());
-    }
   }
 
   isAdmin(): boolean {
@@ -661,28 +600,6 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
     } else {
       return true
     }
-  }
-
-  countLeadSecArray(sectionIndex: number): number {
-    const leaders = this.sections.at(sectionIndex).get('leaders') as FormArray;
-    return leaders.controls.filter((control) => control.get('selected')?.value == true).length;
-  }
-
-  getStringLeadSecArray(sectionIndex: number) {
-    const leaders = this.sections.at(sectionIndex).get('leaders') as FormArray;
-    return leaders.controls.filter((control) => control.get('selected')?.value == true)
-    .map((control) => control.get('fullName')?.value).join(", ")
-  }
-
-  countReviewSecArray(sectionIndex: number): number {
-    const reviewers = this.sections.at(sectionIndex).get('reviewers') as FormArray;
-    return reviewers.controls.filter((control) => control.get('selected')?.value == true).length;
-  }
-
-  getStringReviewSecArray(sectionIndex: number) {
-    const reviewers = this.sections.at(sectionIndex).get('reviewers') as FormArray;
-    return reviewers.controls.filter((control) => control.get('selected')?.value == true)
-    .map((control) => control.get('fullName')?.value).join(", ")
   }
 
   toPage(link: string) {

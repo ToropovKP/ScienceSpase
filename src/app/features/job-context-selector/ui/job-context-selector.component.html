@@ -1,0 +1,19 @@
+<div class="col-12 row g-2">
+  <div class="col-md-4">
+    <label class="form-label">Конференция <span class="text-danger">*</span></label>
+    <select class="form-control form-control-conference" formControlName="conference">
+      <option [ngValue]="undefined">Выберите</option>
+      <option *ngFor="let conference of conferences" [ngValue]="conference">{{ getShortConferenceTitle(conference) }}</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-12 row g-2">
+  <div class="col-md-4">
+    <label class="form-label">Секция <span class="text-danger">*</span></label>
+    <select class="form-control form-control-section" formControlName="section">
+      <option [ngValue]="undefined">Выберите</option>
+      <option *ngFor="let section of sections" [ngValue]="section">{{ section.title }}</option>
+    </select>
+  </div>
+</div>

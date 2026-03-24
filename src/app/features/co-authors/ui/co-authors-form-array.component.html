@@ -1,0 +1,47 @@
+<div class="col-12">
+  <h6 class="mb-3">Соавторы</h6>
+  <div [formArrayName]="'authors'">
+    <div *ngFor="let author of authors.controls; let i = index" [formGroupName]="i" class="mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+          <input type="text" class="form-control" placeholder="ФИО" formControlName="fullName"
+                 [maxlength]="100">
+        </div>
+        <div class="col-md-3">
+          <input type="text" class="form-control" placeholder="Организация"
+                 formControlName="organization" [maxlength]="100">
+        </div>
+        <div class="col-md-3">
+          <input type="email" class="form-control" placeholder="Email" formControlName="email"
+                 [maxlength]="100">
+        </div>
+
+        <div class="col-md-2">
+          <div class="d-flex gap-2">
+            <button *ngIf="!author.get('fullName')?.disabled"
+                    class="btn btn-success"
+                    [disabled]="author.get('fullName')?.value === ''"
+                    type="button"
+                    (click)="disableAuthor(i)">
+              <i class="bi bi-check-lg"></i>
+            </button>
+
+            <button *ngIf="author.get('fullName')?.disabled"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="enableAuthor(i)">
+              <i class="bi bi-pencil"></i>
+            </button>
+
+            <button *ngIf="author.get('fullName')?.disabled"
+                    class="btn btn-outline-danger"
+                    type="button"
+                    (click)="removeAuthor(i)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

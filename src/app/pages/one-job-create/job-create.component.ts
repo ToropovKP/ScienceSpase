@@ -6,25 +6,25 @@ import {Subject, takeUntil} from "rxjs";
 import {Conference} from "../../entities/conference/model/conference";
 import {User} from "../../entities/user/model/user";
 import {HttpService} from "../../shared/services/http.service";
-import {AuthorDto} from "../../shared/dto/author.dto";
 import {CommonModule, Location} from "@angular/common";
 import {orcidPattern} from "../../app.constants";
-import {NgxMaskDirective} from "ngx-mask";
 import {AuthService} from "../../shared/services/auth.service";
 import {ConfirmationService, MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 import {FileMetadata} from "../../entities/common/model/file.metadata";
-import {PopoverModule} from "primeng/popover";
-import {NumbersOnlyDirective} from "../../shared/lib/directives/numbers-only.directive";
 import {Job} from "../../entities/job/model/job";
 import {Author} from "../../entities/author/model/author";
-import {HttpResponse} from "@angular/common/http";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {NotificationService} from "../../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
+import {CoAuthorsFormArrayComponent} from "../../features/co-authors/ui/co-authors-form-array.component";
+import {JobFilesManagerComponent} from "../../features/job-files/ui/job-files-manager.component";
+import {JobContactInfoFormComponent} from "../../features/job-contact-info/ui/job-contact-info-form.component";
+import {JobContextSelectorComponent} from "../../features/job-context-selector/ui/job-context-selector.component";
+import {JobSubmitService} from "../../features/job-submit/lib/job-submit.service";
 
 @Component({
   selector: 'app-job-create',
@@ -35,12 +35,13 @@ import {ToastContainerComponent} from "../../shared/ui/toast-container.component
     CommonModule,
     ConfirmDialogModule,
     ConfirmPopupModule,
-    NgxMaskDirective,
-    PopoverModule,
-    NumbersOnlyDirective,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    CoAuthorsFormArrayComponent,
+    JobFilesManagerComponent,
+    JobContactInfoFormComponent,
+    JobContextSelectorComponent
   ],
   providers: [ConfirmationService]
 })
@@ -63,7 +64,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
   formJob!: FormGroup;
   currentUser!: User;
 
-  files: File[] = [];
   uploadedFilesMetadata: FileMetadata[] = [];
   needToRemoveFilesMetadata: FileMetadata[] = [];
 
@@ -84,8 +84,8 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       private location: Location,
       private httpService: HttpService,
       private notificationService: NotificationService,
-      private confirmationService: ConfirmationService,
-      private authService: AuthService
+      private authService: AuthService,
+      private jobSubmitService: JobSubmitService
   ) {
   }
 
@@ -297,11 +297,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     this.fillAuthors(this.currentJob!!.coAuthors)
   }
 
-  getShortConferenceTitle(conference: Conference | undefined): string {
-    const title = conference?.title || '';
-    return title.length > 30 ? title.substring(0, 30) + '...' : title;
-  }
-
   getShortJobTitle(): string {
     const title = this.currentJob?.title || '';
     return title.length > 30 ? title.substring(0, 30) + '...' : title;
@@ -317,32 +312,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       organization: [organization],
       email: [email],
     });
-  }
-
-  disableAuthor(index: number) {
-    const author = this.authors.at(index);
-    if (author.get('fullName')?.value !== '') {
-      author.get('fullName')?.disable();
-      author.get('organization')?.disable();
-      author.get('email')?.disable();
-      if (this.authors.at(this.authors.length - 1).get('fullName')?.value !== '' && this.authors.value.length < 5) {
-        this.authors.push(this.createAuthor());
-      }
-    }
-  }
-
-  enableAuthor(index: number) {
-    const author = this.authors.at(index);
-    author.get('fullName')?.enable();
-    author.get('organization')?.enable();
-    author.get('email')?.enable();
-  }
-
-  removeAuthor(index: number) {
-    this.authors.removeAt(index);
-    if (this.authors.value.length === 4) {
-      this.authors.push(this.createAuthor());
-    }
   }
 
   fillAuthors(authors: Author[]) {
@@ -364,141 +333,8 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     this.loadingAuthors = false;
   }
 
-  downloadFile(fileName: string) {
-    this.httpService.downloadFile(fileName).then(response => {
-      this.processDownloadFile(response)
-    }).catch(error => {
-      this.notificationService.showFileDownloadError();
-    });
-  }
-
-  processDownloadFile(response: HttpResponse<any>) {
-    let fileName = response.headers.get('content-disposition')?.split(';')[1].split('=')[1];
-    let blob: Blob = response.body as Blob;
-    let a = document.createElement('a');
-    if (fileName) {
-      a.download = fileName;
-      a.href = window.URL.createObjectURL(blob);
-      a.click();
-    }
-  }
-
-  confirmDeleteFile(event: Event, uuid: string) {
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      key: 'confirmDialog',
-      message: 'Удалить файл?',
-      rejectButtonProps: {
-        label: 'Отменить',
-        severity: 'secondary',
-        outlined: true
-      },
-      acceptButtonProps: {
-        label: 'Да',
-        severity: 'danger'
-      },
-      accept: () => {
-        this.deleteFile(uuid)
-      }
-    });
-  }
-
-  deleteFile(uuid: string) {
-    let fileMetadata = this.currentJob!!.files.filter(file => file.uuid == uuid);
-    this.currentJob!!.files = this.currentJob!!.files.filter(file => file.uuid !== uuid);
-    this.needToRemoveFilesMetadata = [...this.needToRemoveFilesMetadata, ...fileMetadata];
-    this.uploadedFilesMetadata = this.uploadedFilesMetadata.filter(file => file.uuid !== uuid)
-  }
-
-  onSelectedFiles(event: Event) {
-    this.uploadingFiles = true;
-    this.files = []
-    let files = (event.target as HTMLInputElement).files;
-
-    if (files !== null) {
-      for (let i = 0; i < files.length; i++) {
-        let file = files.item(i);
-        if (file !== null) {
-          this.files.push(file);
-        }
-      }
-    }
-
-    if (this.files.length !== 0) {
-      const formData: FormData = new FormData();
-      this.files.forEach((file) => {
-        formData.append("files", file);
-      })
-
-      this.httpService.uploadFiles(formData).then((data) => {
-        if (this.currentJob === undefined) {
-          this.currentJob = {} as Job;
-          this.currentJob.files = [];
-        }
-        this.currentJob?.files?.push(...data)
-        this.uploadedFilesMetadata.push(...data)
-
-        this.files = [];
-        (event.target as HTMLInputElement).value = '';
-        this.notificationService.showSuccess('Успешно', 'Файлы загружены');
-        this.uploadingFiles = false;
-      }).catch(error => {
-        this.notificationService.showError('Не удалось загрузить файлы');
-        this.files = [];
-        (event.target as HTMLInputElement).value = '';
-        this.uploadingFiles = false;
-      });
-    }
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  onDropFiles(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      const validFiles: File[] = [];
-      const allowedTypes = ['.docx', '.pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/pdf'];
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-        const isValid = allowedTypes.includes(fileExtension) ||
-            allowedTypes.includes(file.type);
-
-        if (isValid) {
-          validFiles.push(file);
-        } else {
-          this.showFileError(file.name);
-        }
-      }
-
-      if (validFiles.length > 0) {
-        this.updateFormControlWithFiles(validFiles);
-      }
-    }
-  }
-
-  showFileError(fileName: string) {
-    this.notificationService.showWarning('Отклонено', `Файл "${fileName}" имеет недопустимый формат. Разрешены только DOCX и PDF.`);
-  }
-
-  updateFormControlWithFiles(files: File[]) {
-    const dataTransfer = new DataTransfer();
-    files.forEach(file => dataTransfer.items.add(file));
-
-    this.formJob.patchValue({
-      files: dataTransfer.files
-    });
-
-    this.formJob.get('files')?.markAsTouched();
+  onUploadingFilesChange(value: boolean) {
+    this.uploadingFiles = value;
   }
 
   saveJob() {
@@ -513,7 +349,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  createJob() {
+  async createJob() {
     if (!this.currentUser) {
       this.notificationService.showWarning('Отклонено', 'Необходимо выполнить вход в аккаунт');
       return;
@@ -523,121 +359,55 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     }
 
     this.savingJob = true;
-    let requestUser = {
-      "phone": this.formJob.value.phone,
-      "academicDegree": this.formJob.value.academicDegree,
-      "academicTitle": this.formJob.value.academicTitle,
-      "orcId": this.formJob.value.orcId ? (this.formJob.value.orcId).toUpperCase() : undefined,
-      "rincId": this.formJob.value.rincId,
-      "organization": this.formJob.value.organization,
-    }
-
-    this.httpService.updateUserInfoByJob(requestUser).then(() => {
-      return this.authService.getCurrentUser()
-    }).then((updatedUser) => {
-    }).catch(error => {
-      this.notificationService.showError('Не удалось обновить профиль');
-    });
-
-    const authorsDtos: AuthorDto[] = [];
-    for (let i = 0; i < this.authors.length; i++) {
-      let author = this.authors.at(i);
-      let fullName = author.get('fullName')?.value;
-      let organization = author.get('organization')?.value;
-      let email = author.get('email')?.value;
-      if (fullName !== '') {
-        const authorDto = new AuthorDto();
-        authorDto.setFullName(fullName);
-        authorDto.setOrganization(organization);
-        authorDto.setEmail(email);
-        authorsDtos.push(authorDto);
-      }
-    }
-    let filesForUpload: object[] = []
-    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
-
-    let request = {
-      "id": this.isEditMode ? this.currentJobId : null,
-      "title": this.formJob.value.title,
-      "coAuthors": authorsDtos,
-      "description": this.formJob.value.description,
-      "userName": this.currentUser.firstName,
-      "userId": this.currentUser.id,
-      "sectionId": this.currentSection?.id,
-      "sectionTitle": this.currentSection?.title,
-      "conferenceId": this.currentConference?.id,
-      "conferenceTitle": this.currentConference?.title,
-      "files": filesForUpload
-    };
-
-    this.httpService.createJob(request).then((data) => {
-      this.notificationService.showSuccess('Успешно', 'Работа создана');
-
-      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), true)
-      .then(() => {
-        this.needToRemoveFilesMetadata = []
-        this.uploadedFilesMetadata = []
-        this.files = []
-        this.toPage(`/job/${data.id}`)
-        this.savingJob = false;
-      }).catch(error => {
-        this.notificationService.showError('Не удалось удалить файлы');
-        this.savingJob = false;
+    try {
+      const id = await this.jobSubmitService.createJob({
+        formJob: this.formJob,
+        currentUser: this.currentUser,
+        currentJobId: this.currentJobId,
+        isEditMode: this.isEditMode,
+        currentSectionId: this.currentSection?.id,
+        currentSectionTitle: this.currentSection?.title,
+        currentConferenceId: this.currentConference?.id,
+        currentConferenceTitle: this.currentConference?.title,
+        authors: this.authors,
+        uploadedFilesMetadata: this.uploadedFilesMetadata,
+        needToRemoveFilesMetadata: this.needToRemoveFilesMetadata
       });
-    }).catch(error => {
-      this.notificationService.showError('Не удалось создать работу');
+
+      if (id != null) {
+        this.needToRemoveFilesMetadata = [];
+        this.uploadedFilesMetadata = [];
+        this.toPage(`/job/${id}`);
+      }
+    } finally {
       this.savingJob = false;
-    });
+    }
   }
 
-  updateJob() {
+  async updateJob() {
     this.savingJob = true;
-
-    let filesForUpload: object[] = []
-    this.uploadedFilesMetadata.forEach(e => filesForUpload.push({"uuid": e.uuid}))
-
-    const authorsDtos: AuthorDto[] = [];
-    for (let i = 0; i < this.authors.length; i++) {
-      let author = this.authors.at(i);
-      let fullName = author.get('fullName')?.value;
-      let organization = author.get('organization')?.value;
-      let email = author.get('email')?.value;
-      if (fullName !== '') {
-        const authorDto = new AuthorDto();
-        authorDto.setFullName(fullName);
-        authorDto.setOrganization(organization);
-        authorDto.setEmail(email);
-        authorsDtos.push(authorDto);
+    try {
+      if (!this.currentJobId) {
+        this.notificationService.showError('Не удалось обновить работу');
+        return;
       }
-    }
 
-    let request = {
-      "id": this.currentJobId,
-      "title": this.formJob.value.title,
-      "coAuthors": authorsDtos,
-      "description": this.formJob.value.description,
-      "files": filesForUpload
-    };
-
-    this.httpService.updateJob(request).then((data) => {
-      this.formJob.reset()
-      this.notificationService.showSuccess('Успешно', 'Работа обновлена');
-
-      this.httpService.deleteFiles(this.needToRemoveFilesMetadata.map(e => e.uuid), true)
-      .then(() => {
-        this.needToRemoveFilesMetadata = []
-        this.uploadedFilesMetadata = []
-        this.files = []
-        this.toPage(`/job/${data.id}`)
-        this.savingJob = false;
-      }).catch(error => {
-        this.savingJob = false;
-        this.notificationService.showError('Не удалось удалить файлы');
+      const id = await this.jobSubmitService.updateJob({
+        formJob: this.formJob,
+        currentJobId: this.currentJobId,
+        authors: this.authors,
+        uploadedFilesMetadata: this.uploadedFilesMetadata,
+        needToRemoveFilesMetadata: this.needToRemoveFilesMetadata
       });
-    }).catch(error => {
+
+      if (id != null) {
+        this.needToRemoveFilesMetadata = [];
+        this.uploadedFilesMetadata = [];
+        this.toPage(`/job/${id}`);
+      }
+    } finally {
       this.savingJob = false;
-      this.notificationService.showError('Не удалось обновить работу');
-    });
+    }
   }
 
   toPage(link: string) {

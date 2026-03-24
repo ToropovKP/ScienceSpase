@@ -1,0 +1,87 @@
+<div class="card shadow-sm mb-4" [formGroup]="formGroup">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Основные параметры</h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-4">
+      <div class="col-md-8">
+        <label class="form-label fs-5">
+          Название конференции
+          <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="confName"
+          [class.is-invalid]="formGroup.get('confName')?.invalid"
+          [readonly]="!canEdit"
+          [maxlength]="100"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label fs-5">Статус <span class="text-danger">*</span></label>
+        <select
+          class="form-select custom-select"
+          formControlName="confStatus"
+          [class.is-invalid]="formGroup.get('confStatus')?.invalid"
+          [attr.disabled]="!canEdit ? true : null"
+          (change)="onStatusChange($event)"
+        >
+          <option [ngValue]="undefined">Выберите статус</option>
+          <option *ngFor="let status of conferenceStatusList">{{ status }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label fs-5">Организация <span class="text-danger">*</span></label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="organization"
+          [class.is-invalid]="formGroup.get('organization')?.invalid"
+          [readonly]="!canEdit"
+          [maxlength]="100"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label fs-5">Дата начала <span class="text-danger">*</span></label>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="date_start"
+          [min]="minDate | date: 'yyyy-MM-dd'"
+          [max]="maxDate | date: 'yyyy-MM-dd'"
+          [class.is-invalid]="formGroup.get('date_start')?.invalid"
+          [readonly]="!canEdit"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label fs-5">Дата завершения <span class="text-danger">*</span></label>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="date_end"
+          [min]="minDate | date: 'yyyy-MM-dd'"
+          [max]="maxDate | date: 'yyyy-MM-dd'"
+          [class.is-invalid]="formGroup.get('date_end')?.invalid"
+          [readonly]="!canEdit"
+        />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label fs-5">Описание <span class="text-danger">*</span></label>
+        <textarea
+          class="form-control"
+          rows="4"
+          formControlName="description"
+          [class.is-invalid]="formGroup.get('description')?.invalid"
+          [readonly]="!canEdit"
+          [maxlength]="2000"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</div>

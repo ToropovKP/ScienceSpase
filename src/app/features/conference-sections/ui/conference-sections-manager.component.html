@@ -1,0 +1,130 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
+  </div>
+  <div class="card-body">
+    <div *ngIf="loadingSections" class="text-center py-4">
+      <div class="spinner-border" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingSections" [formArrayName]="'sections'">
+      <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i" class="mb-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="title"
+              placeholder="Название секции"
+              [readonly]="!isLeaderSection(i)"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <div *ngIf="!canManageSections">
+              <button class="btn btn-outline-secondary w-100 text-start text-truncate" type="button" disabled>
+                {{ countLeadSecArray(i) !== 0 ? getStringLeadSecArray(i) : 'Не назначен' }}
+              </button>
+            </div>
+            <div *ngIf="canManageSections" class="dropdown">
+              <button
+                class="btn btn-outline-secondary w-100 text-start text-truncate"
+                type="button"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                [disabled]="isDisabledSection(i)"
+                [id]="'dropdownMenuButtonLeaders' + i"
+              >
+                {{ getStringLeadSecArray(i) || 'Выберите руководителей' }}
+              </button>
+              <ul formArrayName="leaders" class="dropdown-menu p-3" [attr.aria-labelledby]="'dropdownMenuButtonLeaders' + i">
+                <li *ngFor="let user of leadSecArray(i).controls; let j = index" [formGroupName]="j">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="selected"
+                      *ngIf="currentUserId != user.get('id')?.value"
+                      [id]="'leader' + i + j"
+                    />
+                    <label class="form-check-label" [for]="'leader' + i + j">
+                      {{ user.get('name')?.value }}
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div *ngIf="!canManageSections">
+              <button class="btn btn-outline-secondary w-100 text-start text-truncate" type="button" disabled>
+                {{ countReviewSecArray(i) !== 0 ? getStringReviewSecArray(i) : 'Не назначен' }}
+              </button>
+            </div>
+            <div *ngIf="canManageSections" class="dropdown">
+              <button
+                class="btn btn-outline-secondary w-100 text-start text-truncate"
+                type="button"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                [disabled]="isDisabledSection(i)"
+                [id]="'dropdownMenuButtonReviewers' + i"
+              >
+                {{ getStringReviewSecArray(i) || 'Выберите рецензентов' }}
+              </button>
+              <ul
+                formArrayName="reviewers"
+                class="dropdown-menu p-3"
+                [attr.aria-labelledby]="'dropdownMenuButtonReviewers' + i"
+              >
+                <li *ngFor="let user of reviewSecArray(i).controls; let j = index" [formGroupName]="j">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="selected" [id]="'reviewer' + i + j" />
+                    <label class="form-check-label" [for]="'reviewer' + i + j">
+                      {{ user.get('name')?.value }}
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="d-flex gap-2">
+              <button
+                *ngIf="!section.get('title')?.disabled"
+                class="btn btn-success"
+                [disabled]="section.get('title')?.value === ''"
+                type="button"
+                (click)="disableSection(i)"
+              >
+                <i class="bi bi-check-lg"></i>
+              </button>
+
+              <button
+                *ngIf="section.get('title')?.disabled"
+                class="btn btn-outline-secondary"
+                [disabled]="!isLeaderSection(i)"
+                type="button"
+                (click)="enableSection(i)"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                *ngIf="section.get('title')?.disabled"
+                class="btn btn-outline-danger"
+                [disabled]="!canManageSections"
+                type="button"
+                (click)="removeSection(i)"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
