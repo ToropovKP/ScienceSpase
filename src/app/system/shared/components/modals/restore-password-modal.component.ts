@@ -1,8 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpService } from '../../services/http.service';
-import { NotificationService } from '../../services/notification.service';
+import { HttpService } from '../../../../shared/services/http.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { ButtonModule } from 'primeng/button';
 import { EmailFieldComponent } from '../forms/email-field.component';
 

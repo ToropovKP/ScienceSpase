@@ -2,9 +2,9 @@ import { Component, EventEmitter, Output, ViewChild, ElementRef } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpService } from '../../services/http.service';
-import { AuthService } from '../../services/auth.service';
-import { NotificationService } from '../../services/notification.service';
+import { HttpService } from '../../../../shared/services/http.service';
+import { AuthService } from '../../../../shared/services/auth.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { ButtonModule } from 'primeng/button';
 import { EmailFieldComponent } from '../forms/email-field.component';
 import { PasswordFieldComponent } from '../forms/password-field.component';

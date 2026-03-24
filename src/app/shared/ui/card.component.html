@@ -1,0 +1,15 @@
+<div class="card h-100" [ngClass]="{'shadow-sm': shadow}">
+  <div *ngIf="headerTitle" class="card-header" [ngClass]="headerClass">
+    <h5 *ngIf="headerIcon" class="mb-0">
+      <i [class]="headerIcon" class="me-2"></i>{{ headerTitle }}
+    </h5>
+    <h5 *ngIf="!headerIcon" class="mb-0">{{ headerTitle }}</h5>
+    <ng-content select="[slot=header-actions]"></ng-content>
+  </div>
+  <div class="card-body">
+    <ng-content></ng-content>
+  </div>
+  <div *ngIf="showFooter" class="card-footer bg-transparent border-top-0">
+    <ng-content select="[slot=footer]"></ng-content>
+  </div>
+</div>

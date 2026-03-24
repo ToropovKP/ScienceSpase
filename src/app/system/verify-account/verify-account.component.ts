@@ -1,10 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {User} from "../shared/model/user";
+import {User} from "../../entities/user/model/user";
 import {ActivatedRoute} from "@angular/router";
-import {HttpService} from "../shared/services/http.service";
+import {HttpService} from "../../shared/services/http.service";
 import {map, Subject, takeUntil} from "rxjs";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../shared/services/auth.service";
+import {AuthService} from "../../shared/services/auth.service";
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {filter} from "rxjs/operators";

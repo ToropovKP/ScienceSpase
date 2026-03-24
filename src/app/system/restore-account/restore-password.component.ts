@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {User} from "../shared/model/user";
+import {User} from "../../entities/user/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
-import {HttpService} from "../shared/services/http.service";
+import {HttpService} from "../../shared/services/http.service";
 import {map} from "rxjs";
 import {CommonModule} from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {passwordMatchValidator} from "../shared/validators/password.match.validator";
+import {passwordMatchValidator} from "../../shared/validators/password.match.validator";
 import {Button} from "primeng/button";
 import {IftaLabel} from "primeng/iftalabel";
 import {Password} from "primeng/password";

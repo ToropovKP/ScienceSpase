@@ -2,23 +2,23 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {conferenceStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
-import {Job} from "../shared/model/job";
-import {Conference} from "../shared/model/conference";
+import {Job} from "../../entities/job/model/job";
+import {Conference} from "../../entities/conference/model/conference";
 import {map, Subject, takeUntil} from "rxjs";
-import {User} from "../shared/model/user";
-import {HttpService} from "../shared/services/http.service";
-import {Section} from "../shared/model/section";
-import {UserBase} from "../shared/model/user.base";
+import {User} from "../../entities/user/model/user";
+import {HttpService} from "../../shared/services/http.service";
+import {Section} from "../../entities/conference/model/section";
+import {UserBase} from "../../entities/user/model/user.base";
 import {CommonModule} from "@angular/common";
-import {DateService} from "../shared/services/date.service";
-import {AuthService} from "../shared/services/auth.service";
+import {DateService} from "../../shared/services/date.service";
+import {AuthService} from "../../shared/services/auth.service";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
-import {NotificationService} from "../shared/services/notification.service";
-import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
-import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
-import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {ClickOutsideDirective} from "../../shared/directives/click-outside.directive";
+import {NotificationService} from "../../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 
 @Component({
   selector: 'app-conference-jobs',

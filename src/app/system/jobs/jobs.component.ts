@@ -1,17 +1,17 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Job} from "../shared/model/job";
-import {User} from "../shared/model/user";
+import {Job} from "../../entities/job/model/job";
+import {User} from "../../entities/user/model/user";
 import {ActivatedRoute, Router} from "@angular/router";
-import {HttpService} from "../shared/services/http.service";
+import {HttpService} from "../../shared/services/http.service";
 import {map, Subject, takeUntil} from "rxjs";
-import {Conference} from "../shared/model/conference";
+import {Conference} from "../../entities/conference/model/conference";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../shared/services/auth.service";
-import {NotificationService} from "../shared/services/notification.service";
-import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
-import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
-import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
-import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {AuthService} from "../../shared/services/auth.service";
+import {NotificationService} from "../../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../../shared/ui/empty-state.component";
+import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 import {MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
 

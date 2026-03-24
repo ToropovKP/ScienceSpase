@@ -1,17 +1,17 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Conference} from "../shared/model/conference";
-import {User} from "../shared/model/user";
+import {Conference} from "../../entities/conference/model/conference";
+import {User} from "../../entities/user/model/user";
 import {conferenceStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
-import {HttpService} from "../shared/services/http.service";
+import {HttpService} from "../../shared/services/http.service";
 import {CommonModule} from "@angular/common";
-import {DateService} from "../shared/services/date.service";
-import {AuthService} from "../shared/services/auth.service";
-import {NotificationService} from "../shared/services/notification.service";
-import {AuthGuardService} from "../shared/services/auth-guard.service";
-import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
-import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
-import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {DateService} from "../../shared/services/date.service";
+import {AuthService} from "../../shared/services/auth.service";
+import {NotificationService} from "../../shared/services/notification.service";
+import {AuthGuardService} from "../../shared/services/auth-guard.service";
+import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../../shared/ui/empty-state.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 import {Subject, takeUntil} from "rxjs";
 import {filter} from "rxjs/operators";
 

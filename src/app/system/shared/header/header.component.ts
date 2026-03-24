@@ -1,15 +1,15 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router, RouterModule} from "@angular/router";
-import {User} from "../model/user";
-import {HttpService} from "../services/http.service";
+import {User} from "../../../entities/user/model/user";
+import {HttpService} from "../../../shared/services/http.service";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../services/auth.service";
-import {FirstWordPipe} from "../pipes/first.word.pipe";
-import {ShortNamePipe} from "../pipes/short.name.pipe";
+import {AuthService} from "../../../shared/services/auth.service";
+import {FirstWordPipe} from "../../../shared/pipes/first.word.pipe";
+import {ShortNamePipe} from "../../../shared/pipes/short.name.pipe";
 import {LoginModalComponent} from "../components/modals/login-modal.component";
 import {RegistrationModalComponent} from "../components/modals/registration-modal.component";
 import {RestorePasswordModalComponent} from "../components/modals/restore-password-modal.component";
-import {ToastContainerComponent} from "../components/ui/toast-container.component";
+import {ToastContainerComponent} from "../../../shared/ui/toast-container.component";
 
 @Component({
   selector: 'app-header',

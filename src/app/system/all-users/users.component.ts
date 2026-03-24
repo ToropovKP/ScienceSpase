@@ -1,21 +1,21 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {User} from "../shared/model/user";
+import {User} from "../../entities/user/model/user";
 import {userRoleMap, userStatusMap} from "../../app.constants";
 import {ActivatedRoute, Router} from "@angular/router";
-import {HttpService} from "../shared/services/http.service";
+import {HttpService} from "../../shared/services/http.service";
 import {CommonModule} from "@angular/common";
-import {AuthService} from "../shared/services/auth.service";
-import {ShortNamePipe} from "../shared/pipes/short.name.pipe";
+import {AuthService} from "../../shared/services/auth.service";
+import {ShortNamePipe} from "../../shared/pipes/short.name.pipe";
 import {Subject, takeUntil} from "rxjs";
 import {filter, debounceTime, distinctUntilChanged, skip} from "rxjs/operators";
-import {NotificationService} from "../shared/services/notification.service";
-import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
-import {EmptyStateComponent} from "../shared/components/ui/empty-state.component";
-import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {NotificationService} from "../../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
+import {EmptyStateComponent} from "../../shared/ui/empty-state.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 import {ConfirmationService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
-import {PaginationComponent} from "../shared/components/ui/pagination.component";
-import {AuthGuardService} from "../shared/services/auth-guard.service";
+import {PaginationComponent} from "../../shared/ui/pagination.component";
+import {AuthGuardService} from "../../shared/services/auth-guard.service";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 
 @Component({

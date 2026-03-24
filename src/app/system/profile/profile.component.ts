@@ -2,19 +2,19 @@ import {Component, HostListener, OnDestroy, OnInit, SecurityContext} from '@angu
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
-import {User} from "../shared/model/user";
-import {HttpService} from "../shared/services/http.service";
+import {User} from "../../entities/user/model/user";
+import {HttpService} from "../../shared/services/http.service";
 import {CommonModule, Location} from "@angular/common";
 import {NgxMaskDirective} from "ngx-mask";
-import {AuthService} from "../shared/services/auth.service";
+import {AuthService} from "../../shared/services/auth.service";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
 import {filter} from "rxjs/operators";
-import {passwordMatchValidator} from "../shared/validators/password.match.validator";
+import {passwordMatchValidator} from "../../shared/validators/password.match.validator";
 import {PopoverModule} from "primeng/popover";
 import {orcidPattern} from "../../app.constants";
-import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
+import {NumbersOnlyDirective} from "../../shared/directives/numbers-only.directive";
 import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({

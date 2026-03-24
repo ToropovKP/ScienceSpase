@@ -1,30 +1,30 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
-import {Section} from "../shared/model/section";
+import {Section} from "../../entities/conference/model/section";
 import {Subject, takeUntil} from "rxjs";
-import {Conference} from "../shared/model/conference";
-import {User} from "../shared/model/user";
-import {HttpService} from "../shared/services/http.service";
-import {AuthorDto} from "../shared/dto/author.dto";
+import {Conference} from "../../entities/conference/model/conference";
+import {User} from "../../entities/user/model/user";
+import {HttpService} from "../../shared/services/http.service";
+import {AuthorDto} from "../../shared/dto/author.dto";
 import {CommonModule, Location} from "@angular/common";
 import {orcidPattern} from "../../app.constants";
 import {NgxMaskDirective} from "ngx-mask";
-import {AuthService} from "../shared/services/auth.service";
+import {AuthService} from "../../shared/services/auth.service";
 import {ConfirmationService, MenuItem} from "primeng/api";
 import {filter} from "rxjs/operators";
-import {FileMetadata} from "../shared/model/file.metadata";
+import {FileMetadata} from "../../entities/common/model/file.metadata";
 import {PopoverModule} from "primeng/popover";
-import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
-import {Job} from "../shared/model/job";
-import {Author} from "../shared/model/author";
+import {NumbersOnlyDirective} from "../../shared/directives/numbers-only.directive";
+import {Job} from "../../entities/job/model/job";
+import {Author} from "../../entities/author/model/author";
 import {HttpResponse} from "@angular/common/http";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {NotificationService} from "../shared/services/notification.service";
-import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
-import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
-import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {NotificationService} from "../../shared/services/notification.service";
+import {LoadingSpinnerComponent} from "../../shared/ui/loading-spinner.component";
+import {BreadcrumbWrapperComponent} from "../../shared/ui/breadcrumb-wrapper.component";
+import {ToastContainerComponent} from "../../shared/ui/toast-container.component";
 
 @Component({
   selector: 'app-job-create',

@@ -7,7 +7,7 @@ import {NgxMaskConfig, provideEnvironmentNgxMask} from "ngx-mask";
 import {provideAnimationsAsync} from "@angular/platform-browser/animations/async";
 import {providePrimeNG} from "primeng/config";
 import Aura from '@primeng/themes/aura';
-import {AuthService} from "./system/shared/services/auth.service";
+import {AuthService} from "./shared/services/auth.service";
 import {MessageService} from "primeng/api";
 
 const maskConfig: Partial<NgxMaskConfig> = {

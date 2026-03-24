@@ -2,12 +2,12 @@ import { Component, EventEmitter, Output, ViewChild, ElementRef } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpService } from '../../services/http.service';
-import { AuthService } from '../../services/auth.service';
-import { NotificationService } from '../../services/notification.service';
-import { passwordMatchValidator } from '../../validators/password.match.validator';
+import { HttpService } from '../../../../shared/services/http.service';
+import { AuthService } from '../../../../shared/services/auth.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { passwordMatchValidator } from '../../../../shared/validators/password.match.validator';
 import { ButtonModule } from 'primeng/button';
-import { User } from '../../model/user';
+import { User } from '../../../../entities/user/model/user';
 import { FormFieldComponent } from '../forms/form-field.component';
 import { EmailFieldComponent } from '../forms/email-field.component';
 import { PhoneFieldComponent } from '../forms/phone-field.component';
