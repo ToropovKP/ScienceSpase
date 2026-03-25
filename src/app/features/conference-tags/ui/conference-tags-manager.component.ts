@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -8,12 +8,23 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular
   styleUrls: ['./conference-tags-manager.component.css'],
   imports: [CommonModule, ReactiveFormsModule]
 })
-export class ConferenceTagsManagerComponent {
+export class ConferenceTagsManagerComponent implements OnChanges {
   @Input({ required: true }) tags!: FormArray;
   @Input({ required: true }) loadingTags!: boolean;
   @Input({ required: true }) canManageTags!: boolean;
 
+  form!: FormGroup;
+
   constructor(private formBuilder: FormBuilder) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['tags'] && this.tags) {
+      // Создаем "обертку" FormGroup, чтобы директивы formArrayName/formGroupName работали.
+      this.form = this.formBuilder.group({
+        tags: this.tags
+      });
+    }
+  }
 
   private createTag(name: string = ''): FormGroup {
     return this.formBuilder.group({

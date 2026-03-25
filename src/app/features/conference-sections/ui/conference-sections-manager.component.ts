@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -8,13 +8,24 @@ import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
   styleUrls: ['./conference-sections-manager.component.css'],
   imports: [CommonModule, ReactiveFormsModule]
 })
-export class ConferenceSectionsManagerComponent {
+export class ConferenceSectionsManagerComponent implements OnChanges {
   @Input({ required: true }) sections!: FormArray;
   @Input({ required: true }) loadingSections!: boolean;
   @Input({ required: true }) canManageSections!: boolean;
   @Input({ required: true }) isLeaderSection!: (sectionIndex: number) => boolean;
   @Input({ required: true }) createSection!: () => FormGroup;
   @Input({ required: true }) currentUserId!: string | number | bigint | undefined;
+
+  form!: FormGroup;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['sections'] && this.sections) {
+      // Создаем "обертку" FormGroup, чтобы директивы formArrayName/formGroupName работали.
+      this.form = new FormGroup({
+        sections: this.sections
+      });
+    }
+  }
 
   leadSecArray(sectionIndex: number): FormArray {
     return this.sections.at(sectionIndex).get('leaders') as FormArray;
