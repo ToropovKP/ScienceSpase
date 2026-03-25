@@ -1,1 +1,5 @@
-/* Uses existing page styles. */
+ 
+.card-header {
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
+}
