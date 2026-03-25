@@ -5,13 +5,10 @@
     <p-confirm-popup key="confirmDialog"/>
     <div class="main">
 
-      <app-loading-spinner *ngIf="loadingJob" message="Загрузка..." />
+      <app-loading-spinner *ngIf="!pageReady" message="Загрузка..." />
 
-      <div *ngIf="!loadingJob">
+      <div *ngIf="pageReady && formJob">
         <app-breadcrumb-wrapper [items]="breadcrumbItems || []" [home]="homeItem"></app-breadcrumb-wrapper>
-      </div>
-
-      <div *ngIf="!loadingJob && !loadingConference">
 
         <!-- Форма добавления работы -->
         <div  class="card shadow-sm mb-4">
@@ -21,11 +18,14 @@
           <div class="card-body">
             <form [formGroup]="formJob" class="row g-3">
 
+              <div class="col-12">
               <app-job-context-selector
                 [formJob]="formJob"
                 [conferences]="conferences"
                 [sections]="sections"
+                [loading]="loadingConference"
               />
+              </div>
 
               <!-- Секция общей информации -->
               <div class="col-md-6">
@@ -39,13 +39,18 @@
                           [maxlength]="2000"></textarea>
               </div>
 
-              <app-co-authors-form-array [authors]="authors" />
+              <div class="col-12">
+              <app-co-authors-form-array [formJob]="formJob" [authors]="authors" />
+              </div>
 
+              <div class="col-12">
               <app-job-contact-info-form
                 [formJob]="formJob"
                 [customOrcidPattern]="customOrcidPattern"
               />
+              </div>
 
+              <div class="col-12">
               <app-job-files-manager
                 [formJob]="formJob"
                 [currentJob]="currentJob"
@@ -53,6 +58,7 @@
                 [needToRemoveFilesMetadata]="needToRemoveFilesMetadata"
                 (uploadingFilesChange)="onUploadingFilesChange($event)"
               />
+              </div>
 
               <div class="col-12 mb-2" *ngIf="!isEditMode">
                 <div class="form-check d-flex align-items-center gap-2">

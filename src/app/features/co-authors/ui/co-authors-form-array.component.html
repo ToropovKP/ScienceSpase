@@ -1,6 +1,6 @@
-<div class="col-12">
+<div [formGroup]="formJob">
   <h6 class="mb-3">Соавторы</h6>
-  <div [formArrayName]="'authors'">
+  <div formArrayName="authors">
     <div *ngFor="let author of authors.controls; let i = index" [formGroupName]="i" class="mb-3">
       <div class="row g-2 align-items-center">
         <div class="col-md-4">

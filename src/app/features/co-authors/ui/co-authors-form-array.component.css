@@ -1,1 +1,4 @@
-/* Intentionally empty: keeps feature-local styling extension point. */
+:host {
+  display: block;
+  width: 100%;
+}

@@ -9,6 +9,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular
   imports: [CommonModule, ReactiveFormsModule]
 })
 export class CoAuthorsFormArrayComponent {
+  @Input({ required: true }) formJob!: FormGroup;
   @Input({ required: true }) authors!: FormArray;
 
   constructor(private formBuilder: FormBuilder) {}

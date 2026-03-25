@@ -14,6 +14,28 @@ export class JobContextSelectorComponent {
   @Input({ required: true }) formJob!: FormGroup;
   @Input({ required: true }) conferences!: Conference[];
   @Input({ required: true }) sections!: Section[];
+  @Input({ required: true }) loading!: boolean;
+
+  /** Без compareWith нативный select с [ngValue] часто не показывает выбранное значение (другая ссылка / bigint id). */
+  compareConference = (a: Conference | null | undefined, b: Conference | null | undefined): boolean => {
+    if (a === b) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return false;
+    }
+    return String(a.id) === String(b.id);
+  };
+
+  compareSection = (a: Section | null | undefined, b: Section | null | undefined): boolean => {
+    if (a === b) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return false;
+    }
+    return String(a.id) === String(b.id);
+  };
 
   getShortConferenceTitle(conference: Conference | undefined): string {
     const title = conference?.title || '';

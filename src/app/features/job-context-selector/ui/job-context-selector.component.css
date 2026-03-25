@@ -1,1 +1,5 @@
-/* Context selector uses parent page styles. */
+/* Хост внутри .row должен занимать всю ширину колонки (иначе flex «схлопывает» блоки ниже). */
+:host {
+  display: block;
+  width: 100%;
+}
