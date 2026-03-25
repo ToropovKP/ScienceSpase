@@ -39,9 +39,17 @@
   background: var(--old-accent-hover);
 }
 
-.form-control, .form-select {
-  border: 1px solid var(--old-accent);
-  background: var(--old-bg-card);
+.form-control:not(.is-invalid),
+.form-select:not(.is-invalid) {
+  border-color: var(--old-accent);
+  border-width: 1px;
+  border-style: solid;
+  background-color: var(--old-bg-card);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  background-color: var(--old-bg-card);
 }
 
 .form-control:disabled,

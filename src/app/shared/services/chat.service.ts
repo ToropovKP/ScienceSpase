@@ -1,17 +1,17 @@
-import {Injectable} from '@angular/core';
-import {Client, Stomp} from '@stomp/stompjs';
+import { Injectable } from '@angular/core';
+import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import {Comment} from "../../entities/comment/model/comment";
-import {baseUrl} from "../../app.constants";
+import { Comment } from '../../entities/comment/model/comment';
+import { baseUrl } from '../../app.constants';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class ChatService {
   private stompClient: Client | undefined;
   private baseUrl = `${baseUrl}/ws`;
-  private isConnected: boolean = false;
-  private reconnectInterval: number = 5000;
-  private reconnectAttempts: number = 0;
-  private maxReconnectAttempts: number = 20;
+  private isConnected = false;
+  private reconnectInterval = 5000;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 20;
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -21,8 +21,13 @@ export class ChatService {
       }
 
       const token = localStorage.getItem('token');
-      const socket = new SockJS(this.baseUrl + '?token=' + token);
-      this.stompClient = Stomp.over(socket);
+      const wsUrl = `${this.baseUrl}?token=${token}`;
+
+      // Фабрика WebSocket — рекомендуемый способ для @stomp/stompjs + SockJS (без предупреждения Stomp.over).
+      this.stompClient = new Client({
+        webSocketFactory: () => new SockJS(wsUrl),
+        reconnectDelay: 0
+      });
 
       this.stompClient.onConnect = () => {
         this.isConnected = true;
@@ -34,7 +39,7 @@ export class ChatService {
         this.isConnected = false;
         this.handleDisconnect();
         reject(error);
-      }
+      };
 
       this.stompClient.onDisconnect = () => {
         this.isConnected = false;
@@ -42,7 +47,6 @@ export class ChatService {
         reject();
       };
 
-      this.stompClient.reconnectDelay = this.reconnectInterval;
       this.stompClient.activate();
     });
   }
@@ -51,17 +55,15 @@ export class ChatService {
     this.isConnected = false;
 
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      console.log(
-          `Reconnecting to WebSocket... Attempt ${this.reconnectAttempts + 1}`
-      );
+      console.log(`Reconnecting to WebSocket... Attempt ${this.reconnectAttempts + 1}`);
       this.reconnectAttempts++;
-      this.connect().then();
+      void this.connect();
     } else {
       console.error('Max reconnect attempts reached. Giving up.');
     }
   }
 
-  subscribeToJob(jobId: string, callback: (message: Comment) => void) {
+  subscribeToJob(jobId: string, callback: (message: Comment) => void): void {
     if (this.stompClient && this.isConnected) {
       this.stompClient.subscribe(`/topic/job/${jobId}`, (message) => {
         callback(JSON.parse(message.body));
@@ -69,15 +71,15 @@ export class ChatService {
     }
   }
 
-  sendMessage(destination: string, message: any) {
+  sendMessage(destination: string, message: unknown): void {
     if (this.stompClient && this.isConnected) {
-      this.stompClient.publish({destination, body: JSON.stringify(message)});
+      this.stompClient.publish({ destination, body: JSON.stringify(message) });
     }
   }
 
-  disconnect() {
+  disconnect(): void {
     if (this.stompClient) {
-      this.stompClient.deactivate();
+      void this.stompClient.deactivate();
       this.isConnected = false;
     }
   }

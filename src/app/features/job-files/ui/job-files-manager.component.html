@@ -1,5 +1,5 @@
-<div class="row g-3">
-  <div *ngIf="currentJob && currentJob.files.length > 0" class="col-md-12">
+<div [formGroup]="formJob" class="w-100">
+  <div *ngIf="currentJob && currentJob.files.length > 0" class="mb-3">
     <label class="form-label">Файлы</label>
     <div class="list-group">
       <a *ngFor="let file of currentJob.files"
@@ -15,18 +15,18 @@
       </a>
     </div>
   </div>
-</div>
 
-<div class="mb-3">
-  <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
-  <input type="file"
-         class="form-control"
-         formControlName="files"
-         accept=".docx,.pdf"
-         multiple
-         (change)="onSelectedFiles($event)"
-         (drop)="onDropFiles($event)"
-         (dragover)="onDragOver($event)"
-         [ngClass]="{'has-error': formJob.get('files')?.invalid && formJob.get('files')?.touched}">
-  <div class="form-text">Допустимые форматы: DOCX, PDF</div>
+  <div>
+    <label class="form-label">Прикрепить файлы <span class="text-danger">*</span></label>
+    <input type="file"
+           class="form-control"
+           formControlName="files"
+           accept=".docx,.pdf"
+           multiple
+           (change)="onSelectedFiles($event)"
+           (drop)="onDropFiles($event)"
+           (dragover)="onDragOver($event)"
+           [ngClass]="{'has-error': formJob.get('files')?.invalid && formJob.get('files')?.touched}">
+    <div class="form-text">Допустимые форматы: DOCX, PDF</div>
+  </div>
 </div>

@@ -108,10 +108,19 @@
   }
 }
 
-/* Дополнительные стили */
-.form-control, .form-select {
-  border: 1px solid var(--old-accent);
-  background: var(--old-bg-card);
+/* Только background-color — не использовать background: (сбрасывает SVG у form-select) */
+.form-control:not(.is-invalid),
+.form-select:not(.is-invalid) {
+  border-color: var(--old-accent);
+  border-width: 1px;
+  border-style: solid;
+  background-color: var(--old-bg-card);
+  color: var(--old-h1-accent);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  background-color: var(--old-bg-card);
   color: var(--old-h1-accent);
 }
 
@@ -152,18 +161,4 @@
 
 .is-invalid {
   border-color: var(--old-danger) !important;
-}
-
-.custom-select.is-invalid {
-  background-image: none !important;
-  border-color: var(--old-danger);
-}
-
-.custom-select.is-invalid:invalid {
-  background-image: none !important;
-}
-
-.custom-select.is-invalid::-ms-expand,
-.custom-select.is-invalid::after {
-  display: none !important;
 }

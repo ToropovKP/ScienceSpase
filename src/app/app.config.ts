@@ -1,6 +1,5 @@
 import {provideRouter, Router, withInMemoryScrolling} from "@angular/router";
 import {APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
-import {provideClientHydration, withEventReplay} from "@angular/platform-browser";
 import {appRoutes} from "./app.routes";
 import {provideHttpClient, withInterceptorsFromDi} from "@angular/common/http";
 import {NgxMaskConfig, provideEnvironmentNgxMask} from "ngx-mask";
@@ -73,7 +72,6 @@ export const appConfig: ApplicationConfig = {
         })),
     provideHttpClient(withInterceptorsFromDi()),
     provideEnvironmentNgxMask(maskConfig),
-    provideClientHydration(withEventReplay()),
     MessageService
   ]
 };

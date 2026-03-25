@@ -1,1 +1,16 @@
-/* Uses existing page styles. */
+/* Те же границы и фон карточек, что у «Аннотации» */
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem;
+}
+
+.card-title {
+  color: var(--old-h1-accent);
+  font-size: 1.1rem;
+}
+
+.card-text {
+  color: var(--old-text-primary-color);
+  margin-bottom: 0;
+}

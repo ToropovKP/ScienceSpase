@@ -112,7 +112,8 @@ body {
   border: 0;
 }
 
-select {
+/* Старые модальные поля — не трогать Bootstrap .form-select / .form-control (слои SVG и repeat) */
+select:not(.form-select):not(.form-control) {
   background-color: var(--old-text-primary-color);
   width: 373px;
   height: 37px;
