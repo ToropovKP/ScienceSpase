@@ -137,8 +137,12 @@
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Телефон</label>
-                  <input [readonly]="true" type="text" class="form-control"
-                         mask="+0 (000) 000-0000" formControlName="phone">
+                  <app-phone-with-country-field
+                    mode="readonly"
+                    [label]="''"
+                    [phoneNumber]="jobUser.phoneNumber"
+                    [countryCode]="jobUser.countryCode">
+                  </app-phone-with-country-field>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Организация</label>

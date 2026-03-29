@@ -1,6 +1,6 @@
 {
-  "name": "kograf",
-  "version": "1.0.8-SNAPSHOT",
+  "name": "frontend",
+  "version": "1.0.9-SNAPSHOT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

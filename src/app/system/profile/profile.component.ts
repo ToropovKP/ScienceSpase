@@ -16,12 +16,13 @@ import {PopoverModule} from "primeng/popover";
 import {orcidPattern} from "../../app.constants";
 import {NumbersOnlyDirective} from "../shared/directives/numbers-only.directive";
 import {DomSanitizer} from "@angular/platform-browser";
+import {PhoneWithCountryFieldComponent} from "../shared/components/forms/phone-with-country-field.component";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule, NumbersOnlyDirective],
+  imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, ConfirmPopupModule, ToastModule, PopoverModule, NumbersOnlyDirective, PhoneWithCountryFieldComponent],
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -93,7 +94,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       firstName: new FormControl('', Validators.required),
       lastName: new FormControl('', Validators.required),
       middleName: new FormControl('',),
-      phone: new FormControl('', Validators.required),
       email: new FormControl('', Validators.required),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
@@ -145,7 +145,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.formProfile.controls['firstName'].setValue(this.profileUser.firstName)
     this.formProfile.controls['lastName'].setValue(this.profileUser.lastName)
     this.formProfile.controls['middleName'].setValue(this.profileUser.middleName)
-    this.formProfile.controls['phone'].setValue(this.profileUser.phone)
     this.formProfile.controls['email'].setValue(this.profileUser.email)
     this.formProfile.controls['organization'].setValue(this.profileUser.organization)
     this.formProfile.controls['academicDegree'].setValue(this.profileUser.academicDegree)

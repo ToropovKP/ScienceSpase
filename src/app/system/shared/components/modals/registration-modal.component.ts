@@ -10,8 +10,9 @@ import { ButtonModule } from 'primeng/button';
 import { User } from '../../model/user';
 import { FormFieldComponent } from '../forms/form-field.component';
 import { EmailFieldComponent } from '../forms/email-field.component';
-import { PhoneFieldComponent } from '../forms/phone-field.component';
+import { PhoneWithCountryFieldComponent } from '../forms/phone-with-country-field.component';
 import { PasswordFieldComponent } from '../forms/password-field.component';
+import { DEFAULT_PHONE_COUNTRY_CODE } from '../forms/phone-country.config';
 
 @Component({
   selector: 'app-registration-modal',
@@ -22,7 +23,7 @@ import { PasswordFieldComponent } from '../forms/password-field.component';
     ButtonModule,
     FormFieldComponent,
     EmailFieldComponent,
-    PhoneFieldComponent,
+    PhoneWithCountryFieldComponent,
     PasswordFieldComponent
   ],
   templateUrl: './registration-modal.component.html',
@@ -52,7 +53,8 @@ export class RegistrationModalComponent {
       firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
       lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
       middleName: new FormControl('', []),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
+      countryCode: new FormControl(DEFAULT_PHONE_COUNTRY_CODE, [Validators.required]),
+      phoneNumber: new FormControl('', [Validators.required, Validators.minLength(10)]),
       email: new FormControl('', [Validators.required, Validators.email]),
       organization: new FormControl('', []),
       academicDegree: new FormControl('', []),
@@ -75,7 +77,8 @@ export class RegistrationModalComponent {
       "firstName": this.formRegistration.value.firstName,
       "lastName": this.formRegistration.value.lastName,
       "middleName": this.formRegistration.value.middleName,
-      "phone": '7' + this.formRegistration.value.phone,
+      "phoneNumber": this.formRegistration.value.phoneNumber,
+      "countryCode": this.formRegistration.value.countryCode,
       "email": this.formRegistration.value.email,
       "organization": this.formRegistration.value.organization,
       "academicDegree": this.formRegistration.value.academicDegree,
@@ -129,7 +132,11 @@ export class RegistrationModalComponent {
   }
 
   get phoneControl(): FormControl {
-    return this.formRegistration.get('phone') as FormControl;
+    return this.formRegistration.get('phoneNumber') as FormControl;
+  }
+
+  get countryCodeControl(): FormControl {
+    return this.formRegistration.get('countryCode') as FormControl;
   }
 
   get emailControl(): FormControl {

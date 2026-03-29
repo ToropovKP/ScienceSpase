@@ -28,6 +28,7 @@ import {NotificationService} from "../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {PhoneWithCountryFieldComponent} from "../shared/components/forms/phone-with-country-field.component";
 
 @Component({
   selector: 'app-one-job',
@@ -45,7 +46,8 @@ import {ToastContainerComponent} from "../shared/components/ui/toast-container.c
     Tooltip,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    PhoneWithCountryFieldComponent
   ],
   providers: [ConfirmationService]
 })
@@ -129,7 +131,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
     this.formJob = this.formBuilder.group({
       title: new FormControl('',),
       description: new FormControl('',),
-      phone: new FormControl('',),
       email: new FormControl('',),
       organization: new FormControl('',),
       academicDegree: new FormControl('',),
@@ -319,7 +320,6 @@ export class OneJobComponent implements OnInit, OnDestroy, AfterViewInit {
       this.jobUser = data
       this.formJob.controls['title'].setValue(this.currentJob.title)
       this.formJob.controls['description'].setValue(this.currentJob.description)
-      this.formJob.controls['phone'].setValue(this.jobUser.phone)
       this.formJob.controls['email'].setValue(this.jobUser.email)
       this.formJob.controls['organization'].setValue(this.jobUser.organization)
       this.formJob.controls['academicDegree'].setValue(this.jobUser.academicDegree)

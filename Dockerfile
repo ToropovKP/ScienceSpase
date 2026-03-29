@@ -8,4 +8,4 @@ RUN npm install && npm run build --prod
 FROM nginx:stable-alpine
 EXPOSE 8085
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=node /app/dist/kograf/browser /www
+COPY --from=node /app/dist/frontend/browser /www

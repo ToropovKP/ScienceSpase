@@ -25,6 +25,7 @@ import {NotificationService} from "../shared/services/notification.service";
 import {LoadingSpinnerComponent} from "../shared/components/ui/loading-spinner.component";
 import {BreadcrumbWrapperComponent} from "../shared/components/ui/breadcrumb-wrapper.component";
 import {ToastContainerComponent} from "../shared/components/ui/toast-container.component";
+import {PhoneWithCountryFieldComponent} from "../shared/components/forms/phone-with-country-field.component";
 
 @Component({
   selector: 'app-job-create',
@@ -40,7 +41,8 @@ import {ToastContainerComponent} from "../shared/components/ui/toast-container.c
     NumbersOnlyDirective,
     LoadingSpinnerComponent,
     BreadcrumbWrapperComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    PhoneWithCountryFieldComponent
   ],
   providers: [ConfirmationService]
 })
@@ -139,7 +141,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       title: new FormControl('', [Validators.required]),
       authors: this.formBuilder.array([this.createAuthor()]),
       description: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl('',),
       academicTitle: new FormControl('',),
@@ -266,19 +267,13 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     if (!this.currentUser) {
       return;
     }
-    this.formJob.controls['phone'].setValue(this.currentUser.phone)
     this.formJob.controls['organization'].setValue(this.currentUser.organization)
     this.formJob.controls['academicDegree'].setValue(this.currentUser.academicDegree)
     this.formJob.controls['academicTitle'].setValue(this.currentUser.academicTitle)
     this.formJob.controls['orcId'].setValue(this.currentUser.orcId)
     this.formJob.controls['rincId'].setValue(this.currentUser.rincId)
 
-    if (this.currentUser.phone && this.currentUser.phone !== '') {
-      this.formJob.controls['phone'].disable();
-    }
-
     if (this.isEditMode) {
-      this.formJob.controls['phone'].disable();
       this.formJob.controls['organization'].disable();
       this.formJob.controls['academicDegree'].disable();
       this.formJob.controls['academicTitle'].disable();
@@ -524,7 +519,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
     this.savingJob = true;
     let requestUser = {
-      "phone": this.formJob.value.phone,
       "academicDegree": this.formJob.value.academicDegree,
       "academicTitle": this.formJob.value.academicTitle,
       "orcId": this.formJob.value.orcId ? (this.formJob.value.orcId).toUpperCase() : undefined,

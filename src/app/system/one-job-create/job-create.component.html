@@ -26,7 +26,11 @@
                 <div class="col-md-4">
                   <label class="form-label">Конференция <span class="text-danger">*</span></label>
                   <select class="form-control form-control-conference" formControlName="conference">
-                    <option [ngValue]="undefined">Выберите</option>
+                    <option
+                      [ngValue]="undefined"
+                      [disabled]="formJob.get('conference')?.value !== undefined && formJob.get('conference')?.value !== null">
+                      Выберите
+                    </option>
                     <option *ngFor="let conference of conferences" [ngValue]="conference">{{ this.getShortConferenceTitle(conference) }}</option>
                   </select>
                 </div>
@@ -37,7 +41,11 @@
                 <div class="col-md-4">
                   <label class="form-label">Секция <span class="text-danger">*</span></label>
                   <select class="form-control form-control-section" formControlName="section">
-                    <option [ngValue]="undefined">Выберите</option>
+                    <option
+                      [ngValue]="undefined"
+                      [disabled]="formJob.get('section')?.value !== undefined && formJob.get('section')?.value !== null">
+                      Выберите
+                    </option>
                     <option *ngFor="let section of sections" [ngValue]="section">{{ section.title }}</option>
                   </select>
                 </div>
@@ -106,9 +114,12 @@
 
                 <div class="col-12 col-md-4">
                   <label class="form-label">Телефон <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true"
-                         mask="+0 (000) 000-0000"
-                         [ngClass]="{'has-error': formJob.get('phone')?.invalid && formJob.get('phone')?.touched}">
+                  <app-phone-with-country-field
+                    mode="readonly"
+                    [label]="''"
+                    [phoneNumber]="currentUser.phoneNumber"
+                    [countryCode]="currentUser.countryCode">
+                  </app-phone-with-country-field>
                 </div>
 
                 <div class="col-12 col-md-4">

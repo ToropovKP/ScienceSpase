@@ -1,0 +1,58 @@
+<div class="mb-3">
+  <label
+    *ngIf="label"
+    [for]="id || null"
+    class="mb-2 block text-sm font-medium text-neutral-700"
+  >
+    {{ label }}
+    <span *ngIf="required" class="text-danger">*</span>
+  </label>
+
+  <div class="flex overflow-hidden rounded-lg border border-accent bg-bg-row">
+    <ng-container *ngIf="mode === 'register' && countryControl && phoneControl; else readonlyPrefix">
+      <select
+        [formControl]="countryControl"
+        class="min-w-[132px] border-r border-gray-300 bg-gray-50 px-3 py-2 text-sm text-neutral-700 outline-none focus:bg-white"
+        [attr.aria-label]="'Код страны'"
+      >
+        <option *ngFor="let country of countries" [value]="country.code">
+          {{ country.flag }} {{ country.dialCode }} ({{ country.label }})
+        </option>
+      </select>
+    </ng-container>
+
+    <ng-template #readonlyPrefix>
+      <div
+        class="flex min-w-[132px] items-center border-r border-accent bg-bg-row px-4 py-2 text-gray-700"
+      >
+        <span>{{ selectedCountry.flag }}</span>
+        <span class="ml-2">{{ selectedCountry.dialCode }}</span>
+      </div>
+    </ng-template>
+
+    <ng-container *ngIf="mode === 'register' && phoneControl; else readonlyInput">
+      <input
+        [id]="id"
+        type="text"
+        [formControl]="phoneControl"
+        [mask]="selectedCountry.mask"
+        [showMaskTyped]="true"
+        [placeholder]="placeholder || selectedCountry.mask"
+        autocomplete="tel-national"
+        class="w-full border-0 px-3 py-2 text-sm text-neutral-900 outline-none"
+        [ngClass]="{ 'has-error ng-invalid ng-dirty': hasError() }"
+      />
+    </ng-container>
+
+    <ng-template #readonlyInput>
+      <input
+        [id]="id"
+        type="text"
+        [value]="readonlyPhoneDisplay"
+        readonly
+        disabled
+        class="w-full cursor-not-allowed border-0 bg-bg-row px-4 py-2 text-gray-700 opacity-100 outline-none"
+      />
+    </ng-template>
+  </div>
+</div>
