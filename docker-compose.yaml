@@ -9,4 +9,5 @@ services:
 
 networks:
   space_network:
+    name: space_network
     driver: bridge
