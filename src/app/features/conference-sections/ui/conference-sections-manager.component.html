@@ -10,8 +10,8 @@
     <div *ngIf="!loadingSections" [formGroup]="form">
       <div formArrayName="sections">
         <div *ngFor="let section of sections.controls; let i = index" [formGroupName]="i" class="mb-3">
-          <div class="row g-2 align-items-center">
-            <div class="col-md-5">
+          <div class="row g-2 align-items-center section-row">
+            <div class="col-12 col-md-4">
               <input
                 type="text"
                 class="form-control"
@@ -21,7 +21,7 @@
               />
             </div>
 
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
               <div *ngIf="!canManageSections">
                 <button class="btn btn-outline-secondary w-100 text-start text-truncate" type="button" disabled>
                   {{ countLeadSecArray(i) !== 0 ? getStringLeadSecArray(i) : 'Не назначен' }}
@@ -57,7 +57,7 @@
               </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
               <div *ngIf="!canManageSections">
                 <button class="btn btn-outline-secondary w-100 text-start text-truncate" type="button" disabled>
                   {{ countReviewSecArray(i) !== 0 ? getStringReviewSecArray(i) : 'Не назначен' }}
@@ -91,8 +91,8 @@
               </div>
             </div>
 
-            <div class="col-md-1">
-              <div class="d-flex gap-2">
+            <div class="col-12 col-md-2 section-row-actions">
+              <div class="d-flex gap-2 flex-nowrap justify-content-start">
                 <button
                   *ngIf="!section.get('title')?.disabled"
                   class="btn btn-success"

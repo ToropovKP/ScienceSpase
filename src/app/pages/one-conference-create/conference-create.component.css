@@ -134,22 +134,6 @@
   color: var(--old-text-primary-color);
 }
 
-.btn-outline-secondary {
-  border-color: var(--old-accent);
-  /*color: var(--old-h1-accent);*/
-}
-
-.form-control:disabled, .form-control:read-only, .form-select:disabled,
-.btn-outline-secondary:disabled{
-  border-color: var(--old-text-disabled) !important;
-  color: var(--old-border-disabled) !important;
-}
-
-.btn-outline-secondary:hover {
-  background-color: var(--old-accent);
-  color: var(--old-text-primary-color);
-}
-
 .btn-success {
   background-color: var(--old-success);
   border-color: var(--old-success);

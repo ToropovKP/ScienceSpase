@@ -68,6 +68,49 @@
   --bs-gutter-x: 1rem;
 }
 
+/*
+  Единый «старый» вид disabled/readonly: светлый фон, приглушённые граница и текст
+  (перебивает Bootstrap --bs-secondary-bg и opacity у кнопок).
+  Исключение: селекты конференции/секции на странице работы — без «серого» read-only.
+*/
+.form-control:disabled,
+.form-control:not(.form-control-conference):not(.form-control-section):read-only,
+.form-select:disabled {
+  border-color: var(--old-text-disabled) !important;
+  color: var(--old-border-disabled) !important;
+  background-color: var(--old-bg-card) !important;
+  opacity: 1 !important;
+}
+
+.form-control:disabled::placeholder,
+.form-control:not(.form-control-conference):not(.form-control-section):read-only::placeholder {
+  color: var(--old-border-disabled);
+  opacity: 1;
+}
+
+.btn-outline-secondary {
+  border-color: var(--old-accent);
+}
+
+.btn-outline-secondary:disabled {
+  border-color: var(--old-text-disabled) !important;
+  color: var(--old-border-disabled) !important;
+  background-color: var(--old-bg-card) !important;
+  opacity: 1 !important;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+  background-color: var(--old-accent);
+  color: var(--old-text-primary-color);
+}
+
+.btn-outline-danger:disabled {
+  border-color: rgba(220, 53, 69, 0.35) !important;
+  color: var(--old-border-disabled) !important;
+  background-color: var(--old-bg-card) !important;
+  opacity: 1 !important;
+}
+
 /* FONTS LOAD SECTION */
 
 

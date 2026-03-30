@@ -52,13 +52,6 @@
   background-color: var(--old-bg-card);
 }
 
-.form-control:disabled,
-.form-control:not(.form-control-conference,.form-control-section):read-only,
-.form-select:disabled {
-  border-color: var(--old-text-disabled) !important;
-  color: var(--old-border-disabled) !important;
-}
-
 .readonly-style {
   background-color: var(--old-bg-row);
 }

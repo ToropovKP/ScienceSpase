@@ -32,3 +32,21 @@
   background-color: var(--old-bg-card);
   color: var(--old-h1-accent);
 }
+
+/*
+  Как в монолите: row g-2 + равные просветы (глобально .row > * { --bs-gutter-x: 1rem }).
+  Сетка 4+3+3+2 вместо 5+3+3+1 — иначе две кнопки вылезают на ширине < ~1200px.
+*/
+.section-row {
+  max-width: 100%;
+}
+
+.section-row > [class*='col-'] {
+  min-width: 0;
+}
+
+@media (max-width: 1199.98px) and (min-width: 768px) {
+  .section-row-actions .btn {
+    padding: 0.25rem 0.45rem;
+  }
+}

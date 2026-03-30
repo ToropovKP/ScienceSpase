@@ -17,10 +17,6 @@
   background: var(--old-bg-card);
 }
 
-.form-control:read-only {
-  background-color: var(--old-bg-row);
-}
-
 .list-group-item {
   background: var(--old-bg-card);
   border-color: var(--old-accent);

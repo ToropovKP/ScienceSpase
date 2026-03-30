@@ -1,3 +1,24 @@
+/*
+  Поля без .form-control — глобальные правила из styles.css не цепляются.
+  Вид readonly/disabled как у остального приложения (--old-text-disabled и т.д.).
+*/
+:host input[readonly],
+:host input:read-only,
+:host input:disabled {
+  border-color: var(--old-text-disabled) !important;
+  color: var(--old-border-disabled) !important;
+  background-color: var(--old-bg-card) !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+:host input[readonly]::placeholder,
+:host input:read-only::placeholder,
+:host input:disabled::placeholder {
+  color: var(--old-border-disabled);
+  opacity: 1;
+}
+
 ::ng-deep .fixed-width-popover {
   max-width: 400px !important;
   width: 400px !important;
