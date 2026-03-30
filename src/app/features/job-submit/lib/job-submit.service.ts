@@ -7,6 +7,7 @@ import { AuthorDto } from '../../../shared/dto/author.dto';
 import { AuthService } from '../../../shared/services/auth.service';
 import { HttpService } from '../../../shared/services/http.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { buildFullPhoneDigits, PhoneCountryId } from '../../../shared/lib/phone-country';
 
 interface CreateJobParams {
   formJob: FormGroup;
@@ -53,13 +54,24 @@ export class JobSubmitService {
       needToRemoveFilesMetadata
     } = params;
 
+    const raw = formJob.getRawValue() as {
+      phone: string;
+      phoneCountry: PhoneCountryId;
+      academicDegree: string;
+      academicTitle: string;
+      orcId: string;
+      rincId: string;
+      organization: string;
+    };
+    const phone = buildFullPhoneDigits(raw.phoneCountry ?? 'RU', String(raw.phone ?? ''));
+
     const requestUser = {
-      phone: formJob.value.phone,
-      academicDegree: formJob.value.academicDegree,
-      academicTitle: formJob.value.academicTitle,
-      orcId: formJob.value.orcId ? formJob.value.orcId.toUpperCase() : undefined,
-      rincId: formJob.value.rincId,
-      organization: formJob.value.organization
+      phone,
+      academicDegree: raw.academicDegree,
+      academicTitle: raw.academicTitle,
+      orcId: raw.orcId ? raw.orcId.toUpperCase() : undefined,
+      rincId: raw.rincId,
+      organization: raw.organization
     };
 
     this.httpService.updateUserInfoByJob(requestUser)

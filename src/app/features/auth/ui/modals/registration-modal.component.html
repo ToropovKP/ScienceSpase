@@ -32,7 +32,9 @@
             id="phone"
             label="Номер телефона"
             [required]="true"
-            [control]="phoneControl">
+            [control]="phoneControl"
+            [countryControl]="phoneCountryControl"
+            [showCountrySelector]="true">
           </app-phone-field>
 
           <app-email-field

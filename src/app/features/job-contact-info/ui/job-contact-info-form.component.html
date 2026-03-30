@@ -1,9 +1,18 @@
 <div [formGroup]="formJob"><div class="row g-3">
   <div class="col-12 col-md-4">
-    <label class="form-label">Телефон <span class="text-danger">*</span></label>
-    <input type="text" class="form-control" formControlName="phone" required [showMaskTyped]="true"
-           mask="+0 (000) 000-0000"
-           [ngClass]="{'has-error': formJob.get('phone')?.invalid && formJob.get('phone')?.touched}">
+    <app-phone-field
+      id="job-contact-phone"
+      label="Телефон"
+      [required]="true"
+      [control]="phoneControl"
+      [countryControl]="phoneCountryControl"
+      [readonly]="!!formJob.get('phone')?.disabled"
+      labelClass="form-label"
+      inputClass="form-control"
+    />
+    <div *ngIf="formJob.get('phone')?.invalid && formJob.get('phone')?.touched" class="invalid-feedback d-block">
+      Укажите номер полностью
+    </div>
   </div>
 
   <div class="col-12 col-md-4">

@@ -10,8 +10,15 @@
           <input [readonly]="true" type="text" class="form-control" formControlName="email" />
         </div>
         <div class="col-md-4">
-          <label class="form-label">Телефон</label>
-          <input [readonly]="true" type="text" class="form-control" mask="+0 (000) 000-0000" formControlName="phone" />
+          <app-phone-field
+            id="job-view-phone"
+            label="Телефон"
+            [control]="phoneControl"
+            [countryControl]="phoneCountryControl"
+            [readonly]="true"
+            labelClass="form-label"
+            inputClass="form-control"
+          />
         </div>
         <div class="col-md-4">
           <label class="form-label">Организация</label>

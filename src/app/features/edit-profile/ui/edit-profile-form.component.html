@@ -57,12 +57,15 @@
         </h6>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium text-h1-accent mb-1">Телефон</label>
-            <input type="text"
-                   class="w-full px-4 py-2 border border-accent rounded-lg bg-bg-row cursor-not-allowed"
-                   mask="+0 (000) 000-0000"
-                   formControlName="phone"
-                   readonly>
+            <app-phone-field
+              id="profile-phone"
+              label="Телефон"
+              [control]="phoneControl"
+              [countryControl]="phoneCountryControl"
+              [readonly]="true"
+              labelClass="block text-sm font-medium text-h1-accent mb-1"
+              inputClass="w-full px-4 py-2 border border-accent rounded-lg"
+            />
             <small class="text-text-secondary-color text-xs mt-1 block">Для изменения телефона обратитесь в поддержку</small>
           </div>
           <div>

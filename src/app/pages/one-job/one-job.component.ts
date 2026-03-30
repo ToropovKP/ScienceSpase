@@ -27,6 +27,7 @@ import {JobChatComponent} from "../../features/job-chat/ui/job-chat.component";
 import {JobViewHeaderComponent} from "../../features/job-view-header/ui/job-view-header.component";
 import {JobAbstractCardComponent} from "../../features/job-abstract-card/ui/job-abstract-card.component";
 import {JobCoauthorsListComponent} from "../../features/job-coauthors-list/ui/job-coauthors-list.component";
+import {parseStoredPhoneDigits, PhoneCountryId} from "../../shared/lib/phone-country";
 
 @Component({
   selector: 'app-one-job',
@@ -111,6 +112,7 @@ export class OneJobComponent implements OnInit, OnDestroy {
     this.formJob = this.formBuilder.group({
       title: new FormControl('',),
       description: new FormControl('',),
+      phoneCountry: new FormControl<PhoneCountryId>('RU', { nonNullable: true }),
       phone: new FormControl('',),
       email: new FormControl('',),
       organization: new FormControl('',),
@@ -234,7 +236,11 @@ export class OneJobComponent implements OnInit, OnDestroy {
       this.jobUser = data
       this.formJob.controls['title'].setValue(this.currentJob.title)
       this.formJob.controls['description'].setValue(this.currentJob.description)
-      this.formJob.controls['phone'].setValue(this.jobUser.phone)
+      const parsed = parseStoredPhoneDigits(this.jobUser.phone);
+      this.formJob.patchValue({
+        phoneCountry: parsed.countryId,
+        phone: parsed.national
+      });
       this.formJob.controls['email'].setValue(this.jobUser.email)
       this.formJob.controls['organization'].setValue(this.jobUser.organization)
       this.formJob.controls['academicDegree'].setValue(this.jobUser.academicDegree)

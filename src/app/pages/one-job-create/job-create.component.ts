@@ -32,6 +32,11 @@ import { JobFilesManagerComponent } from '../../features/job-files/ui/job-files-
 import { JobContactInfoFormComponent } from '../../features/job-contact-info/ui/job-contact-info-form.component';
 import { JobContextSelectorComponent } from '../../features/job-context-selector/ui/job-context-selector.component';
 import { JobSubmitService } from '../../features/job-submit/lib/job-submit.service';
+import {
+  nationalPhoneValidator,
+  parseStoredPhoneDigits,
+  PhoneCountryId
+} from '../../shared/lib/phone-country';
 
 /**
  * Загрузка страницы (один флаг):
@@ -273,7 +278,8 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       title: new FormControl('', [Validators.required]),
       authors: this.formBuilder.array([this.createAuthor()]),
       description: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
+      phoneCountry: new FormControl<PhoneCountryId>('RU', { nonNullable: true }),
+      phone: new FormControl('', [Validators.required]),
       organization: new FormControl('', [Validators.required]),
       academicDegree: new FormControl(''),
       academicTitle: new FormControl(''),
@@ -316,13 +322,28 @@ export class JobCreateComponent implements OnInit, OnDestroy {
           this.currentSection = section;
         });
     }
+
+    const phoneCtrl = this.formJob.get('phone');
+    phoneCtrl?.addValidators(
+      nationalPhoneValidator(() => this.formJob.get('phoneCountry')?.value)
+    );
+    this.formJob
+      .get('phoneCountry')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        phoneCtrl?.updateValueAndValidity({ emitEvent: false });
+      });
   }
 
   updateUserInfo(): void {
     if (!this.currentUser) {
       return;
     }
-    this.formJob.controls['phone'].setValue(this.currentUser.phone);
+    const parsed = parseStoredPhoneDigits(this.currentUser.phone);
+    this.formJob.patchValue({
+      phoneCountry: parsed.countryId,
+      phone: parsed.national
+    });
     this.formJob.controls['organization'].setValue(this.currentUser.organization);
     this.formJob.controls['academicDegree'].setValue(this.currentUser.academicDegree);
     this.formJob.controls['academicTitle'].setValue(this.currentUser.academicTitle);
@@ -331,10 +352,12 @@ export class JobCreateComponent implements OnInit, OnDestroy {
 
     if (this.currentUser.phone && this.currentUser.phone !== '') {
       this.formJob.controls['phone'].disable();
+      this.formJob.controls['phoneCountry'].disable();
     }
 
     if (this.isEditMode) {
       this.formJob.controls['phone'].disable();
+      this.formJob.controls['phoneCountry'].disable();
       this.formJob.controls['organization'].disable();
       this.formJob.controls['academicDegree'].disable();
       this.formJob.controls['academicTitle'].disable();

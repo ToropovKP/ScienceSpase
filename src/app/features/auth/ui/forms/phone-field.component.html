@@ -1,17 +1,82 @@
-<p-iftalabel class="mb-3">
-  <input 
-    pInputText 
-    prefix="+7 " 
-    mask="(000) 000-0000" 
-    [id]="id" 
-    [formControl]="control"
-    [placeholder]="placeholder"
-    autocomplete="tel"
-    [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
-    [fluid]="true" />
-  <label [for]="id">
-    {{ label }}
-    <span *ngIf="required" class="text-danger">*</span>
-  </label>
-</p-iftalabel>
+<ng-container *ngIf="showCountrySelector; else phoneFieldSimple">
+  <div class="phone-field--registration mb-3">
+    <p-dropdown
+      class="phone-country-dropdown"
+      [fluid]="true"
+      [options]="countries"
+      optionLabel="label"
+      optionValue="id"
+      dataKey="id"
+      [formControl]="countryControl"
+      [disabled]="dropdownDisabled"
+      appendTo="body"
+      [autoZIndex]="true"
+      [baseZIndex]="12000"
+      [showClear]="false"
+      [filter]="false"
+      panelStyleClass="phone-country-panel"
+    >
+      <ng-template let-item pTemplate="selectedItem">
+        <span class="phone-country-selected">
+          <span class="phone-flag" aria-hidden="true">{{ item.flag }}</span>
+          <span class="phone-country-selected__name">{{ item.label }}</span>
+          <span class="phone-country-dial phone-country-dial--compact">{{ '+' + item.dialPrefix }}</span>
+        </span>
+      </ng-template>
+      <ng-template let-item pTemplate="item">
+        <span class="phone-country-item">
+          <span class="phone-flag" aria-hidden="true">{{ item.flag }}</span>
+          <span>{{ item.label }}</span>
+          <span class="phone-country-dial">{{ '+' + item.dialPrefix }}</span>
+        </span>
+      </ng-template>
+    </p-dropdown>
 
+    <p-iftalabel
+      class="mb-0 phone-input-wrap-registration"
+      [ngClass]="{'has-error': hasError()}"
+    >
+      <input
+        pInputText
+        [id]="id"
+        [formControl]="control"
+        [prefix]="prefixStr"
+        [mask]="maskStr"
+        [dropSpecialCharacters]="true"
+        [showMaskTyped]="true"
+        autocomplete="tel"
+        [readonly]="isInteractionDisabled"
+        [placeholder]="placeholder"
+        [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+        [fluid]="true"
+      />
+      <label [for]="id">
+        {{ label }}
+        <span *ngIf="required" class="text-danger">*</span>
+      </label>
+    </p-iftalabel>
+  </div>
+</ng-container>
+
+<ng-template #phoneFieldSimple>
+  <div class="phone-field--stacked">
+    <label [attr.for]="id" [class]="labelClass">
+      {{ label }}
+      <span *ngIf="required" class="text-danger">*</span>
+    </label>
+    <input
+      type="text"
+      [id]="id"
+      [formControl]="control"
+      [prefix]="prefixStr"
+      [mask]="maskStr"
+      [dropSpecialCharacters]="true"
+      [showMaskTyped]="true"
+      autocomplete="tel"
+      [readonly]="isInteractionDisabled"
+      [placeholder]="placeholder"
+      [class]="inputClass"
+      [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+    />
+  </div>
+</ng-template>

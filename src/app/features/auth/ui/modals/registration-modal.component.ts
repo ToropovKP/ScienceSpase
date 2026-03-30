@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Output, ViewChild, ElementRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { buildFullPhoneDigits, nationalPhoneValidator, PhoneCountryId } from '../../../../shared/lib/phone-country';
 import { Router } from '@angular/router';
 import { HttpService } from '../../../../shared/services/http.service';
 import { AuthService } from '../../../../shared/services/auth.service';
@@ -32,6 +34,8 @@ export class RegistrationModalComponent {
   @ViewChild('closeModal') closeModal!: ElementRef;
   @Output() registrationSuccess = new EventEmitter<{ email: string; password: string }>();
 
+  private readonly destroyRef = inject(DestroyRef);
+
   formRegistration!: FormGroup;
   userExists: boolean = false;
   userBlockedReg: boolean = false;
@@ -52,7 +56,8 @@ export class RegistrationModalComponent {
       firstName: new FormControl('', [Validators.required, Validators.minLength(2)]),
       lastName: new FormControl('', [Validators.required, Validators.minLength(2)]),
       middleName: new FormControl('', []),
-      phone: new FormControl('', [Validators.required, Validators.minLength(10)]),
+      phoneCountry: new FormControl<PhoneCountryId>('RU', { nonNullable: true }),
+      phone: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
       organization: new FormControl('', []),
       academicDegree: new FormControl('', []),
@@ -63,6 +68,17 @@ export class RegistrationModalComponent {
     }, {
       validators: passwordMatchValidator
     });
+
+    const phoneCtrl = this.formRegistration.get('phone');
+    phoneCtrl?.addValidators(
+      nationalPhoneValidator(() => this.formRegistration.get('phoneCountry')?.value)
+    );
+    this.formRegistration
+      .get('phoneCountry')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        phoneCtrl?.updateValueAndValidity({ emitEvent: false });
+      });
   }
 
   registration(): void {
@@ -71,11 +87,15 @@ export class RegistrationModalComponent {
     }
 
     this.loading = true;
+    const phone = buildFullPhoneDigits(
+      this.formRegistration.value.phoneCountry,
+      String(this.formRegistration.value.phone ?? '')
+    );
     const request = {
       "firstName": this.formRegistration.value.firstName,
       "lastName": this.formRegistration.value.lastName,
       "middleName": this.formRegistration.value.middleName,
-      "phone": '7' + this.formRegistration.value.phone,
+      "phone": phone,
       "email": this.formRegistration.value.email,
       "organization": this.formRegistration.value.organization,
       "academicDegree": this.formRegistration.value.academicDegree,
@@ -97,6 +117,7 @@ export class RegistrationModalComponent {
       });
       
       this.formRegistration.reset();
+      this.formRegistration.patchValue({ phoneCountry: 'RU' });
     }).catch(error => {
       this.loading = false;
       if (error.error?.['code'] === 'USER_EXISTS') {
@@ -130,6 +151,10 @@ export class RegistrationModalComponent {
 
   get phoneControl(): FormControl {
     return this.formRegistration.get('phone') as FormControl;
+  }
+
+  get phoneCountryControl(): FormControl<PhoneCountryId> {
+    return this.formRegistration.get('phoneCountry') as FormControl<PhoneCountryId>;
   }
 
   get emailControl(): FormControl {

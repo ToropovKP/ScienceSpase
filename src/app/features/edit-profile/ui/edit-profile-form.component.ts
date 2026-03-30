@@ -9,12 +9,21 @@ import { orcidPattern } from '../../../app.constants';
 import { HttpService } from '../../../shared/services/http.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { NumbersOnlyDirective } from '../../../shared/lib/directives/numbers-only.directive';
+import { PhoneFieldComponent } from '../../auth/ui/forms/phone-field.component';
+import { parseStoredPhoneDigits, PhoneCountryId } from '../../../shared/lib/phone-country';
 
 @Component({
   selector: 'app-edit-profile-form',
   templateUrl: './edit-profile-form.component.html',
   styleUrls: ['./edit-profile-form.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective, PopoverModule, NumbersOnlyDirective]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NgxMaskDirective,
+    PopoverModule,
+    NumbersOnlyDirective,
+    PhoneFieldComponent
+  ]
 })
 export class EditProfileFormComponent implements OnChanges {
   @Input({ required: true }) currentUser!: User;
@@ -38,6 +47,7 @@ export class EditProfileFormComponent implements OnChanges {
       firstName: new FormControl('', Validators.required),
       lastName: new FormControl('', Validators.required),
       middleName: new FormControl(''),
+      phoneCountry: new FormControl<PhoneCountryId>('RU', { nonNullable: true }),
       phone: new FormControl('', Validators.required),
       email: new FormControl('', Validators.required),
       organization: new FormControl(''),
@@ -55,11 +65,13 @@ export class EditProfileFormComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['profileUser'] && this.profileUser) {
+      const parsed = parseStoredPhoneDigits(this.profileUser.phone);
       this.formProfile.patchValue({
         firstName: this.profileUser.firstName,
         lastName: this.profileUser.lastName,
         middleName: this.profileUser.middleName,
-        phone: this.profileUser.phone,
+        phoneCountry: parsed.countryId,
+        phone: parsed.national,
         email: this.profileUser.email,
         organization: this.profileUser.organization,
         academicDegree: this.profileUser.academicDegree,
@@ -76,6 +88,14 @@ export class EditProfileFormComponent implements OnChanges {
 
   get canEditProfile(): boolean {
     return this.profileUser && this.currentUser && this.profileUser.id === this.currentUser.id;
+  }
+
+  get phoneControl(): FormControl {
+    return this.formProfile.get('phone') as FormControl;
+  }
+
+  get phoneCountryControl(): FormControl<PhoneCountryId> {
+    return this.formProfile.get('phoneCountry') as FormControl<PhoneCountryId>;
   }
 
   cancelProfile() {
