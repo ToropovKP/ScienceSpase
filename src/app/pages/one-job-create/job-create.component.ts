@@ -312,7 +312,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
             this.sections = [];
           }
 
-          this.formJob.get('section')?.setValue(undefined);
+          this.formJob.get('section')?.setValue('');
         });
 
       this.formJob
