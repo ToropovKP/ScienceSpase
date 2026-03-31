@@ -1,0 +1,7 @@
+<div class="text-center py-5 bg-light rounded-3">
+  <div *ngIf="icon || iconClass" class="mb-3">
+    <i [class]="iconClass || icon || ''" [ngClass]="{'fs-1 text-secondary': !iconClass}"></i>
+  </div>
+  <div class="h4 text-muted mb-3">{{ title }}</div>
+  <div *ngIf="message" class="text-muted">{{ message }}</div>
+</div>

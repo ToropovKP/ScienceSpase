@@ -1,0 +1,18 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-columns-gap me-2"></i>Секции</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      <div *ngFor="let section of sections" class="list-group-item d-flex align-items-center py-3">
+        <div class="flex-grow-1">
+          <h6 class="mb-1">{{ section.title }}</h6>
+          <small class="text-muted text-break">
+            Руководитель:
+            {{ section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен' }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

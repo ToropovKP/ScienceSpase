@@ -1,0 +1,28 @@
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--old-border-black);
+}
+
+.list-group-item:last-child {
+  border-radius: 0 0 var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius);
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+}
+
+.list-group-item small {
+  flex-shrink: 0;
+  white-space: nowrap;
+}

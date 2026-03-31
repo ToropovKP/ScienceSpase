@@ -1,0 +1,115 @@
+#container__main {
+  background: url(/assets/pictures/home/pattern.svg);
+}
+
+.main {
+  background-color: var(--old-bg-main);
+  box-shadow: 0 0 5rem var(--old-bg-shadow);
+  padding: 110px 35px 20px 35px;
+  min-height: 100vh;
+}
+
+/* Общие стили */
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--old-border-black);
+}
+
+.form-control {
+  border: 1px solid var(--old-accent);
+  background: var(--old-bg-card);
+  /*padding: 0.75rem;*/
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .card-header h5 {
+    font-size: 1.1rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb-text span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Ограничение до 2 строк */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-date {
+    margin-top: 0.5rem;
+    align-self: flex-start;
+  }
+
+  .bi-x {
+    margin-top: 0.5rem;
+    align-self: flex-start;
+  }
+}
+
+@media (min-width: 768px) {
+  .breadcrumb-text {
+    font-size: 1rem;
+  }
+
+  .breadcrumb-text span {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Радио-кнопки */
+.form-check-input:checked {
+  background-color: var(--old-accent);
+  border-color: var(--old-accent-hover);
+}
+
+/* Иконки */
+.bi {
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+.bi-x {
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: opacity 0.2s;
+}
+
+.bi-x:hover {
+  opacity: 0.7;
+}
+
+.p-breadcrumb {
+  background: transparent !important;
+  border: none;
+  padding: 0.5rem 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+::ng-deep .p-breadcrumb {
+  background: transparent !important;
+  border: none;
+  padding: 0.5rem 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+::ng-deep .p-breadcrumb .p-menuitem-text {
+  color: var(--old-h1-accent);
+}
