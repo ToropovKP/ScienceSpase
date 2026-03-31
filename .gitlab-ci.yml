@@ -15,8 +15,8 @@ Build frontend:
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}/kograf-frontend:${CI_COMMIT_SHORT_SHA}"
-    - echo "${CI_REGISTRY_IMAGE}/kograf-frontend:${CI_COMMIT_SHORT_SHA}"
+      --destination "${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_SHORT_SHA}"
+    - echo "${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_SHORT_SHA}"
   
 Deploy:
   when: manual
