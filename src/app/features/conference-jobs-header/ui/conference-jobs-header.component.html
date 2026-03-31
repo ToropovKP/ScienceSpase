@@ -1,0 +1,16 @@
+<div class="header-container">
+  <div class="header-content">
+    <span
+      class="status-badge"
+      [ngClass]="{
+        'bg-success': status === 'ACTIVE',
+        'bg-danger': status === 'CLOSED',
+        'bg-warning': status === 'ON_HOLD'
+      }"
+    >
+      {{ statusLabel }}
+    </span>
+
+    <h1 class="conference-title">{{ title }}</h1>
+  </div>
+</div>

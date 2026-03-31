@@ -1,0 +1,61 @@
+<div class="header-container">
+  <div class="header-content">
+    <span
+      class="status-badge"
+      [ngClass]="{
+        'bg-success': status === 'ACTIVE',
+        'bg-danger': status === 'CLOSED',
+        'bg-warning': status === 'ON_HOLD'
+      }"
+    >
+      {{ statusLabel }}
+    </span>
+
+    <h1 class="conference-title">{{ title }}</h1>
+
+    <div class="desktop-actions">
+      <button
+        *ngIf="showAddJob"
+        class="btn btn-action btn-add"
+        type="button"
+        (click)="addJob.emit()"
+        pTooltip="Добавить работу"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-plus-lg"></i>
+      </button>
+
+      <button
+        *ngIf="showMyWorks"
+        class="btn btn-action btn-my-works"
+        type="button"
+        (click)="myWorks.emit()"
+        pTooltip="Мои работы"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-files"></i>
+      </button>
+
+      <button
+        *ngIf="showEditConference"
+        class="btn btn-action btn-edit"
+        type="button"
+        (click)="editConference.emit()"
+        pTooltip="Редактировать конференцию"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isModeratorOfConference" class="mobile-warning alert alert-warning mt-3">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Редактирование доступно только с компьютера. Для управления конференцией воспользуйтесь десктопной версией сайта.
+  </div>
+
+  <div *ngIf="!isModeratorOfConference" class="mobile-warning alert alert-warning mt-3">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Добавление работ доступно только с компьютера. Воспользуйтесь десктопной версией сайта.
+  </div>
+</div>

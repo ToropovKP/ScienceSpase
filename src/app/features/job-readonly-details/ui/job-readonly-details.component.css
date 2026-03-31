@@ -1,0 +1,37 @@
+/* Как у блока «Аннотация» (job-abstract-card) — тема страницы просмотра работы */
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  background: var(--old-accent) !important;
+  color: var(--old-text-primary-color) !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--old-border-black);
+}
+
+.form-control {
+  border: 1px solid var(--old-accent);
+  background: var(--old-bg-card);
+}
+
+.list-group-item {
+  background: var(--old-bg-card);
+  border-color: var(--old-accent);
+}
+
+.list-group-item:hover {
+  background: var(--old-bg-row);
+}
+
+@media (max-width: 768px) {
+  .card-header h5 {
+    font-size: 1.1rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+}

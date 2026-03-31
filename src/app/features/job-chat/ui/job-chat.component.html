@@ -1,0 +1,56 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Чат</h5>
+  </div>
+  <div #chatContainer class="card-body chat-container">
+    <div *ngFor="let comment of comments" class="mb-3">
+      <div *ngIf="comment.userId !== currentUser.id; else myComment">
+        <div class="d-flex flex-column align-items-start">
+          <div class="d-flex align-items-center mb-1">
+            <span class="fw-bold me-2">
+              {{ (comment.firstName! | firstWord | shortName: 15) || '' }}
+              {{ (comment.lastName! | firstWord | shortName: 15) || '' }}
+            </span>
+            <small class="text-muted">{{ DateService.formatDateTime(comment.dateTime) }}</small>
+          </div>
+          <div class="message message-other" [innerHTML]="comment.message | linkify"></div>
+        </div>
+      </div>
+
+      <ng-template #myComment>
+        <div class="d-flex flex-column align-items-end">
+          <div class="d-flex align-items-center mb-1">
+            <small class="text-muted me-2">{{ DateService.formatDateTime(comment.dateTime) }}</small>
+            <span class="fw-bold">
+              {{ (comment.firstName! | firstWord | shortName: 15) || '' }}
+              {{ (comment.lastName! | firstWord | shortName: 15) || '' }}
+            </span>
+          </div>
+          <div class="message message-mine" [innerHTML]="comment.message | linkify: true"></div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+  <div class="card-footer">
+    <form [formGroup]="formComment" class="input-group">
+      <textarea
+        #messageInput
+        class="form-control text-area-control"
+        formControlName="message"
+        placeholder="Введите сообщение"
+        (keydown.enter)="handleEnterKey($event)"
+        rows="1"
+        style="resize: none; overflow-y: auto"
+        (input)="adjustTextareaHeight($event)"
+      ></textarea>
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="createComment(); resetTextarea()"
+        [disabled]="!formComment.get('message')?.value?.trim() || formComment.invalid"
+      >
+        Отправить
+      </button>
+    </form>
+  </div>
+</div>

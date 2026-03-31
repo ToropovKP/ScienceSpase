@@ -1,0 +1,20 @@
+<!-- Одна строка с g-3 — те же отступы, что у формы добавления работы -->
+<div [formGroup]="formJob" class="w-100">
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-4">
+      <label class="form-label">Конференция <span class="text-danger">*</span></label>
+      <select class="form-control form-control-conference" formControlName="conference" [compareWith]="compareConference">
+        <option [ngValue]="''" disabled hidden>{{ loading ? 'Загрузка…' : 'Выберите' }}</option>
+        <option *ngFor="let conference of conferences" [ngValue]="conference">{{ getShortConferenceTitle(conference) }}</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <label class="form-label">Секция <span class="text-danger">*</span></label>
+      <select class="form-control form-control-section" formControlName="section" [compareWith]="compareSection">
+        <option [ngValue]="''" disabled hidden>{{ loading ? 'Загрузка…' : 'Выберите' }}</option>
+        <option *ngFor="let section of sections" [ngValue]="section">{{ section.title }}</option>
+      </select>
+      <div *ngIf="loading" class="form-text">Загрузка списка…</div>
+    </div>
+  </div>
+</div>
