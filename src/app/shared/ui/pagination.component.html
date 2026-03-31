@@ -1,0 +1,101 @@
+<div *ngIf="total > 0" class="py-4">
+  <div class="flex flex-col gap-4 lg:hidden">
+    <div class="text-sm text-gray-600 text-center">
+      Показано {{ startIndex }}-{{ endIndex }} из {{ total }}
+    </div>
+    <div class="flex items-center justify-center gap-2">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [class.opacity-50]="currentPage === 1"
+        [class.cursor-not-allowed]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <div class="flex items-center gap-1">
+        <button
+          *ngFor="let page of pages"
+          (click)="page === -1 ? null : goToPage(page)"
+          [class]="page === -1
+            ? 'px-2 py-1 border border-gray-300 text-gray-500 cursor-default'
+            : page === currentPage
+              ? 'px-3 py-1.5 rounded border border-gray-300 bg-accent text-text-primary-color font-semibold'
+              : 'px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors'">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [class.opacity-50]="currentPage === totalPages"
+        [class.cursor-not-allowed]="currentPage === totalPages">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <div class="flex items-center justify-center gap-2">
+      <label class="text-sm text-gray-600">Записей на странице:</label>
+      <div class="flex items-center gap-1">
+        <button
+          *ngFor="let size of pageSizeOptions"
+          (click)="onPageSizeButtonClick(size)"
+          [class]="size === pageSize
+            ? 'px-3 py-1.5 rounded border border-gray-300 bg-accent text-text-primary-color font-semibold'
+            : 'px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors'">
+          {{ size }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hidden lg:grid lg:grid-cols-3 lg:items-center lg:gap-4">
+    <div class="text-sm text-gray-600">
+      Показано {{ startIndex }}-{{ endIndex }} из {{ total }}
+    </div>
+
+    <div class="flex items-center justify-center gap-2">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [class.opacity-50]="currentPage === 1"
+        [class.cursor-not-allowed]="currentPage === 1">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <div class="flex items-center gap-1">
+        <button
+          *ngFor="let page of pages"
+          (click)="page === -1 ? null : goToPage(page)"
+          [class]="page === -1
+            ? 'px-2 py-1 border border-gray-300 text-gray-500 cursor-default'
+            : page === currentPage
+              ? 'px-3 py-1.5 rounded border border-gray-300 bg-accent text-text-primary-color font-semibold'
+              : 'px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors'">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [class.opacity-50]="currentPage === totalPages"
+        [class.cursor-not-allowed]="currentPage === totalPages">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center justify-end gap-2">
+      <label class="text-sm text-gray-600">Записей на странице:</label>
+      <div class="flex items-center gap-1">
+        <button
+          *ngFor="let size of pageSizeOptions"
+          (click)="onPageSizeButtonClick(size)"
+          [class]="size === pageSize
+            ? 'px-3 py-1.5 rounded border border-gray-300 bg-accent text-text-primary-color font-semibold'
+            : 'px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors'">
+          {{ size }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

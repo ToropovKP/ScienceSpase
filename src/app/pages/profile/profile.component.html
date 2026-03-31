@@ -1,0 +1,27 @@
+<section id="container__main">
+  <div class="container">
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <p-confirm-popup />
+    <div *ngIf="profileUser" class="main">
+      <app-resend-verification-banner
+        *ngIf="showButtonsToChange() && !profileUser.verified"
+        [currentUser]="currentUser"
+      />
+
+      <app-edit-profile-form
+        [currentUser]="currentUser"
+        [profileUser]="profileUser"
+        [profileUserId]="profileUserId"
+        (dirtyChange)="onProfileDirtyChange($event)"
+      />
+
+      <app-manage-user-access-actions
+        *ngIf="isAdmin() && !showButtonsToChange()"
+        [profileUser]="profileUser"
+      />
+
+      <app-change-password-form *ngIf="showButtonsToChange()" />
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,54 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Критерии оценивания</h5>
+  </div>
+  <div class="card-body">
+    <div *ngIf="loadingTags" class="text-center py-4">
+      <div class="spinner-border" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingTags" [formGroup]="form">
+      <div formArrayName="tags">
+        <div *ngFor="let tag of tags.controls; let i = index" [formGroupName]="i" class="mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-10">
+              <input type="text"
+                     class="form-control"
+                     formControlName="name"
+                     placeholder="Новый критерий"
+                     [readonly]="!canManageTags">
+            </div>
+
+            <div class="col-md-2">
+              <div class="d-flex gap-2">
+                <button *ngIf="!tag.get('name')?.disabled"
+                        class="btn btn-success"
+                        [disabled]="tag.get('name')?.value === ''"
+                        type="button"
+                        (click)="disableTag(i)">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+
+                <button *ngIf="tag.get('name')?.disabled"
+                        class="btn btn-outline-secondary"
+                        [disabled]="!canManageTags"
+                        type="button"
+                        (click)="enableTag(i)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <button *ngIf="tag.get('name')?.disabled"
+                        class="btn btn-outline-danger"
+                        [disabled]="!canManageTags"
+                        type="button"
+                        (click)="removeTag(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

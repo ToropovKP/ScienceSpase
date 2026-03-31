@@ -1,0 +1,103 @@
+<div [formGroup]="formJob"><div class="row g-3">
+  <div class="col-12 col-md-4">
+    <app-phone-field
+      id="job-contact-phone"
+      label="Телефон"
+      [required]="true"
+      [control]="phoneControl"
+      [countryControl]="phoneCountryControl"
+      [readonly]="!!formJob.get('phone')?.disabled"
+      labelClass="form-label"
+      inputClass="form-control"
+    />
+    <div *ngIf="formJob.get('phone')?.invalid && formJob.get('phone')?.touched" class="invalid-feedback d-block">
+      Укажите номер полностью
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <label class="form-label">
+      ORCID
+      <i class="fas fa-question-circle hover-icon" (click)="op.show($event)"></i>
+      <p-popover #op
+                 styleClass="fixed-width-popover"
+                 [style]="{maxWidth: '400px', width: '100%'}">
+        <div class="popover-content">
+          <div class="popover-header">
+            <h5 class="popover-title">Что такое ORCID?</h5>
+          </div>
+          <div class="popover-body">
+            <p class="popover-text">
+              ORCID (Open Researcher and Contributor ID) — это уникальный идентификатор исследователя,
+              который позволяет установить связь между авторами и их работами.
+              Формат: 16 цифр и/или латинских букв, например, <code>0000-0000-0000-0000</code>.
+            </p>
+            <div class="text-right">
+              <a href="https://info.orcid.org/ru/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B9-%D1%83-%D0%BC%D0%B5%D0%BD%D1%8F-%D0%B8%D0%B4%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80/"
+                 target="_blank"
+                 class="popover-link">
+                Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </p-popover>
+    </label>
+    <input type="text" class="form-control text-uppercase"
+           formControlName="orcId"
+           [showMaskTyped]="true"
+           mask="SSSS-SSSS-SSSS-SSSS"
+           placeholder="0000-0000-0000-0000"
+           [patterns]="customOrcidPattern">
+  </div>
+
+  <div class="col-12 col-md-4">
+    <label class="form-label">
+      РИНЦ ID (Author ID)
+      <i class="fas fa-question-circle hover-icon" (click)="opRinc.show($event)"></i>
+      <p-popover #opRinc
+                 styleClass="fixed-width-popover"
+                 [style]="{maxWidth: '400px', width: '100%'}">
+        <div class="popover-content">
+          <div class="popover-header">
+            <h5 class="popover-title">Что такое РИНЦ ID?</h5>
+          </div>
+          <div class="popover-body">
+            <p class="popover-text">
+              РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного
+              цитирования.
+              Позволяет однозначно идентифицировать исследователя и его публикации.
+            </p>
+            <div class="text-right">
+              <a href="https://www.hse.ru/scholarly-integration/howtofindid"
+                 target="_blank"
+                 class="popover-link">
+                Подробнее <i class="fas fa-external-link-alt ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </p-popover>
+    </label>
+    <input type="text" class="form-control"
+           formControlName="rincId"
+           [maxLength]="20"
+           appNumbersOnly>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <label class="form-label">Организация <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" formControlName="organization" required [maxlength]="100"
+           [ngClass]="{'has-error': formJob.get('organization')?.invalid && formJob.get('organization')?.touched}">
+  </div>
+
+  <div class="col-12 col-md-4">
+    <label class="form-label">Ученая степень</label>
+    <input type="text" class="form-control" formControlName="academicDegree" [maxlength]="100">
+  </div>
+
+  <div class="col-12 col-md-4">
+    <label class="form-label">Ученое звание</label>
+    <input type="text" class="form-control" formControlName="academicTitle" [maxlength]="100">
+  </div>
+</div></div>

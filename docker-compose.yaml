@@ -1,13 +1,13 @@
-version: "3"
 services:
-    frontend:
-      image: registry.gitlab.com/science_space/frontend/kograf-frontend:${VERSION}
-      container_name: kograf_frontend
-      ports:
-        - "80:80"
-      networks:
-        - kograf_network
+  frontend:
+    image: registry.gitlab.com/science_space/frontend/frontend:${VERSION}
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - space_network
+
 networks:
-  kograf_network:
-    name: kograf_network
+  space_network:
+    name: space_network
     driver: bridge

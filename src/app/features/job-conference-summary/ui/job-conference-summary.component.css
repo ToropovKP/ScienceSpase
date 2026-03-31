@@ -1,0 +1,15 @@
+/* Те же границы и фон карточек, что у «Аннотации» */
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+  border-radius: 0.5rem;
+}
+
+.card-title {
+  color: var(--old-h1-accent);
+  font-size: 1.1rem;
+}
+
+.card-text {
+  margin-bottom: 0;
+}
