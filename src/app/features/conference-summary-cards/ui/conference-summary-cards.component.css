@@ -1,0 +1,8 @@
+.card {
+  background: var(--old-bg-card);
+  border: 1px solid var(--old-accent);
+}
+
+.text-primary {
+  color: var(--old-h1-accent) !important;
+}

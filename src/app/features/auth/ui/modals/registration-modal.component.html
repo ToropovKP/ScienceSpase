@@ -1,0 +1,103 @@
+<div class="modal fade modal-signin" (keyup.enter)="registration()" id="windowRegistration" tabindex="-1" aria-labelledby="windowRegistration" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" id="registration">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header p-4 pt-4 pb-4 border-bottom-0">
+        <h2 class="fw-bold mb-0" style="color: #2D2D2D;">Регистрация</h2>
+        <button type="button" #closeModal class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearErrors()"></button>
+      </div>
+
+      <div class="modal-body p-4 pb-3 pt-0">
+        <form [formGroup]="formRegistration" (keyup.enter)="registration()">
+          <app-form-field
+            id="lastName"
+            label="Фамилия"
+            [required]="true"
+            [control]="lastNameControl">
+          </app-form-field>
+
+          <app-form-field
+            id="firstName"
+            label="Имя"
+            [required]="true"
+            [control]="firstNameControl">
+          </app-form-field>
+
+          <app-form-field
+            id="middleName"
+            label="Отчество"
+            [control]="middleNameControl">
+          </app-form-field>
+
+          <app-phone-field
+            id="phone"
+            label="Номер телефона"
+            [required]="true"
+            [control]="phoneControl"
+            [countryControl]="phoneCountryControl"
+            [showCountrySelector]="true">
+          </app-phone-field>
+
+          <app-email-field
+            id="email-reg"
+            label="Почта"
+            [required]="true"
+            [control]="emailControl">
+          </app-email-field>
+
+          <app-password-field
+            id="password-reg"
+            inputId="password-reg"
+            label="Пароль"
+            [required]="true"
+            [control]="passwordControl">
+          </app-password-field>
+
+          <app-password-field
+            id="confirmedPassword"
+            inputId="confirmedPassword"
+            label="Подтверждение пароля"
+            [required]="true"
+            [control]="confirmedPasswordControl">
+          </app-password-field>
+
+          <div class="text-center text-red-600 pb-2">
+            <span class="text-center" *ngIf="formRegistration.errors?.['passwordMismatch'] && formRegistration.touched">
+              Пароли не совпадают
+            </span>
+            <span *ngIf="userBlockedReg">Пользователь с таким email заблокирован</span>
+            <span *ngIf="userExists">Пользователь с таким email уже зарегистрирован</span>
+          </div>
+
+          <div class="form-check d-flex align-items-center gap-2 mb-3">
+            <input
+              class="form-check-input border border-secondary"
+              type="checkbox"
+              id="personalDataConsent"
+              formControlName="personalDataConsent">
+            <label class="form-check-label mb-0 text-black" for="personalDataConsent">
+              Я ознакомился и согласен с
+              <a
+                href="https://www.nntu.ru/frontend/web/ngtu/files/universitet/documents/local_norm_akty/politika_obrabotka_pers_dannyh.pdf"
+                target="_blank"
+                rel="noopener noreferrer">
+                Политикой в отношении обработки персональных данных
+              </a>
+            </label>
+          </div>
+
+          <p-button 
+            class="w-100 btn-login" 
+            label="Регистрация" 
+            type="submit" 
+            [fluid]="true" 
+            [loading]="loading" 
+            (click)="registration()" 
+            *ngIf="!showRegStatus" 
+            [disabled]="formRegistration.invalid"/>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,36 @@
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title d-flex align-items-center">
+          <i class="bi bi-journal-text me-2"></i>Конференция
+        </h5>
+        <p class="card-text">{{ currentConference.title }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title d-flex align-items-center">
+          <i class="bi bi-building me-2"></i>Организация
+        </h5>
+        <p class="card-text">{{ currentConference.organization }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showAuthorColumn" class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>ФИО
+        </h5>
+        <p class="card-text text-break">
+          {{ jobUser.lastName + ' ' + jobUser.firstName + ' ' + jobUser.middleName }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

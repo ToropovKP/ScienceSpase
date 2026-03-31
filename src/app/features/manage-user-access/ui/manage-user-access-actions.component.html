@@ -1,0 +1,17 @@
+<div class="bg-white rounded-lg shadow-sm mt-4 border border-gray-200">
+  <div class="bg-accent text-text-primary-color rounded-t-lg px-6 py-4">
+    <h5 class="text-lg font-semibold mb-0 flex items-center">
+      <i class="bi bi-person-gear mr-2"></i>Администрирование пользователя
+    </h5>
+  </div>
+  <div class="p-6 flex flex-col md:flex-row gap-3">
+    <button class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+            (click)="confirmRole($event)">
+      {{ profileUser.role === 'MEMBER' ? 'Назначить модератором' : 'Назначить участником' }}
+    </button>
+    <button class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+            (click)="confirmStatus($event)">
+      {{ profileUser.status === 'ACTIVE' ? 'Заблокировать' : 'Разблокировать' }}
+    </button>
+  </div>
+</div>

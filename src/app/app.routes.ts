@@ -1,16 +1,16 @@
 import {Routes} from "@angular/router";
-import {ConferencesComponent} from "./system/all-conferences/conferences.component";
-import {ConferenceCreateComponent} from "./system/one-conference-create/conference-create.component";
-import {ConferenceJobsComponent} from "./system/conference-jobs/conference-jobs.component";
-import {ConferenceComponent} from "./system/one-conference/conference.component";
-import {JobsComponent} from "./system/jobs/jobs.component";
-import {OneJobComponent} from "./system/one-job/one-job.component";
-import {UsersComponent} from "./system/all-users/users.component";
-import {ProfileComponent} from "./system/profile/profile.component";
-import {VerifyAccountComponent} from "./system/verify-account/verify-account.component";
-import {RestorePasswordComponent} from "./system/restore-account/restore-password.component";
-import {NotFoundComponent} from "./system/not-found/not-found.component";
-import {JobCreateComponent} from "./system/one-job-create/job-create.component";
+import {ConferencesComponent} from "./pages/conferences/conferences.component";
+import {ConferenceCreateComponent} from "./pages/one-conference-create/conference-create.component";
+import {ConferenceJobsComponent} from "./pages/conference-jobs/conference-jobs.component";
+import {ConferenceComponent} from "./pages/one-conference/conference.component";
+import {JobsComponent} from "./pages/jobs/jobs.component";
+import {OneJobComponent} from "./pages/one-job/one-job.component";
+import {UsersComponent} from "./pages/all-users/users.component";
+import {ProfileComponent} from "./pages/profile/profile.component";
+import {VerifyAccountComponent} from "./pages/verify-account/verify-account.component";
+import {RestorePasswordComponent} from "./pages/restore-account/restore-password.component";
+import {NotFoundComponent} from "./pages/not-found/not-found.component";
+import {JobCreateComponent} from "./pages/one-job-create/job-create.component";
 
 export const appRoutes: Routes = [
   {

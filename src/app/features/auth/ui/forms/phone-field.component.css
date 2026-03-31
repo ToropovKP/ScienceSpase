@@ -1,0 +1,147 @@
+/*
+  ЛК (Tailwind) и Bootstrap: правила из родительской формы не попадают на input внутри app-phone-field.
+  Те же переменные, что в styles.css и edit-profile-form.component.css.
+*/
+:host {
+  display: block;
+  width: 100%;
+}
+.phone-field--stacked input:read-only,
+.phone-field--stacked input[readonly],
+.phone-field--stacked input:disabled {
+  border-color: var(--old-text-disabled) !important;
+  color: var(--old-border-disabled) !important;
+  background-color: var(--old-bg-card) !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+.phone-field--stacked input:read-only::placeholder,
+.phone-field--stacked input:disabled::placeholder {
+  color: var(--old-border-disabled);
+  opacity: 1;
+}
+
+/* Регистрация: селектор | поле — одна строка; высота селекта = высоте p-iftalabel */
+.phone-field--registration {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Хост p-dropdown в PrimeNG 19 сам несёт класс .p-select (не вложенный div) */
+.phone-field--registration > .phone-country-dropdown.p-select {
+  flex: 0 0 11.5rem;
+  width: 11.5rem;
+  max-width: 11.5rem;
+  min-width: 0;
+  align-self: stretch;
+  display: flex !important;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.phone-field--registration > .phone-country-dropdown ::ng-deep .p-select-label {
+  display: flex !important;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.phone-field--registration > .phone-country-dropdown ::ng-deep .p-select-dropdown {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-field--registration .phone-input-wrap-registration {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+@media (max-width: 400px) {
+  .phone-field--registration {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select {
+    flex: 1 1 auto !important;
+    flex-basis: auto !important;
+    align-self: stretch;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 100%;
+    height: 53px;
+    min-height: 53px;
+    box-sizing: border-box;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select ::ng-deep .p-select-label {
+    display: flex !important;
+    align-items: center;
+    align-self: stretch;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select ::ng-deep .p-select-dropdown {
+    height: 100%;
+  }
+}
+
+.phone-country-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.phone-country-selected__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.phone-country-dial {
+  flex-shrink: 0;
+  opacity: 0.85;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.phone-country-dial--compact {
+  font-size: 0.75rem;
+}
+
+.phone-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.phone-country-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.phone-country-item .phone-flag {
+  font-size: 1.2rem;
+}
+
+.phone-country-item .phone-country-dial {
+  margin-left: auto;
+}

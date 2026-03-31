@@ -1,0 +1,33 @@
+.hover-icon {
+  cursor: pointer;
+  margin-left: 8px;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.hover-icon:hover {
+  color: #2196F3;
+  transform: scale(1.1);
+}
+
+::ng-deep .fixed-width-popover {
+  max-width: 400px !important;
+  width: 400px !important;
+  min-width: unset !important;
+}
+
+::ng-deep .fixed-width-popover .p-popover-content {
+  white-space: normal !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+::ng-deep .fixed-width-popover .popover-content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::ng-deep .fixed-width-popover .popover-body {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
