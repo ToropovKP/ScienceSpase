@@ -2,6 +2,10 @@
   ЛК (Tailwind) и Bootstrap: правила из родительской формы не попадают на input внутри app-phone-field.
   Те же переменные, что в styles.css и edit-profile-form.component.css.
 */
+:host {
+  display: block;
+  width: 100%;
+}
 .phone-field--stacked input:read-only,
 .phone-field--stacked input[readonly],
 .phone-field--stacked input:disabled {
@@ -60,6 +64,37 @@
 .phone-field--registration .phone-input-wrap-registration {
   flex: 1 1 0%;
   min-width: 0;
+}
+
+@media (max-width: 400px) {
+  .phone-field--registration {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select {
+    flex: 1 1 auto !important;
+    flex-basis: auto !important;
+    align-self: stretch;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 100%;
+    height: 53px;
+    min-height: 53px;
+    box-sizing: border-box;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select ::ng-deep .p-select-label {
+    display: flex !important;
+    align-items: center;
+    align-self: stretch;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .phone-field--registration > .phone-country-dropdown.p-select ::ng-deep .p-select-dropdown {
+    height: 100%;
+  }
 }
 
 .phone-country-selected {
