@@ -67,6 +67,43 @@ export function parseStoredPhoneDigits(phone: string): { countryId: PhoneCountry
   return { countryId: 'RU', national: d };
 }
 
+function stripDialPrefixIfPresent(countryId: PhoneCountryId, digits: string): string {
+  const d = (digits || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (countryId === 'BY') {
+    return d.startsWith('375') && d.length > 9 ? d.slice(3) : d;
+  }
+  return d.startsWith('7') && d.length > 10 ? d.slice(1) : d;
+}
+
+export function parseUserPhone(params: {
+  countryCode?: PhoneCountryId | null;
+  phoneNumber?: string | null;
+  phone?: string | null;
+}): { countryId: PhoneCountryId; national: string } {
+  const countryId = (params.countryCode ?? undefined) as PhoneCountryId | undefined;
+  const phoneNumberDigits = (params.phoneNumber ?? '').replace(/\D/g, '');
+  const phoneDigits = (params.phone ?? '').replace(/\D/g, '');
+
+  if (countryId && phoneNumberDigits) {
+    return { countryId, national: stripDialPrefixIfPresent(countryId, phoneNumberDigits) };
+  }
+
+  if (countryId && phoneDigits) {
+    const c = getPhoneCountry(countryId);
+    const stripped = stripDialPrefixIfPresent(countryId, phoneDigits);
+    if (stripped.length === c.nationalLength) {
+      return { countryId, national: stripped };
+    }
+  }
+
+  if (phoneDigits) {
+    return parseStoredPhoneDigits(phoneDigits);
+  }
+
+  return { countryId: countryId ?? 'RU', national: '' };
+}
+
 export function buildFullPhoneDigits(countryId: PhoneCountryId, nationalDigits: string): string {
   const c = getPhoneCountry(countryId);
   return c.dialPrefix + nationalDigits.replace(/\D/g, '');

@@ -27,7 +27,7 @@ import {JobChatComponent} from "../../features/job-chat/ui/job-chat.component";
 import {JobViewHeaderComponent} from "../../features/job-view-header/ui/job-view-header.component";
 import {JobAbstractCardComponent} from "../../features/job-abstract-card/ui/job-abstract-card.component";
 import {JobCoauthorsListComponent} from "../../features/job-coauthors-list/ui/job-coauthors-list.component";
-import {parseStoredPhoneDigits, PhoneCountryId} from "../../shared/lib/phone-country";
+import { parseUserPhone, PhoneCountryId } from "../../shared/lib/phone-country";
 
 @Component({
   selector: 'app-one-job',
@@ -236,7 +236,11 @@ export class OneJobComponent implements OnInit, OnDestroy {
       this.jobUser = data
       this.formJob.controls['title'].setValue(this.currentJob.title)
       this.formJob.controls['description'].setValue(this.currentJob.description)
-      const parsed = parseStoredPhoneDigits(this.jobUser.phone);
+      const parsed = parseUserPhone({
+        countryCode: this.jobUser.countryCode as PhoneCountryId | undefined,
+        phoneNumber: this.jobUser.phoneNumber,
+        phone: this.jobUser.phone
+      });
       this.formJob.patchValue({
         phoneCountry: parsed.countryId,
         phone: parsed.national

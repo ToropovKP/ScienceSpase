@@ -10,7 +10,7 @@ import { HttpService } from '../../../shared/services/http.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { NumbersOnlyDirective } from '../../../shared/lib/directives/numbers-only.directive';
 import { PhoneFieldComponent } from '../../auth/ui/forms/phone-field.component';
-import { parseStoredPhoneDigits, PhoneCountryId } from '../../../shared/lib/phone-country';
+import { parseUserPhone, PhoneCountryId } from '../../../shared/lib/phone-country';
 
 @Component({
   selector: 'app-edit-profile-form',
@@ -65,7 +65,11 @@ export class EditProfileFormComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['profileUser'] && this.profileUser) {
-      const parsed = parseStoredPhoneDigits(this.profileUser.phone);
+      const parsed = parseUserPhone({
+        countryCode: this.profileUser.countryCode as PhoneCountryId | undefined,
+        phoneNumber: this.profileUser.phoneNumber,
+        phone: this.profileUser.phone
+      });
       this.formProfile.patchValue({
         firstName: this.profileUser.firstName,
         lastName: this.profileUser.lastName,

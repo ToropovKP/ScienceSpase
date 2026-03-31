@@ -34,7 +34,7 @@ import { JobContextSelectorComponent } from '../../features/job-context-selector
 import { JobSubmitService } from '../../features/job-submit/lib/job-submit.service';
 import {
   nationalPhoneValidator,
-  parseStoredPhoneDigits,
+  parseUserPhone,
   PhoneCountryId
 } from '../../shared/lib/phone-country';
 
@@ -339,7 +339,11 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     if (!this.currentUser) {
       return;
     }
-    const parsed = parseStoredPhoneDigits(this.currentUser.phone);
+    const parsed = parseUserPhone({
+      countryCode: this.currentUser.countryCode as PhoneCountryId | undefined,
+      phoneNumber: this.currentUser.phoneNumber,
+      phone: this.currentUser.phone
+    });
     this.formJob.patchValue({
       phoneCountry: parsed.countryId,
       phone: parsed.national
@@ -350,7 +354,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
     this.formJob.controls['orcId'].setValue(this.currentUser.orcId);
     this.formJob.controls['rincId'].setValue(this.currentUser.rincId);
 
-    if (this.currentUser.phone && this.currentUser.phone !== '') {
+    if ((this.currentUser.phoneNumber && this.currentUser.phoneNumber !== '') || (this.currentUser.phone && this.currentUser.phone !== '')) {
       this.formJob.controls['phone'].disable();
       this.formJob.controls['phoneCountry'].disable();
     }

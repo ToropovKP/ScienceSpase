@@ -3,7 +3,9 @@ export interface User {
   firstName: string;
   lastName: string;
   middleName: string;
-  phone: string;
+  phone?: string;
+  countryCode?: 'RU' | 'BY' | 'KZ';
+  phoneNumber?: string;
   email: string;
   organization: string;
   academicDegree: string;

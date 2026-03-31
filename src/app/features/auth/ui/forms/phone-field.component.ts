@@ -36,6 +36,7 @@ export class PhoneFieldComponent {
   @Input() placeholder: string = '';
   /** Селектор страны только в регистрации; в ЛК и формах работы — только маска по стране из данных */
   @Input() showCountrySelector = false;
+  @Input() freeForm = false;
   @Input() readonly = false;
   /** Лейбл над полем (как у «Почта»), классы задаёт родитель — Tailwind или Bootstrap */
   @Input() labelClass = '';

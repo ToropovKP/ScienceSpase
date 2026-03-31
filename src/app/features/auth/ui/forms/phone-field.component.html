@@ -36,20 +36,34 @@
       class="mb-0 phone-input-wrap-registration"
       [ngClass]="{'has-error': hasError()}"
     >
-      <input
-        pInputText
-        [id]="id"
-        [formControl]="control"
-        [prefix]="prefixStr"
-        [mask]="maskStr"
-        [dropSpecialCharacters]="true"
-        [showMaskTyped]="true"
-        autocomplete="tel"
-        [readonly]="isInteractionDisabled"
-        [placeholder]="placeholder"
-        [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
-        [fluid]="true"
-      />
+      <ng-container *ngIf="freeForm; else maskedRegistrationPhone">
+        <input
+          pInputText
+          [id]="id"
+          [formControl]="control"
+          autocomplete="tel"
+          [readonly]="isInteractionDisabled"
+          [placeholder]="placeholder"
+          [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+          [fluid]="true"
+        />
+      </ng-container>
+      <ng-template #maskedRegistrationPhone>
+        <input
+          pInputText
+          [id]="id"
+          [formControl]="control"
+          [prefix]="prefixStr"
+          [mask]="maskStr"
+          [dropSpecialCharacters]="true"
+          [showMaskTyped]="true"
+          autocomplete="tel"
+          [readonly]="isInteractionDisabled"
+          [placeholder]="placeholder"
+          [ngClass]="{'has-error': hasError(), 'ng-invalid ng-dirty': hasError()}"
+          [fluid]="true"
+        />
+      </ng-template>
       <label [for]="id">
         {{ label }}
         <span *ngIf="required" class="text-danger">*</span>
