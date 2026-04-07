@@ -47,7 +47,7 @@
   color: var(--old-danger) !important;
 }
 
-@media (max-width: 992px) {
+/* @media (max-width: 992px) {
   .article-list .text-truncate {
     max-width: 70vw;
   }
@@ -57,4 +57,4 @@
   max-width: 50vw;
   display: inline-block !important;
   vertical-align: bottom;
-}
+} */
