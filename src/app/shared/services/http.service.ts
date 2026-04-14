@@ -62,7 +62,10 @@ export class HttpService {
   }
 
   async sendRestorePasswordLink(email: string): Promise<boolean> {
-    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/send-restore-link?email=${email}`, {}, this.httpOptions));
+    const q = encodeURIComponent(email);
+    return await firstValueFrom(
+      this.http.post<boolean>(`${baseUrl}/api/v1/user/send-restore-link?email=${q}`, {}, this.httpOptions),
+    );
   }
 
   async getUsers(): Promise<User[]> {

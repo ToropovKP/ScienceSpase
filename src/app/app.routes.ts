@@ -1,4 +1,6 @@
 import {Routes} from "@angular/router";
+import {MainLayoutComponent} from "./layouts/main-layout/main-layout.component";
+import {AuthLayoutComponent} from "./layouts/auth-layout/auth-layout.component";
 import {ConferencesComponent} from "./pages/conferences/conferences.component";
 import {ConferenceCreateComponent} from "./pages/one-conference-create/conference-create.component";
 import {ConferenceJobsComponent} from "./pages/conference-jobs/conference-jobs.component";
@@ -11,8 +13,10 @@ import {VerifyAccountComponent} from "./pages/verify-account/verify-account.comp
 import {RestorePasswordComponent} from "./pages/restore-account/restore-password.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {JobCreateComponent} from "./pages/one-job-create/job-create.component";
+import {AuthComponent} from "./pages/auth/auth.component";
+import {AuthRecoverPasswordComponent} from "./pages/auth/auth-recover-password.component";
 
-export const appRoutes: Routes = [
+const mainChildRoutes: Routes = [
   {
     path: '',
     component: ConferencesComponent
@@ -78,11 +82,27 @@ export const appRoutes: Routes = [
     component: RestorePasswordComponent
   },
   {
-    path: '**',
+    path: 'not-found',
     component: NotFoundComponent
   },
   {
-    path: 'not-found',
+    path: '**',
     component: NotFoundComponent
   }
+];
+
+export const appRoutes: Routes = [
+  {
+    path: 'auth',
+    component: AuthLayoutComponent,
+    children: [
+      { path: '', component: AuthComponent },
+      { path: 'recover', component: AuthRecoverPasswordComponent },
+    ]
+  },
+  {
+    path: '',
+    component: MainLayoutComponent,
+    children: mainChildRoutes
+  },
 ];

@@ -4,6 +4,7 @@
     [id]="id" 
     [type]="type"
     [formControl]="control"
+    [attr.aria-required]="required ? 'true' : null"
     [placeholder]="placeholder"
     [autocomplete]="autocomplete"
     [attr.maxlength]="maxlength || null"
@@ -11,7 +12,6 @@
     [fluid]="true" />
   <label [for]="id">
     {{ label }}
-    <span *ngIf="required" class="text-danger">*</span>
   </label>
 </p-iftalabel>
 

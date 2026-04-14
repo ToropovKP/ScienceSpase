@@ -22,6 +22,29 @@
   opacity: 1;
 }
 
+/* Подпись над блоком кода страны + номера */
+.phone-field--stacked-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.phone-field__label-over {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.phone-input-wrap-registration--plain {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  min-width: 0;
+}
+
+.phone-input-wrap-registration--plain input {
+  width: 100%;
+}
+
 /* Регистрация: селектор | поле — одна строка; высота селекта = высоте p-iftalabel */
 .phone-field--registration {
   display: flex;

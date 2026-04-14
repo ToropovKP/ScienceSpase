@@ -1,13 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-email-field',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IftaLabelModule, InputTextModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule],
   templateUrl: './email-field.component.html',
   styleUrls: ['./email-field.component.css']
 })
@@ -17,9 +16,15 @@ export class EmailFieldComponent {
   @Input() required: boolean = false;
   @Input() control!: FormControl;
   @Input() placeholder: string = '';
+  /** Подсветка ошибки без невалидного контрола (например, ответ сервера «неверный логин/пароль»). */
+  @Input() highlightError = false;
 
   hasError(): boolean {
     return this.control ? (this.control.invalid && this.control.touched) : false;
+  }
+
+  showErrorVisual(): boolean {
+    return this.hasError() || this.highlightError;
   }
 }
 

@@ -1,0 +1,141 @@
+/**
+ * Типографика: Open Sans + Roboto (гайд).
+ * Заголовки — Roboto SemiBold (600). Абзацы — Open Sans (regular 400 / semibold 600).
+ *
+ * Размеры в имени токена (H48, P16, P18…) заданы в CSS px для совпадения с макетом во
+ * фронте. Не использовать перевод pt→px через 96/72 — он даёт другие числа (например 16pt ≈ 21.3px).
+ */
+
+:root {
+  --typo-font-heading: 'Roboto', system-ui, sans-serif;
+  --typo-font-body: 'Open Sans', system-ui, sans-serif;
+  --typo-weight-regular: 400;
+  --typo-weight-medium: 500;
+  --typo-weight-semibold: 600;
+
+  /* Заголовки — Roboto SemiBold */
+  --typo-h-48-size: 48px;
+  --typo-h-48-line: 1.2;
+  --typo-h-30-size: 30px;
+  --typo-h-30-line: 1.2;
+  --typo-h-24-size: 24px;
+  --typo-h-24-line: 1.25;
+
+  /* Абзацы — Open Sans SemiBold */
+  --typo-p20-sb-size: 20px;
+  --typo-p28-sb-size: 18px;
+  --typo-p18-sb-size: 18px;
+  --typo-p16-sb-size: 16px;
+  --typo-p14-sb-size: 14px;
+  --typo-p12-sb-size: 12px;
+
+  /* Абзацы — Open Sans Regular */
+  --typo-p20-r-size: 12px;
+  --typo-p18-r-size: 18px;
+  --typo-p16-r-size: 16px;
+  --typo-p14-r-size: 14px;
+  --typo-p12-r-size: 12px;
+
+  --typo-body-line-tight: 1.35;
+  --typo-body-line-normal: 1.45;
+  --typo-body-line-relaxed: 1.5;
+}
+
+/* Утилиты */
+.typo-h48 {
+  font-family: var(--typo-font-heading);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-h-48-size);
+  line-height: var(--typo-h-48-line);
+}
+
+.typo-h30 {
+  font-family: var(--typo-font-heading);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-h-30-size);
+  line-height: var(--typo-h-30-line);
+}
+
+.typo-h24 {
+  font-family: var(--typo-font-heading);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-h-24-size);
+  line-height: var(--typo-h-24-line);
+}
+
+.typo-p20-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p20-sb-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p28-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p28-sb-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p18-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p18-sb-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p16-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p16-sb-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p14-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p14-sb-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p12-sb {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p12-sb-size);
+  line-height: var(--typo-body-line-tight);
+}
+
+.typo-p20-r {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p20-r-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p18-r {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p18-r-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p16-r {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p16-r-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p14-r {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p14-r-size);
+  line-height: var(--typo-body-line-normal);
+}
+
+.typo-p12-r {
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p12-r-size);
+  line-height: var(--typo-body-line-tight);
+}

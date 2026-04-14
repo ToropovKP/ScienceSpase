@@ -1,0 +1,400 @@
+<section class="auth" (keyup.enter)="onAuthEnter()">
+  <div class="auth__col auth__col--gutter" aria-hidden="true"></div>
+
+  <div class="auth__col auth__col--main">
+    <div class="auth__wrapper">
+      <p-toast />
+
+      <header class="auth__header">
+        <h1 class="auth__title">
+          <ng-container *ngIf="!isRegistration">Вход</ng-container>
+          <ng-container *ngIf="isRegistration && registrationStep === 'profile'">
+            Дополните информацию<br />
+            о себе
+          </ng-container>
+          <ng-container *ngIf="isRegistration && registrationStep !== 'profile'">Регистрация</ng-container>
+        </h1>
+
+        <p *ngIf="!isRegistration" class="auth__subtitle">
+          Еще нет аккаунта?
+          <a
+            href="#"
+            class="auth__link"
+            (click)="$event.preventDefault(); switchRegistration()"
+          >Создайте аккаунт</a>
+        </p>
+
+        <p class="auth__subtitle" *ngIf="isRegistration && registrationStep !== 'profile'">
+          Уже есть аккаунт?
+          <a
+            href="#"
+            class="auth__link"
+            (click)="$event.preventDefault(); switchRegistration()"
+          >Войдите</a>
+        </p>
+      </header>
+
+      <div class="auth__divider" role="presentation" *ngIf="!isRegistration">
+        <span class="auth__divider-text">Выберите систему</span>
+      </div>
+
+      <div class="auth__choose" role="radiogroup" aria-label="Система входа" *ngIf="!isRegistration">
+        <button
+          type="button"
+          class="auth__system-card"
+          [class.auth__system-card--active]="selectedSystem === 'podium'"
+          (click)="selectedSystem = 'podium'"
+          role="radio"
+          [attr.aria-checked]="selectedSystem === 'podium'"
+        >
+          <span class="auth__system-icon" aria-hidden="true">
+            <img class="auth__system-logo" src="assets/logos/logo_podium.svg" alt="" width="30" height="33" />
+          </span>
+          <span class="auth__system-text">
+            <span class="auth__system-name">Подиум</span>
+            <span class="auth__system-desc">Выступления и менеджмент конференций</span>
+          </span>
+          <span class="auth__system-radio" aria-hidden="true"></span>
+        </button>
+
+        <button
+          type="button"
+          class="auth__system-card"
+          [class.auth__system-card--active]="selectedSystem === 'forum'"
+          (click)="selectedSystem = 'forum'"
+          role="radio"
+          [attr.aria-checked]="selectedSystem === 'forum'"
+        >
+          <span class="auth__system-icon" aria-hidden="true">
+            <img class="auth__system-logo" src="assets/logos/logo_forum.svg" alt="" width="32" height="33" />
+          </span>
+          <span class="auth__system-text">
+            <span class="auth__system-name">Форум</span>
+            <span class="auth__system-desc">Хранение научных публикаций</span>
+          </span>
+          <span class="auth__system-radio" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="auth__form" (focusin)="onLoginCredentialFocus()">
+        <div [formGroup]="loginForm">
+          <app-email-field
+            *ngIf="!isRegistration || (isRegistration && registrationStep === 'email')"
+            id="auth-login"
+            label="Логин"
+            [placeholder]="isRegistration && registrationStep === 'email' ? 'Введите логин' : 'Ваш логин'"
+            [required]="true"
+            [control]="emailControl"
+            [highlightError]="!isRegistration && invalidLogin"
+          />
+
+          <p *ngIf="showAuthEmailClientError()" class="auth__field-message auth__field-message--error">
+            {{ authEmailErrorMessage() }}
+          </p>
+
+          <div class="auth__password-block" *ngIf="!isRegistration">
+            <div class="auth__password-head">
+              <span class="auth__field-label">Пароль</span>
+              <a routerLink="/auth/recover" class="auth__link auth__link--small">Не помню пароль</a>
+            </div>
+
+            <app-password-field
+              id="auth-password"
+              inputId="auth-password-input"
+              label="Пароль"
+              [hideLabel]="true"
+              [required]="true"
+              [control]="passwordControl"
+              [feedback]="false"
+              [highlightError]="invalidLogin"
+            />
+
+            <p *ngIf="invalidLogin" class="auth__field-message auth__field-message--error">
+              Введен неверный логин или пароль. Попробуйте еще раз
+            </p>
+            <p *ngIf="userBlockedLogin" class="auth__field-message auth__field-message--error">
+              Пользователь заблокирован
+            </p>
+            <p *ngIf="showAuthPasswordClientError()" class="auth__field-message auth__field-message--error">
+              {{ authPasswordErrorMessage() }}
+            </p>
+          </div>
+
+          <!-- Регистрация: пароль и повтор (макет Figma) -->
+          <div *ngIf="isRegistration && registrationStep === 'password'" class="auth__password-step">
+            <div class="auth__password-field">
+              <span class="auth__field-label auth__field-label--block">Пароль</span>
+              <app-password-field
+                id="auth-reg-password"
+                inputId="auth-reg-password-input"
+                label="Пароль"
+                placeholder="Введите пароль"
+                [hideLabel]="true"
+                [required]="true"
+                [control]="passwordControl"
+                [feedback]="true"
+              />
+              <p class="auth__password-hint">
+                Пароль должен содержать не менее 8 символов, включающих буквы верхнего и нижнего регистра и специальные символы
+              </p>
+              <p *ngIf="showPasswordHintError()" class="auth__field-error">
+                <span *ngIf="passwordControl.hasError('required')">Введите пароль</span>
+                <span *ngIf="passwordControl.hasError('minlength')">Минимум 8 символов</span>
+                <span *ngIf="passwordControl.hasError('pattern')">Требуются верхний и нижний регистр и спецсимвол</span>
+              </p>
+            </div>
+
+            <div class="auth__password-field">
+              <span class="auth__field-label auth__field-label--block">Повторите пароль</span>
+              <app-password-field
+                id="auth-reg-password-2"
+                inputId="auth-reg-password-2-input"
+                label="Повторите пароль"
+                placeholder="Повторите пароль"
+                [hideLabel]="true"
+                [required]="true"
+                [control]="passwordConfirmControl"
+                [feedback]="false"
+              />
+              <p *ngIf="showPasswordConfirmError()" class="auth__field-error">
+                <span *ngIf="passwordConfirmControl.hasError('required')">Подтвердите пароль</span>
+                <span *ngIf="passwordConfirmControl.hasError('mismatch')">Пароли не совпадают</span>
+              </p>
+            </div>
+
+            <label class="auth__terms">
+              <input
+                type="checkbox"
+                class="auth__terms-input"
+                [formControl]="acceptTermsControl"
+              />
+              <span class="auth__terms-text">
+                Я принимаю условия
+                <a href="#" class="auth__link" (click)="$event.preventDefault()">политики конфиденциальности</a>
+                и даю согласие на обработку моих персональных данных
+              </span>
+            </label>
+            <p *ngIf="showAcceptTermsError()" class="auth__field-error auth__field-error--terms">
+              Необходимо принять условия
+            </p>
+          </div>
+
+          <div *ngIf="isRegistration && registrationStep === 'profile'" class="auth__profile-step">
+            <div class="auth__profile-field">
+              <label class="auth__field-label auth__field-label--block" for="auth-reg-last-name">
+                <span class="auth__field-required" aria-hidden="true">*</span>
+                Фамилия
+              </label>
+              <input
+                pInputText
+                id="auth-reg-last-name"
+                [formControl]="lastNameControl"
+                class="w-100"
+                placeholder="Иванов"
+              />
+              <p *ngIf="showProfileFieldError(lastNameControl)" class="auth__field-error">
+                <span *ngIf="lastNameControl.hasError('required')">Введите фамилию</span>
+                <span *ngIf="lastNameControl.hasError('minlength')">Минимум 2 символа</span>
+              </p>
+            </div>
+
+            <div class="auth__profile-field">
+              <label class="auth__field-label auth__field-label--block" for="auth-reg-first-name">
+                <span class="auth__field-required" aria-hidden="true">*</span>
+                Имя
+              </label>
+              <input
+                pInputText
+                id="auth-reg-first-name"
+                [formControl]="firstNameControl"
+                class="w-100"
+                placeholder="Иван"
+              />
+              <p *ngIf="showProfileFieldError(firstNameControl)" class="auth__field-error">
+                <span *ngIf="firstNameControl.hasError('required')">Введите имя</span>
+                <span *ngIf="firstNameControl.hasError('minlength')">Минимум 2 символа</span>
+              </p>
+            </div>
+
+            <div class="auth__profile-field">
+              <label class="auth__field-label auth__field-label--block" for="auth-reg-middle-name">Отчество</label>
+              <input
+                pInputText
+                id="auth-reg-middle-name"
+                [formControl]="middleNameControl"
+                class="w-100"
+                placeholder="Иванович"
+              />
+            </div>
+
+            <div class="auth__profile-field">
+              <app-phone-field
+                id="auth-reg-phone"
+                label="Контактный номер телефона"
+                placeholder="(000) 000 00 00"
+                [labelStacked]="true"
+                [control]="phoneControl"
+                [countryControl]="phoneCountryControl"
+                [showCountrySelector]="true"
+              />
+              <p *ngIf="showProfileFieldError(phoneControl)" class="auth__field-error">
+                <span *ngIf="phoneControl.hasError('required')">Введите номер телефона</span>
+                <span *ngIf="phoneControl.hasError('phoneIncomplete')">Введите номер полностью</span>
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="isRegistration && registrationStep === 'code'" class="auth__code-step" [formGroup]="verificationCodeForm">
+          <p class="auth__instruction">
+            <span class="auth__instruction-main">
+              Мы отправили шестизначный код подтверждения на адрес
+              <span class="auth__instruction-email">{{ emailControl.value || 'samplemail@mail.com' }}</span>.
+            </span>
+            <span class="auth__instruction-line2">Проверьте почту и введите код</span>
+          </p>
+
+          <div class="auth__otp" #authOtpWrap>
+            <p-inputotp
+              inputId="auth-code-otp"
+              formControlName="value"
+              [invalid]="otpInvalidVisual()"
+              [integerOnly]="true"
+              [length]="6"
+            />
+            @if (otpServerInvalid) {
+              <p class="auth__otp-error-message">
+                Введен неверный код! Запросите новый или введите заново.
+              </p>
+            } @else if (isInvalid('value')) {
+              <p-message severity="error" size="small" variant="simple" styleClass="auth__otp-error">
+                Введите 6-значный код
+              </p-message>
+            }
+          </div>
+
+          <p class="auth__resend auth__resend--stacked">
+            <span class="auth__resend-muted">Не получили письмо?</span>
+            <button
+              type="button"
+              class="auth__resend-trigger"
+              [class.auth__resend-trigger--waiting]="resendSecondsRemaining > 0 || loading"
+              (click)="onResendCode($event)"
+            >
+              @if (resendSecondsRemaining > 0) {
+                <span class="auth__resend-trigger-inner">
+                  Запросить повторно через<br />
+                  <span class="auth__resend-time">{{ resendCountdownLabel }}</span>
+                </span>
+              } @else {
+                Запросить повторно
+              }
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <p class="auth__tip" *ngIf="isRegistration && registrationStep === 'email'">
+        На указанный адрес придет шестизначный код подтверждения
+      </p>
+
+      <p-button
+        *ngIf="!isRegistration"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Войти"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="login()"
+        [disabled]="loginForm.invalid"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep === 'email'"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Запросить письмо"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="requestEmail()"
+        [disabled]="emailControl.invalid"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep === 'code'"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Далее"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="submitCode()"
+        [disabled]="verificationCodeForm.invalid"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep === 'password'"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Далее"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="submitPasswordStep()"
+        [disabled]="loading || passwordControl.invalid || passwordConfirmControl.invalid || acceptTermsControl.invalid"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep === 'profile'"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Начать работу"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="submitRegistration()"
+        [disabled]="loading || lastNameControl.invalid || firstNameControl.invalid || phoneControl.invalid"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep !== 'profile'"
+        styleClass="auth-btn auth-btn--outline"
+        class="auth__login-button w-100 btn-login"
+        label="Отмена"
+        type="button"
+        [fluid]="true"
+        (click)="cancelRegistration()"
+      />
+
+      <p-button
+        *ngIf="isRegistration && registrationStep === 'profile'"
+        styleClass="auth-btn auth-btn--outline"
+        class="auth__login-button w-100 btn-login"
+        label="Пропустить"
+        type="button"
+        [fluid]="true"
+        (click)="skipRegistrationProfile()"
+      />
+
+      <div class="auth__divider" role="presentation" *ngIf="!(isRegistration && registrationStep === 'profile')">
+        <span class="auth__divider-text">Или войдите с помощью</span>
+      </div>
+
+      <div class="auth__fast-auth" *ngIf="!(isRegistration && registrationStep === 'profile')">
+        <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
+          <span class="auth__fast-auth-icon auth__fast-auth-icon--vk" aria-hidden="true"></span>
+          Вконтакте
+        </button>
+        <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
+          <span class="auth__fast-auth-icon auth__fast-auth-icon--yandex" aria-hidden="true"></span>
+          Яндекс ID
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth__col auth__col--gutter" aria-hidden="true"></div>
+</section>
