@@ -26,9 +26,11 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { nationalPhoneValidator, PhoneCountryId } from '../../shared/lib/phone-country';
+import { accessTokenFromAuthResponse } from '../../shared/lib/auth-token';
 
 type AuthSystem = 'podium' | 'forum';
 type RegistrationStep = 'email' | 'code' | 'password' | 'profile';
+type LoginPhase = 'credentials' | 'twoFactor';
 
 /** Не менее 8 символов, верхний и нижний регистр, спецсимвол (макет). */
 const REGISTRATION_PASSWORD_PATTERN =
@@ -66,10 +68,16 @@ export class AuthComponent implements OnDestroy {
 
   invalidLogin = false;
   userBlockedLogin = false;
+  /** После логина/пароля — ввод кода из приложения 2FA. */
+  loginPhase: LoginPhase = 'credentials';
+  /** Временный JWT для `POST .../auth/2fa/verify`. */
+  private twoFactorTempToken: string | null = null;
   loading = false;
   isRegistration = false;
-  /** Поток регистрации: email → код (клиент) → пароль → профиль → POST /api/v1/user/create */
+  /** Поток регистрации: email → код (отправка через API) → пароль → профиль */
   registrationStep: RegistrationStep = 'email';
+  /** Сессия OTP с бэкенда (нужна для повторной отправки кода). */
+  private registrationSessionId: string | null = null;
   formSubmitted = false;
   messageService = inject(MessageService);
 
@@ -147,7 +155,11 @@ export class AuthComponent implements OnDestroy {
 
   onAuthEnter(): void {
     if (!this.isRegistration) {
-      this.login();
+      if (this.loginPhase === 'twoFactor') {
+        void this.submitTwoFactor();
+        return;
+      }
+      void this.login();
       return;
     }
     switch (this.registrationStep) {
@@ -178,6 +190,9 @@ export class AuthComponent implements OnDestroy {
   switchRegistration(): void {
     this.isRegistration = !this.isRegistration;
     this.registrationStep = 'email';
+    this.loginPhase = 'credentials';
+    this.twoFactorTempToken = null;
+    this.verificationCodeForm.reset({ value: '' });
     this.otpServerInvalid = false;
     this.invalidLogin = false;
     this.userBlockedLogin = false;
@@ -188,6 +203,7 @@ export class AuthComponent implements OnDestroy {
     this.verificationCodeForm.reset({ value: '' });
     this.clearRegistrationPasswordFields();
     this.clearRegistrationProfileFields();
+    this.registrationSessionId = null;
 
     if (this.isRegistration) {
       this.passwordControl.clearValidators();
@@ -215,7 +231,7 @@ export class AuthComponent implements OnDestroy {
     return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   }
 
-  login(): void {
+  async login(): Promise<void> {
     if (this.loginForm.invalid) {
       this.emailControl.markAsTouched();
       this.passwordControl.markAsTouched();
@@ -223,52 +239,114 @@ export class AuthComponent implements OnDestroy {
     }
 
     this.loading = true;
-    const email: string = this.loginForm.value.email;
-    const request = { email, password: this.loginForm.value.password };
-
-    this.httpService
-      .login(request)
-      .then((data) => {
-        this.invalidLogin = false;
-        this.userBlockedLogin = false;
-        localStorage.setItem('token', data.access_token);
-        return this.authService.getCurrentUser();
-      })
-      .then(() => {
-        this.loading = false;
-        this.loginForm.reset();
-        this.router.navigate(['/conferences']);
-      })
-      .catch((error) => {
-        this.loading = false;
-        if (error.error?.['code'] === 'USER_DOES_NOT_EXISTS') {
-          this.invalidLogin = true;
-          this.userBlockedLogin = false;
-        } else if (error.error?.['code'] === 'BANNED') {
-          this.invalidLogin = false;
-          this.userBlockedLogin = true;
-        } else {
-          this.notificationService.showServerError();
-        }
+    try {
+      const data = await this.httpService.login({
+        email: this.loginForm.value.email,
+        password: this.loginForm.value.password,
       });
+      this.invalidLogin = false;
+      this.userBlockedLogin = false;
+      if (data.status === 'two_factor_required') {
+        const temp = accessTokenFromAuthResponse(data);
+        if (!temp) {
+          this.notificationService.showServerError();
+          return;
+        }
+        this.twoFactorTempToken = temp;
+        this.loginPhase = 'twoFactor';
+        this.verificationCodeForm.reset({ value: '' });
+        this.formSubmitted = false;
+        queueMicrotask(() => this.syncAuthOtpFilledCellClasses());
+        return;
+      }
+      const token = accessTokenFromAuthResponse(data);
+      if (data.status === 'authenticated' && token) {
+        localStorage.setItem('token', token);
+        await this.authService.getCurrentUser();
+        this.loginForm.reset();
+        await this.router.navigate(['/conferences']);
+        return;
+      }
+      this.notificationService.showServerError();
+    } catch (error: unknown) {
+      const err = error as { error?: { code?: string } };
+      if (err?.error?.['code'] === 'USER_DOES_NOT_EXISTS') {
+        this.invalidLogin = true;
+        this.userBlockedLogin = false;
+      } else if (err?.error?.['code'] === 'BANNED') {
+        this.invalidLogin = false;
+        this.userBlockedLogin = true;
+      } else {
+        this.notificationService.showServerError();
+      }
+    } finally {
+      this.loading = false;
+    }
   }
 
-  /**
-   * Переход к экрану кода (макет). Отдельного эндпоинта «отправить код» в текущем API нет —
-   * подтверждение email выполняется письмом после успешного POST /api/v1/user/create.
-   */
+  async submitTwoFactor(): Promise<void> {
+    if (!this.twoFactorTempToken) {
+      return;
+    }
+    this.formSubmitted = true;
+    const otp = this.verificationCodeForm.get('value');
+    if (this.verificationCodeForm.invalid) {
+      otp?.markAsTouched();
+      return;
+    }
+    const code = String(otp?.value ?? '').trim();
+    this.loading = true;
+    try {
+      const data = await this.httpService.verifyTwoFactor(code, this.twoFactorTempToken);
+      const token = accessTokenFromAuthResponse(data);
+      if (data.status === 'authenticated' && token) {
+        localStorage.setItem('token', token);
+        this.twoFactorTempToken = null;
+        this.loginPhase = 'credentials';
+        await this.authService.getCurrentUser();
+        this.loginForm.reset();
+        this.verificationCodeForm.reset({ value: '' });
+        await this.router.navigate(['/conferences']);
+      } else {
+        this.notificationService.showServerError();
+      }
+    } catch {
+      this.notificationService.showError('Проверьте код и попробуйте снова.', 'Неверный код 2FA');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  backFromTwoFactor(): void {
+    this.loginPhase = 'credentials';
+    this.twoFactorTempToken = null;
+    this.verificationCodeForm.reset({ value: '' });
+    this.formSubmitted = false;
+  }
+
+  /** Отправка кода на email при регистрации (`POST .../auth/send-verify-code`). */
   async requestEmail(): Promise<void> {
     if (this.emailControl.invalid) {
       this.emailControl.markAsTouched();
       return;
     }
 
+    const email = String(this.emailControl.value ?? '').trim();
     const isResend = this.registrationStep === 'code';
+
     if (!isResend) {
       this.loading = true;
     }
 
     try {
+      const response = await this.httpService.sendRegistrationVerificationCode(
+        email,
+        isResend ? this.registrationSessionId : null,
+      );
+      if (response.sessionId) {
+        this.registrationSessionId = response.sessionId;
+      }
+
       this.registrationStep = 'code';
       this.otpServerInvalid = false;
       this.verificationCodeForm.reset({ value: '' });
@@ -281,23 +359,75 @@ export class AuthComponent implements OnDestroy {
       this.codeControl.updateValueAndValidity();
       this.startResendCooldown();
       queueMicrotask(() => this.syncAuthOtpFilledCellClasses());
+
+      if (isResend) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Письмо отправлено',
+          detail: 'Проверьте почту для ввода кода.',
+          life: 5000,
+        });
+      }
+    } catch (error: unknown) {
+      this.handleSendRegistrationCodeError(error);
     } finally {
       this.loading = false;
     }
   }
 
-  /** После ввода кода — форма пароля (макет Figma). */
-  submitCode(): void {
+  private handleSendRegistrationCodeError(error: unknown): void {
+    const err = error as { status?: number; error?: { code?: string } };
+    if (err?.status === 429) {
+      this.notificationService.showError('Попробуйте позже.', 'Слишком много запросов');
+      return;
+    }
+    const code = err?.error?.code;
+    if (code === 'USER_EXISTS') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Регистрация',
+        detail: 'Пользователь с таким email уже зарегистрирован.',
+        life: 5000,
+      });
+      return;
+    }
+    if (code === 'BANNED') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Регистрация',
+        detail: 'Регистрация невозможна: учётная запись заблокирована.',
+        life: 5000,
+      });
+      return;
+    }
+    this.notificationService.showServerError();
+  }
+
+  /** Проверка кода регистрации на бэкенде, затем шаг пароля. */
+  async submitCode(): Promise<void> {
     this.formSubmitted = true;
     const otp = this.verificationCodeForm.get('value');
     if (this.verificationCodeForm.invalid) {
       otp?.markAsTouched();
       return;
     }
-    this.otpServerInvalid = false;
-    this.codeControl.setValue(String(otp?.value ?? ''));
-    this.registrationStep = 'password';
-    this.applyRegistrationPasswordValidators();
+    if (!this.registrationSessionId) {
+      this.notificationService.showServerError();
+      return;
+    }
+    const code = String(otp?.value ?? '').trim();
+    this.loading = true;
+    try {
+      await this.httpService.verifySignupCode(this.registrationSessionId, code);
+      this.otpServerInvalid = false;
+      this.codeControl.setValue(code);
+      this.registrationStep = 'password';
+      this.applyRegistrationPasswordValidators();
+    } catch {
+      this.otpServerInvalid = true;
+    } finally {
+      this.loading = false;
+    }
   }
 
   submitPasswordStep(): void {
@@ -336,36 +466,46 @@ export class AuthComponent implements OnDestroy {
     try {
       const email = String(this.emailControl.value ?? '').trim();
       const password = this.passwordControl.value as string;
-      const request = {
-        firstName: String(this.firstNameControl.value ?? '').trim(),
-        lastName: String(this.lastNameControl.value ?? '').trim(),
-        middleName: String(this.middleNameControl.value ?? '').trim(),
-        countryCode: this.phoneCountryControl.value,
-        phoneNumber: String(this.phoneControl.value ?? '').replace(/\D/g, ''),
-        email,
-        organization: '',
-        academicDegree: '',
-        academicTitle: '',
-        password,
-      };
+      if (!this.registrationSessionId) {
+        this.notificationService.showServerError();
+        return;
+      }
 
-      await this.httpService.registration(request);
-      this.notificationService.showRegistrationSuccess();
+      const signupRes = await this.httpService.signup({
+        sessionId: this.registrationSessionId,
+        password,
+      });
+      const token = accessTokenFromAuthResponse(signupRes);
+      if (!token) {
+        this.notificationService.showServerError();
+        return;
+      }
+      localStorage.setItem('token', token);
+      await this.authService.getCurrentUser();
 
       try {
-        const loginData = await this.httpService.login({ email, password });
-        localStorage.setItem('token', loginData.access_token);
+        await this.httpService.updateUserInfo({
+          firstName: String(this.firstNameControl.value ?? '').trim(),
+          lastName: String(this.lastNameControl.value ?? '').trim(),
+          middleName: String(this.middleNameControl.value ?? '').trim(),
+          countryCode: this.phoneCountryControl.value,
+          phoneNumber: String(this.phoneControl.value ?? '').replace(/\D/g, ''),
+          organization: '',
+          academicDegree: '',
+          academicTitle: '',
+          orcId: '',
+          rincId: '',
+        });
         await this.authService.getCurrentUser();
-        await this.router.navigate(['/conferences']);
-        this.resetAfterSuccessfulRegistration();
+        this.notificationService.showSuccess('Регистрация', 'Аккаунт создан, данные профиля сохранены.');
       } catch {
         this.notificationService.showWarning(
-          'Вход',
-          'Регистрация прошла успешно. Войдите вручную, указав email и пароль.',
+          'Профиль',
+          'Аккаунт создан. Заполните ФИО и телефон в разделе профиля.',
         );
-        this.resetAfterSuccessfulRegistration();
-        await this.router.navigate(['/auth']);
       }
+      await this.router.navigate(['/conferences']);
+      this.resetAfterSuccessfulRegistration();
     } catch (error: unknown) {
       this.handleRegistrationError(error);
     } finally {
@@ -375,6 +515,9 @@ export class AuthComponent implements OnDestroy {
 
   private resetAfterSuccessfulRegistration(): void {
     this.isRegistration = false;
+    this.registrationSessionId = null;
+    this.loginPhase = 'credentials';
+    this.twoFactorTempToken = null;
     this.registrationStep = 'email';
     this.otpServerInvalid = false;
     this.invalidLogin = false;
@@ -401,7 +544,7 @@ export class AuthComponent implements OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Регистрация',
-        detail: 'Пользователь с таким email или телефоном уже зарегистрирован.',
+        detail: 'Пользователь с таким email уже зарегистрирован.',
         life: 5000,
       });
       return;
@@ -527,6 +670,7 @@ export class AuthComponent implements OnDestroy {
 
   backToEmailStep(): void {
     this.otpServerInvalid = false;
+    this.registrationSessionId = null;
     this.registrationStep = 'email';
     this.clearResendCooldown();
     this.resendSecondsRemaining = 0;
@@ -620,7 +764,7 @@ export class AuthComponent implements OnDestroy {
 
   /** Ошибки пароля на входе (клиент), после blur. */
   showAuthPasswordClientError(): boolean {
-    if (this.isRegistration || this.invalidLogin) {
+    if (this.isRegistration || this.invalidLogin || this.loginPhase === 'twoFactor') {
       return false;
     }
     const c = this.passwordControl;

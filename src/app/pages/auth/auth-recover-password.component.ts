@@ -50,6 +50,8 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
   /** Шаг макета: логин → ввод кода из письма */
   recoverStep: RecoverStep = 'login';
   formSubmitted = false;
+  /** Сессия с бэкенда (`send-restore-code`). */
+  private restoreSessionId: string | null = null;
 
   resendSecondsRemaining = 0;
   private resendIntervalId: ReturnType<typeof setInterval> | null = null;
@@ -104,6 +106,7 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
 
   backFromCode(): void {
     this.otpServerInvalid = false;
+    this.restoreSessionId = null;
     this.recoverStep = 'login';
     this.formSubmitted = false;
     this.verificationCodeForm.reset({ value: '' });
@@ -162,7 +165,11 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
     }
 
     try {
-      await this.httpService.sendRestorePasswordLink(this.emailControl.value as string);
+      const email = String(this.emailControl.value ?? '').trim();
+      const res = await this.httpService.sendRestoreCode(email, isResend ? this.restoreSessionId : null);
+      if (res.sessionId) {
+        this.restoreSessionId = res.sessionId;
+      }
       this.emailSent = true;
       this.startResendCooldown();
       if (this.recoverStep === 'login') {
@@ -179,9 +186,23 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
         life: 5000,
       });
     } catch (error: unknown) {
-      const err = error as { status?: number };
+      const err = error as { status?: number; error?: { code?: string } };
       if (err?.status === 429) {
         this.notificationService.showRestorePasswordTooManyRequests();
+      } else if (err?.status === 404 || err?.error?.code === 'NOT_FOUND') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Восстановление',
+          detail: 'Пользователь с таким email не найден.',
+          life: 5000,
+        });
+      } else if (err?.status === 403 || err?.error?.code === 'BANNED') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Восстановление',
+          detail: 'Учётная запись заблокирована.',
+          life: 5000,
+        });
       } else {
         this.notificationService.showServerError();
       }
@@ -198,17 +219,30 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
     void this.requestLetter();
   }
 
-  /** После ввода кода — экран смены пароля (токен из письма или кода, в зависимости от бэкенда). */
-  submitContinue(): void {
+  async submitContinue(): Promise<void> {
     this.formSubmitted = true;
     const otp = this.verificationCodeForm.get('value');
     if (this.verificationCodeForm.invalid) {
       otp?.markAsTouched();
       return;
     }
+    if (!this.restoreSessionId) {
+      this.notificationService.showServerError();
+      return;
+    }
+    const code = String(otp?.value ?? '').trim();
+    this.loading = true;
     this.otpServerInvalid = false;
-    const token = String(otp?.value ?? '').trim();
-    void this.router.navigate(['/restore-password'], { queryParams: { token } });
+    try {
+      await this.httpService.verifyRestoreCode(this.restoreSessionId, code);
+      await this.router.navigate(['/restore-password'], {
+        queryParams: { sessionId: this.restoreSessionId },
+      });
+    } catch {
+      this.otpServerInvalid = true;
+    } finally {
+      this.loading = false;
+    }
   }
 
   private startResendCooldown(): void {

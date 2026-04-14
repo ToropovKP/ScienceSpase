@@ -8,6 +8,7 @@ import {Job} from "../../entities/job/model/job";
 import {UserBase} from "../../entities/user/model/user.base";
 import {UserBaseDto} from "../dto/user.base.dto";
 import {LoginResponse} from "../../entities/user/model/login.response";
+import {AuthApiResponse} from "../../entities/user/model/auth-api.response";
 import {Comment} from "../../entities/comment/model/comment";
 import {ReviewDto} from "../dto/review.dto";
 import {baseUrl} from "../../app.constants";
@@ -18,31 +19,107 @@ import {PageResponse} from "../../entities/common/model/page.response";
 export class HttpService {
 
   httpOptions = {
-    headers: new HttpHeaders(
-        {
-          'Content-Type': 'application/json',
-        }
-    )
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+    }),
   }
 
   constructor(private http: HttpClient) {
   }
 
+  private getPublicHttpOptions() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+    };
+  }
+
   private updateHeaders() {
-    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', `Bearer ${localStorage.getItem('token')}`);
+    this.httpOptions.headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    });
   }
 
   async login(request: object): Promise<LoginResponse> {
-    return await firstValueFrom(this.http.post<LoginResponse>(`${baseUrl}/api/v1/auth/login`, request, this.httpOptions));
+    return await firstValueFrom(this.http.post<LoginResponse>(
+      `${baseUrl}/api/v1/auth/login`,
+      request,
+      this.getPublicHttpOptions(),
+    ));
+  }
+
+  async signup(request: { sessionId: string; password: string }): Promise<AuthApiResponse> {
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(`${baseUrl}/api/v1/auth/signup`, request, this.getPublicHttpOptions()),
+    );
+  }
+
+  async verifySignupCode(sessionId: string, code: string): Promise<AuthApiResponse> {
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(
+        `${baseUrl}/api/v1/auth/verify-signup-code`,
+        { sessionId, code },
+        this.getPublicHttpOptions(),
+      ),
+    );
+  }
+
+  /** Регистрация: отправка кода на email (`sessionId` — с прошлого ответа при повторной отправке). */
+  async sendRegistrationVerificationCode(email: string, sessionId?: string | null): Promise<AuthApiResponse> {
+    const body: { email: string; sessionId?: string } = { email: email.trim() };
+    if (sessionId) {
+      body.sessionId = sessionId;
+    }
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(`${baseUrl}/api/v1/auth/send-verify-code`, body, this.getPublicHttpOptions()),
+    );
+  }
+
+  async verifyTwoFactor(code: string, tempBearerToken: string): Promise<AuthApiResponse> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${tempBearerToken}`,
+    });
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(`${baseUrl}/api/v1/auth/2fa/verify`, { code }, { headers }),
+    );
+  }
+
+  async sendRestoreCode(email: string, sessionId?: string | null): Promise<AuthApiResponse> {
+    const body: { email: string; sessionId?: string } = { email: email.trim() };
+    if (sessionId) {
+      body.sessionId = sessionId;
+    }
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(`${baseUrl}/api/v1/auth/send-restore-code`, body, this.getPublicHttpOptions()),
+    );
+  }
+
+  async verifyRestoreCode(sessionId: string, code: string): Promise<AuthApiResponse> {
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(
+        `${baseUrl}/api/v1/auth/verify-restore-code`,
+        { sessionId, code },
+        this.getPublicHttpOptions(),
+      ),
+    );
+  }
+
+  async restorePasswordWithSession(sessionId: string, password: string): Promise<AuthApiResponse> {
+    return await firstValueFrom(
+      this.http.post<AuthApiResponse>(
+        `${baseUrl}/api/v1/auth/restore-password`,
+        { sessionId, password },
+        this.getPublicHttpOptions(),
+      ),
+    );
   }
 
   async logout(): Promise<void> {
     this.updateHeaders();
     return await firstValueFrom(this.http.post<void>(`${baseUrl}/api/v1/auth/logout`, '', this.httpOptions));
-  }
-
-  async registration(request: object): Promise<User> {
-    return await firstValueFrom(this.http.post<User>(`${baseUrl}/api/v1/user/create`, request, this.httpOptions));
   }
 
   async verifyAccount(token: string): Promise<boolean> {
@@ -51,21 +128,6 @@ export class HttpService {
 
   async sendRepeatLink(): Promise<boolean> {
     return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/send-verify-link`, {}, this.httpOptions));
-  }
-
-  async changePasswordByRestore(token: string, request: object): Promise<boolean> {
-    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/change-password?token=${token}`, request, this.httpOptions));
-  }
-
-  async restorePassword(token: string): Promise<boolean> {
-    return await firstValueFrom(this.http.post<boolean>(`${baseUrl}/api/v1/user/restore-password?token=${token}`, {}, this.httpOptions));
-  }
-
-  async sendRestorePasswordLink(email: string): Promise<boolean> {
-    const q = encodeURIComponent(email);
-    return await firstValueFrom(
-      this.http.post<boolean>(`${baseUrl}/api/v1/user/send-restore-link?email=${q}`, {}, this.httpOptions),
-    );
   }
 
   async getUsers(): Promise<User[]> {

@@ -7,7 +7,8 @@
 
       <header class="auth__header">
         <h1 class="auth__title">
-          <ng-container *ngIf="!isRegistration">Вход</ng-container>
+          <ng-container *ngIf="!isRegistration && loginPhase === 'credentials'">Вход</ng-container>
+          <ng-container *ngIf="!isRegistration && loginPhase === 'twoFactor'">Двухфакторная аутентификация</ng-container>
           <ng-container *ngIf="isRegistration && registrationStep === 'profile'">
             Дополните информацию<br />
             о себе
@@ -15,7 +16,7 @@
           <ng-container *ngIf="isRegistration && registrationStep !== 'profile'">Регистрация</ng-container>
         </h1>
 
-        <p *ngIf="!isRegistration" class="auth__subtitle">
+        <p *ngIf="!isRegistration && loginPhase === 'credentials'" class="auth__subtitle">
           Еще нет аккаунта?
           <a
             href="#"
@@ -34,11 +35,11 @@
         </p>
       </header>
 
-      <div class="auth__divider" role="presentation" *ngIf="!isRegistration">
+      <div class="auth__divider" role="presentation" *ngIf="!isRegistration && loginPhase === 'credentials'">
         <span class="auth__divider-text">Выберите систему</span>
       </div>
 
-      <div class="auth__choose" role="radiogroup" aria-label="Система входа" *ngIf="!isRegistration">
+      <div class="auth__choose" role="radiogroup" aria-label="Система входа" *ngIf="!isRegistration && loginPhase === 'credentials'">
         <button
           type="button"
           class="auth__system-card"
@@ -79,7 +80,7 @@
       <div class="auth__form" (focusin)="onLoginCredentialFocus()">
         <div [formGroup]="loginForm">
           <app-email-field
-            *ngIf="!isRegistration || (isRegistration && registrationStep === 'email')"
+            *ngIf="(!isRegistration && loginPhase === 'credentials') || (isRegistration && registrationStep === 'email')"
             id="auth-login"
             label="Логин"
             [placeholder]="isRegistration && registrationStep === 'email' ? 'Введите логин' : 'Ваш логин'"
@@ -92,7 +93,7 @@
             {{ authEmailErrorMessage() }}
           </p>
 
-          <div class="auth__password-block" *ngIf="!isRegistration">
+          <div class="auth__password-block" *ngIf="!isRegistration && loginPhase === 'credentials'">
             <div class="auth__password-head">
               <span class="auth__field-label">Пароль</span>
               <a routerLink="/auth/recover" class="auth__link auth__link--small">Не помню пароль</a>
@@ -118,6 +119,26 @@
             <p *ngIf="showAuthPasswordClientError()" class="auth__field-message auth__field-message--error">
               {{ authPasswordErrorMessage() }}
             </p>
+          </div>
+
+          <div *ngIf="!isRegistration && loginPhase === 'twoFactor'" class="auth__code-step" [formGroup]="verificationCodeForm">
+            <p class="auth__instruction">
+              <span class="auth__instruction-main">Введите код из приложения-аутентификатора (2FA).</span>
+            </p>
+            <div class="auth__otp">
+              <p-inputotp
+                inputId="auth-2fa-otp"
+                formControlName="value"
+                [invalid]="isInvalid('value')"
+                [integerOnly]="true"
+                [length]="6"
+              />
+              @if (isInvalid('value') && formSubmitted) {
+                <p-message severity="error" size="small" variant="simple" styleClass="auth__otp-error">
+                  Введите 6-значный код
+                </p-message>
+              }
+            </div>
           </div>
 
           <!-- Регистрация: пароль и повтор (макет Figma) -->
@@ -300,7 +321,7 @@
       </p>
 
       <p-button
-        *ngIf="!isRegistration"
+        *ngIf="!isRegistration && loginPhase === 'credentials'"
         styleClass="auth-btn auth-btn--primary"
         class="auth__login-button w-100 btn-login"
         label="Войти"
@@ -309,6 +330,29 @@
         [loading]="loading"
         (click)="login()"
         [disabled]="loginForm.invalid"
+      />
+
+      <p-button
+        *ngIf="!isRegistration && loginPhase === 'twoFactor'"
+        styleClass="auth-btn auth-btn--primary"
+        class="auth__login-button w-100 btn-login"
+        label="Подтвердить"
+        type="button"
+        [fluid]="true"
+        [loading]="loading"
+        (click)="submitTwoFactor()"
+        [disabled]="verificationCodeForm.invalid"
+      />
+
+      <p-button
+        *ngIf="!isRegistration && loginPhase === 'twoFactor'"
+        styleClass="auth-btn auth-btn--outline"
+        class="auth__login-button w-100 btn-login"
+        label="Назад"
+        type="button"
+        [fluid]="true"
+        [disabled]="loading"
+        (click)="backFromTwoFactor()"
       />
 
       <p-button
@@ -366,6 +410,7 @@
         label="Отмена"
         type="button"
         [fluid]="true"
+        [disabled]="loading"
         (click)="cancelRegistration()"
       />
 
@@ -379,11 +424,18 @@
         (click)="skipRegistrationProfile()"
       />
 
-      <div class="auth__divider" role="presentation" *ngIf="!(isRegistration && registrationStep === 'profile')">
+      <div
+        class="auth__divider"
+        role="presentation"
+        *ngIf="!(isRegistration && registrationStep === 'profile') && (!isRegistration ? loginPhase === 'credentials' : true)"
+      >
         <span class="auth__divider-text">Или войдите с помощью</span>
       </div>
 
-      <div class="auth__fast-auth" *ngIf="!(isRegistration && registrationStep === 'profile')">
+      <div
+        class="auth__fast-auth"
+        *ngIf="!(isRegistration && registrationStep === 'profile') && (!isRegistration ? loginPhase === 'credentials' : true)"
+      >
         <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
           <span class="auth__fast-auth-icon auth__fast-auth-icon--vk" aria-hidden="true"></span>
           Вконтакте

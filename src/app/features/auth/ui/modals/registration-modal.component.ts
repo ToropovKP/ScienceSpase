@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { nationalPhoneValidator, PhoneCountryId } from '../../../../shared/lib/phone-country';
 import { Router } from '@angular/router';
-import { HttpService } from '../../../../shared/services/http.service';
-import { AuthService } from '../../../../shared/services/auth.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { passwordMatchValidator } from '../../../../shared/validators/password.match.validator';
 import { ButtonModule } from 'primeng/button';
@@ -44,7 +42,6 @@ export class RegistrationModalComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private httpService: HttpService,
     private notificationService: NotificationService,
     private router: Router
   ) {
@@ -85,48 +82,9 @@ export class RegistrationModalComponent {
     if (this.formRegistration.invalid) {
       return;
     }
-
-    this.loading = true;
-    const request = {
-      "firstName": this.formRegistration.value.firstName,
-      "lastName": this.formRegistration.value.lastName,
-      "middleName": this.formRegistration.value.middleName,
-      "countryCode": this.formRegistration.value.countryCode,
-      "phoneNumber": String(this.formRegistration.value.phoneNumber ?? ''),
-      "email": this.formRegistration.value.email,
-      "organization": this.formRegistration.value.organization,
-      "academicDegree": this.formRegistration.value.academicDegree,
-      "academicTitle": this.formRegistration.value.academicTitle,
-      "password": this.formRegistration.value.password
-    };
-
-    this.httpService.registration(request).then((data) => {
-      this.loading = false;
-      this.notificationService.showRegistrationSuccess();
-      this.userExists = false;
-      this.userBlockedReg = false;
-      this.closeModal.nativeElement.click();
-      this.showRegStatus = data;
-      
-      this.registrationSuccess.emit({
-        email: this.formRegistration.value.email,
-        password: this.formRegistration.value.password
-      });
-      
-      this.formRegistration.reset();
-      this.formRegistration.patchValue({ countryCode: 'RU' });
-    }).catch(error => {
-      this.loading = false;
-      if (error.error?.['code'] === 'USER_EXISTS') {
-        this.userExists = true;
-        this.userBlockedReg = false;
-      } else if (error.error?.['code'] === 'BANNED') {
-        this.userExists = false;
-        this.userBlockedReg = true;
-      } else {
-        this.notificationService.showServerError();
-      }
-    });
+    this.closeModal.nativeElement.click();
+    this.notificationService.showInfo('Регистрация', 'Создание аккаунта выполняется на странице входа.');
+    void this.router.navigate(['/auth']);
   }
 
   clearErrors() {

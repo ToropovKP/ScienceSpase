@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpService } from '../../../../shared/services/http.service';
+import { Router } from '@angular/router';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ButtonModule } from 'primeng/button';
 import { EmailFieldComponent } from '../forms/email-field.component';
@@ -27,8 +27,8 @@ export class RestorePasswordModalComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private httpService: HttpService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router,
   ) {
     this.initializeForm();
   }
@@ -43,28 +43,8 @@ export class RestorePasswordModalComponent {
     if (this.formRestore.invalid) {
       return;
     }
-
-    this.loading = true;
-    const email: string = this.formRestore.value.email;
-    
-    this.httpService.sendRestorePasswordLink(email).then((data) => {
-      if (data) {
-        this.notificationService.showRestorePasswordSuccess();
-        this.restoreEmailNotExist = false;
-        this.closeModal.nativeElement.click();
-      } else {
-        this.restoreEmailNotExist = true;
-      }
-      this.loading = false;
-      this.formRestore.reset();
-    }).catch((error) => {
-      this.loading = false;
-      if (error.status === 429) {
-        this.notificationService.showRestorePasswordTooManyRequests();
-      } else {
-        this.notificationService.showRestorePasswordFailed();
-      }
-    });
+    this.closeModal.nativeElement.click();
+    void this.router.navigate(['/auth/recover']);
   }
 
   clearErrors() {

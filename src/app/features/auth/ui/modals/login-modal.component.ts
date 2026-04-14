@@ -60,21 +60,41 @@ export class LoginModalComponent {
     this.httpService.login(request).then((data) => {
       this.invalidLogin = false;
       this.userBlockedLogin = false;
+      if (data.status === 'two_factor_required') {
+        this.loading = false;
+        this.notificationService.showInfo(
+          'Двухфакторная аутентификация',
+          'Откройте страницу входа в систему и введите код из приложения после пароля.',
+        );
+        return Promise.reject(new Error('2FA'));
+      }
+      const token = data.accessToken;
+      if (!token) {
+        this.loading = false;
+        this.notificationService.showServerError();
+        return Promise.reject(new Error('no token'));
+      }
       this.closeModal.nativeElement.click();
-      localStorage.setItem("token", data.access_token);
-
+      localStorage.setItem('token', token);
       return this.authService.getCurrentUser();
     }).then((user) => {
+      if (!user) {
+        return;
+      }
       this.loading = false;
       this.loginForm.reset();
       this.loginSuccess.emit();
       this.router.navigate(["/conferences"]);
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       this.loading = false;
-      if (error.error?.['code'] === 'USER_DOES_NOT_EXISTS') {
+      if (error instanceof Error && (error.message === '2FA' || error.message === 'no token')) {
+        return;
+      }
+      const err = error as { error?: { code?: string } };
+      if (err.error?.['code'] === 'USER_DOES_NOT_EXISTS') {
         this.invalidLogin = true;
         this.userBlockedLogin = false;
-      } else if (error.error?.['code'] === 'BANNED') {
+      } else if (err.error?.['code'] === 'BANNED') {
         this.invalidLogin = false;
         this.userBlockedLogin = true;
       } else {
