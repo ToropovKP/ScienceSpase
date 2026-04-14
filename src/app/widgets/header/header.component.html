@@ -47,26 +47,14 @@
 
         <!-- Оригинальные элементы справа -->
         <div class="text-end" *ngIf="!checkLogin()">
-          <button type="button" class="btn btn-outline-light me-2"
-                  data-bs-toggle="modal" data-bs-target="#windowLogIn">
-            Вход
-          </button>
-          <button type="button" class="btn btn-warning"
-                  data-bs-toggle="modal" data-bs-target="#windowRegistration">
+          <a routerLink="/auth" class="btn btn-outline-light me-2">Вход</a>
+          <a routerLink="/auth" [queryParams]="{ register: '1' }" class="btn btn-warning">
             <i class="bi bi-r-circle-fill"></i>
             <span>Регистрация</span>
-          </button>
+          </a>
         </div>
 
         <div *ngIf="checkLogin()" class="d-flex flex-column flex-md-row align-items-center gap-2">
-          <div *ngIf="!currentUser.verified" class="order-2 order-md-1">
-            <div class="text-end">
-              <span class="badge bg-danger me-md-2 mb-2 mb-md-0">
-                Неподтвержден
-              </span>
-            </div>
-          </div>
-
           <div class="dropdown order-1 order-md-2">
             <a class="dropdown-toggle text-white text-decoration-none head-text d-inline-flex align-items-center gap-2"
                data-bs-toggle="dropdown">
@@ -88,8 +76,3 @@
     </div>
   </div>
 </header>
-
-<!-- Модальные окна -->
-<app-login-modal #loginModal (loginSuccess)="refreshCurrentUser()"></app-login-modal>
-<app-registration-modal #registrationModal (registrationSuccess)="onRegistrationSuccess($event)"></app-registration-modal>
-<app-restore-password-modal></app-restore-password-modal>

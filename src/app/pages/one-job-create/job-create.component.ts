@@ -144,7 +144,7 @@ export class JobCreateComponent implements OnInit, OnDestroy {
   }
 
   private async initPage(): Promise<void> {
-    const user = await this.resolveVerifiedUser();
+    const user = await this.resolveLoggedInUser();
     if (!user) {
       await this.router.navigate(['not-found']);
       return;
@@ -195,14 +195,13 @@ export class JobCreateComponent implements OnInit, OnDestroy {
   }
 
   /** Кэш из BehaviorSubject или явный запрос — один понятный путь */
-  private async resolveVerifiedUser(): Promise<User | null> {
+  private async resolveLoggedInUser(): Promise<User | null> {
     const cached = this.authService.getUserInfo();
-    if (cached?.verified) {
+    if (cached) {
       return cached;
     }
     try {
-      const u = await this.authService.getCurrentUser();
-      return u?.verified ? u : null;
+      return await this.authService.getCurrentUser();
     } catch {
       return null;
     }
@@ -436,11 +435,6 @@ export class JobCreateComponent implements OnInit, OnDestroy {
       this.notificationService.showWarning('Отклонено', 'Необходимо выполнить вход в аккаунт');
       return;
     }
-    if (!this.currentUser.verified) {
-      this.notificationService.showWarning('Подтвердите аккаунт', 'Проверьте почту и подтвердите свой аккаунт');
-      return;
-    }
-
     this.savingJob = true;
     try {
       const id = await this.jobSubmitService.createJob({

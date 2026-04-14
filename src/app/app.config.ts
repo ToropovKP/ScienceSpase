@@ -22,8 +22,12 @@ export function initializeApp(authService: AuthService, router: Router): () => P
         } catch (error) {
           const currentPath = window.location.pathname;
           console.log(currentPath)
-          const publicPaths = ['/verify-email', '/restore-password', '/auth'];
-          if (!publicPaths.includes(currentPath)) {
+          const isPublic =
+            currentPath === '/auth' ||
+            currentPath.startsWith('/auth/') ||
+            currentPath === '/verify-email' ||
+            currentPath === '/restore-password';
+          if (!isPublic) {
             router.navigate(['']).finally(resolve);
           } else {
             resolve();

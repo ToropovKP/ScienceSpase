@@ -3,11 +3,6 @@
     <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
     <p-confirm-popup />
     <div *ngIf="profileUser" class="main">
-      <app-resend-verification-banner
-        *ngIf="showButtonsToChange() && !profileUser.verified"
-        [currentUser]="currentUser"
-      />
-
       <app-edit-profile-form
         [currentUser]="currentUser"
         [profileUser]="profileUser"
@@ -20,7 +15,9 @@
         [profileUser]="profileUser"
       />
 
-      <app-change-password-form *ngIf="showButtonsToChange()" />
+      <div *ngIf="showButtonsToChange()" class="mt-3">
+        <a routerLink="/auth/change-password" class="btn btn-outline-secondary">Сменить пароль</a>
+      </div>
 
     </div>
   </div>

@@ -204,16 +204,6 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
   }
 
   createConference() {
-    if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-      return;
-    }
-
     let sectionsDto: SectionDto[] = []
     this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
     .forEach((sectionControl) => {
@@ -300,16 +290,6 @@ export class ConferenceCreateComponent implements OnInit, OnDestroy {
   }
 
   updateConference() {
-    if (!this.currentUser.verified) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Подтвердите аккаунт',
-        detail: 'Проверьте почту и подтвердите свой аккаунт',
-        life: 3000
-      });
-      return;
-    }
-
     let sectionsDto: SectionDto[] = []
     this.sections.controls.filter((sectionControl) => sectionControl.get('title')?.value !== '')
     .forEach((sectionControl) => {

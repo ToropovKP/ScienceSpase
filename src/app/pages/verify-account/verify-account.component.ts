@@ -1,107 +1,55 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {User} from "../../entities/user/model/user";
-import {ActivatedRoute} from "@angular/router";
-import {HttpService} from "../../shared/services/http.service";
-import {map, Subject, takeUntil} from "rxjs";
-import {CommonModule} from "@angular/common";
-import {AuthService} from "../../shared/services/auth.service";
-import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
-import {filter} from "rxjs/operators";
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { HttpService } from '../../shared/services/http.service';
+import { AuthService } from '../../shared/services/auth.service';
 
+/** Ссылка из письма `/verify-email?token=…` — подтверждение и переход в каталог. */
 @Component({
   selector: 'app-verify',
   templateUrl: './verify-account.component.html',
-  styleUrls: ['./verify-account.component.css'],
+  styleUrl: './verify-account.component.css',
   imports: [CommonModule, ToastModule],
-  providers: [MessageService]
+  providers: [MessageService],
 })
-export class VerifyAccountComponent implements OnInit, OnDestroy {
-
-  currentUser!: User;
-  verified: boolean = false;
-
-  constructor(private route: ActivatedRoute,
-              private httpService: HttpService,
-              private messageService: MessageService,
-              private authService: AuthService) {
-  }
-
-  private destroy$ = new Subject<void>();
+export class VerifyAccountComponent implements OnInit {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private httpService: HttpService,
+    private messageService: MessageService,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$
-    .pipe(
-        takeUntil(this.destroy$),
-        filter(() => this.route.snapshot.component != null) // Проверка активности
-    )
-    .subscribe((user) => {
-      if (user) {
-        this.currentUser = user;
-      }
-    });
-    this.loadAllData()
-  }
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (!token) {
+      void this.router.navigate(['/conferences']);
+      return;
+    }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadAllData() {
-    this.route.queryParams.pipe(map(e => e['token'])).subscribe(e => {
-      let token: string = e;
-      this.httpService.verifyAccount(token).then((data) => {
-        if (data) {
-          this.verified = true;
-        }
-        return this.authService.getCurrentUser();
-      }).then((user) => {
-        if (user) {
-          this.verified = user.verified;
-          this.currentUser = user;
-        }
-      }).catch(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Возникла непредвиденная ошибка',
-          detail: 'Ошибка на стороне сервера',
-          life: 3000
-        });
-      });
-    })
-  }
-
-  sendRepeatLink() {
-    this.httpService.sendRepeatLink().then((data) => {
-      if (data) {
+    this.httpService
+      .verifyAccount(token)
+      .then(() => this.authService.getCurrentUser())
+      .then(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Успешно',
-          detail: 'Письмо отправлено',
-          life: 3000
+          summary: 'Готово',
+          detail: 'Почта подтверждена.',
+          life: 4000,
         });
-        return null;
-      } else {
+        void this.router.navigate(['/conferences']);
+      })
+      .catch(() => {
         this.messageService.add({
-          severity: 'warn',
+          severity: 'error',
           summary: 'Ошибка',
-          detail: 'Ваш аккаунт уже подтвержден',
-          life: 3000
+          detail: 'Не удалось подтвердить почту. Ссылка могла устареть.',
+          life: 5000,
         });
-        return this.authService.getCurrentUser();
-      }
-    }).then((user) => {
-      if (user) {
-        this.currentUser = user;
-      }
-    }).catch(error => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Возникла непредвиденная ошибка',
-        detail: 'Не удалось отправить письмо',
-        life: 3000
+        void this.router.navigate(['/conferences']);
       });
-    });
   }
 }

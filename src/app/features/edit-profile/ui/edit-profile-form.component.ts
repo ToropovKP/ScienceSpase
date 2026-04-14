@@ -10,7 +10,11 @@ import { HttpService } from '../../../shared/services/http.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { NumbersOnlyDirective } from '../../../shared/lib/directives/numbers-only.directive';
 import { PhoneFieldComponent } from '../../auth/ui/forms/phone-field.component';
-import { parseUserPhone, PhoneCountryId } from '../../../shared/lib/phone-country';
+import {
+  nationalPhoneValidator,
+  parseUserPhone,
+  PhoneCountryId,
+} from '../../../shared/lib/phone-country';
 
 @Component({
   selector: 'app-edit-profile-form',
@@ -48,7 +52,7 @@ export class EditProfileFormComponent implements OnChanges {
       lastName: new FormControl('', Validators.required),
       middleName: new FormControl(''),
       phoneCountry: new FormControl<PhoneCountryId>('RU', { nonNullable: true }),
-      phone: new FormControl('', Validators.required),
+      phone: new FormControl(''),
       email: new FormControl('', Validators.required),
       organization: new FormControl(''),
       academicDegree: new FormControl(''),
@@ -60,6 +64,10 @@ export class EditProfileFormComponent implements OnChanges {
     this.formProfile.valueChanges.subscribe(() => {
       this.showActionButtons = this.formProfile.dirty;
       this.dirtyChange.emit(this.showActionButtons);
+    });
+
+    this.formProfile.get('phoneCountry')?.valueChanges.subscribe(() => {
+      this.phoneControl.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -83,6 +91,7 @@ export class EditProfileFormComponent implements OnChanges {
         orcId: this.profileUser.orcId,
         rincId: this.profileUser.rincId
       }, { emitEvent: false });
+      this.applyPhoneValidators();
       this.formProfile.markAsPristine();
       this.showActionButtons = false;
       this.originalProfileData = { ...this.formProfile.value };
@@ -92,6 +101,27 @@ export class EditProfileFormComponent implements OnChanges {
 
   get canEditProfile(): boolean {
     return this.profileUser && this.currentUser && this.profileUser.id === this.currentUser.id;
+  }
+
+  /** На сервере уже сохранён номер — повторно менять нельзя. */
+  get phoneLocked(): boolean {
+    if (!this.canEditProfile) {
+      return true;
+    }
+    const pn = (this.profileUser?.phoneNumber ?? '').replace(/\D/g, '');
+    const legacy = (this.profileUser?.phone ?? '').replace(/\D/g, '');
+    return pn.length > 0 || legacy.length > 0;
+  }
+
+  private applyPhoneValidators(): void {
+    if (this.phoneLocked) {
+      this.phoneControl.clearValidators();
+    } else {
+      this.phoneControl.setValidators([
+        nationalPhoneValidator(() => this.phoneCountryControl.value),
+      ]);
+    }
+    this.phoneControl.updateValueAndValidity({ emitEvent: false });
   }
 
   get phoneControl(): FormControl {
@@ -112,7 +142,7 @@ export class EditProfileFormComponent implements OnChanges {
   async saveProfile() {
     if (this.formProfile.invalid) return;
 
-    const requestUser = {
+    const requestUser: Record<string, unknown> = {
       firstName: this.formProfile.value.firstName,
       lastName: this.formProfile.value.lastName,
       middleName: this.formProfile.value.middleName,
@@ -120,8 +150,16 @@ export class EditProfileFormComponent implements OnChanges {
       academicDegree: this.formProfile.value.academicDegree,
       academicTitle: this.formProfile.value.academicTitle,
       orcId: this.formProfile.value.orcId?.toUpperCase(),
-      rincId: this.formProfile.value.rincId
+      rincId: this.formProfile.value.rincId,
     };
+
+    if (!this.phoneLocked) {
+      const national = String(this.formProfile.value.phone ?? '').replace(/\D/g, '');
+      if (national) {
+        requestUser['countryCode'] = this.formProfile.value.phoneCountry;
+        requestUser['phoneNumber'] = national;
+      }
+    }
 
     try {
       await this.httpService.updateUserInfo(requestUser);

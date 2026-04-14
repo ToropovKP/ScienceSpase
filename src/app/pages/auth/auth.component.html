@@ -1,4 +1,4 @@
-<section class="auth" (keyup.enter)="onAuthEnter()">
+<section class="auth" (keydown.enter)="onAuthFormKeydownEnter($event)">
   <div class="auth__col auth__col--gutter" aria-hidden="true"></div>
 
   <div class="auth__col auth__col--main">
@@ -82,8 +82,8 @@
           <app-email-field
             *ngIf="(!isRegistration && loginPhase === 'credentials') || (isRegistration && registrationStep === 'email')"
             id="auth-login"
-            label="Логин"
-            [placeholder]="isRegistration && registrationStep === 'email' ? 'Введите логин' : 'Ваш логин'"
+            label="Почта"
+            [placeholder]="isRegistration && registrationStep === 'email' ? 'Введите почту' : 'Введите почту'"
             [required]="true"
             [control]="emailControl"
             [highlightError]="!isRegistration && invalidLogin"
@@ -111,7 +111,7 @@
             />
 
             <p *ngIf="invalidLogin" class="auth__field-message auth__field-message--error">
-              Введен неверный логин или пароль. Попробуйте еще раз
+              Неверная почта или пароль. Попробуйте ещё раз
             </p>
             <p *ngIf="userBlockedLogin" class="auth__field-message auth__field-message--error">
               Пользователь заблокирован
@@ -125,7 +125,7 @@
             <p class="auth__instruction">
               <span class="auth__instruction-main">Введите код из приложения-аутентификатора (2FA).</span>
             </p>
-            <div class="auth__otp">
+            <div class="auth__otp" #twoFactorOtpWrap>
               <p-inputotp
                 inputId="auth-2fa-otp"
                 formControlName="value"
@@ -141,64 +141,15 @@
             </div>
           </div>
 
-          <!-- Регистрация: пароль и повтор (макет Figma) -->
-          <div *ngIf="isRegistration && registrationStep === 'password'" class="auth__password-step">
-            <div class="auth__password-field">
-              <span class="auth__field-label auth__field-label--block">Пароль</span>
-              <app-password-field
-                id="auth-reg-password"
-                inputId="auth-reg-password-input"
-                label="Пароль"
-                placeholder="Введите пароль"
-                [hideLabel]="true"
-                [required]="true"
-                [control]="passwordControl"
-                [feedback]="true"
-              />
-              <p class="auth__password-hint">
-                Пароль должен содержать не менее 8 символов, включающих буквы верхнего и нижнего регистра и специальные символы
-              </p>
-              <p *ngIf="showPasswordHintError()" class="auth__field-error">
-                <span *ngIf="passwordControl.hasError('required')">Введите пароль</span>
-                <span *ngIf="passwordControl.hasError('minlength')">Минимум 8 символов</span>
-                <span *ngIf="passwordControl.hasError('pattern')">Требуются верхний и нижний регистр и спецсимвол</span>
-              </p>
-            </div>
-
-            <div class="auth__password-field">
-              <span class="auth__field-label auth__field-label--block">Повторите пароль</span>
-              <app-password-field
-                id="auth-reg-password-2"
-                inputId="auth-reg-password-2-input"
-                label="Повторите пароль"
-                placeholder="Повторите пароль"
-                [hideLabel]="true"
-                [required]="true"
-                [control]="passwordConfirmControl"
-                [feedback]="false"
-              />
-              <p *ngIf="showPasswordConfirmError()" class="auth__field-error">
-                <span *ngIf="passwordConfirmControl.hasError('required')">Подтвердите пароль</span>
-                <span *ngIf="passwordConfirmControl.hasError('mismatch')">Пароли не совпадают</span>
-              </p>
-            </div>
-
-            <label class="auth__terms">
-              <input
-                type="checkbox"
-                class="auth__terms-input"
-                [formControl]="acceptTermsControl"
-              />
-              <span class="auth__terms-text">
-                Я принимаю условия
-                <a href="#" class="auth__link" (click)="$event.preventDefault()">политики конфиденциальности</a>
-                и даю согласие на обработку моих персональных данных
-              </span>
-            </label>
-            <p *ngIf="showAcceptTermsError()" class="auth__field-error auth__field-error--terms">
-              Необходимо принять условия
-            </p>
-          </div>
+          <!-- Регистрация: пароль и повтор (features/auth — PasswordWithConfirmForm, variant registration) -->
+          <app-password-with-confirm-form
+            *ngIf="isRegistration && registrationStep === 'password'"
+            variant="registration"
+            idPrefix="auth-reg"
+            [passwordControl]="passwordControl"
+            [confirmPasswordControl]="passwordConfirmControl"
+            [acceptTermsControl]="acceptTermsControl"
+          />
 
           <div *ngIf="isRegistration && registrationStep === 'profile'" class="auth__profile-step">
             <div class="auth__profile-field">
@@ -387,7 +338,7 @@
         type="button"
         [fluid]="true"
         [loading]="loading"
-        (click)="submitPasswordStep()"
+        (click)="completePasswordAndSignup()"
         [disabled]="loading || passwordControl.invalid || passwordConfirmControl.invalid || acceptTermsControl.invalid"
       />
 
@@ -400,7 +351,7 @@
         [fluid]="true"
         [loading]="loading"
         (click)="submitRegistration()"
-        [disabled]="loading || lastNameControl.invalid || firstNameControl.invalid || phoneControl.invalid"
+        [disabled]="profileStepDisabled()"
       />
 
       <p-button

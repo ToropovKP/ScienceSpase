@@ -13,5 +13,7 @@
     class="auth-form-field__input w-100"
     [fluid]="true"
     [ngClass]="{ 'auth-field-input--error': showErrorVisual() }"
+    (input)="control.updateValueAndValidity()"
+    (animationstart)="onEmailAutofillAnimation($event)"
   />
 </div>

@@ -52,10 +52,6 @@ export class NotificationService {
     this.showWarning('Отклонено', 'Необходимо выполнить вход в аккаунт');
   }
 
-  showAccountNotVerified() {
-    this.showWarning('Подтвердите аккаунт', 'Проверьте почту и подтвердите свой аккаунт');
-  }
-
   showRegistrationSuccess() {
     this.showSuccess('Регистрация прошла успешно', 'На вашу почту отправлено письмо с подтверждением');
   }

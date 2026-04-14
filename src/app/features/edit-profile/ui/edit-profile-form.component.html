@@ -62,11 +62,17 @@
               label="Телефон"
               [control]="phoneControl"
               [countryControl]="phoneCountryControl"
-              [readonly]="true"
+              [readonly]="phoneLocked"
+              [showCountrySelector]="!phoneLocked"
               labelClass="block text-sm font-medium text-h1-accent mb-1"
               inputClass="w-full px-4 py-2 border border-accent rounded-lg"
             />
-            <small class="text-text-secondary-color text-xs mt-1 block">Для изменения телефона обратитесь в поддержку</small>
+            <small class="text-text-secondary-color text-xs mt-1 block" *ngIf="phoneLocked">
+              Номер сохранён; изменить его можно только через поддержку
+            </small>
+            <small class="text-text-secondary-color text-xs mt-1 block" *ngIf="!phoneLocked">
+              Номер можно указать один раз при сохранении профиля
+            </small>
           </div>
           <div>
             <label class="block text-sm font-medium text-h1-accent mb-1">Почта</label>

@@ -26,5 +26,12 @@ export class EmailFieldComponent {
   showErrorVisual(): boolean {
     return this.hasError() || this.highlightError;
   }
+
+  /** Chrome подставляет почту без события input — ловим по анимации :-webkit-autofill. */
+  onEmailAutofillAnimation(event: AnimationEvent): void {
+    if (event.animationName === 'onAutoFillStart' || event.animationName === 'mui-auto-fill') {
+      queueMicrotask(() => this.control.updateValueAndValidity());
+    }
+  }
 }
 

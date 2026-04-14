@@ -1,6 +1,6 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ReactiveFormsModule} from "@angular/forms";
-import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
+import {ActivatedRoute, NavigationStart, Router, RouterLink} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../../entities/user/model/user";
 import {HttpService} from "../../shared/services/http.service";
@@ -10,16 +10,14 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ToastModule} from "primeng/toast";
 import {filter} from "rxjs/operators";
-import {ChangePasswordFormComponent} from "../../features/change-password/ui/change-password-form.component";
 import {EditProfileFormComponent} from "../../features/edit-profile/ui/edit-profile-form.component";
 import {ManageUserAccessActionsComponent} from "../../features/manage-user-access/ui/manage-user-access-actions.component";
-import {ResendVerificationBannerComponent} from "../../features/resend-verification/ui/resend-verification-banner.component";
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, ConfirmPopupModule, ToastModule, ChangePasswordFormComponent, EditProfileFormComponent, ManageUserAccessActionsComponent, ResendVerificationBannerComponent],
+  imports: [ReactiveFormsModule, CommonModule, ConfirmPopupModule, ToastModule, RouterLink, EditProfileFormComponent, ManageUserAccessActionsComponent],
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

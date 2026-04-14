@@ -1,4 +1,12 @@
-import { Component, DestroyRef, ElementRef, inject, OnDestroy, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import {
@@ -12,7 +20,8 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { HttpService } from '../../shared/services/http.service';
@@ -27,14 +36,22 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { nationalPhoneValidator, PhoneCountryId } from '../../shared/lib/phone-country';
 import { accessTokenFromAuthResponse } from '../../shared/lib/auth-token';
+import { PasswordWithConfirmFormComponent, REGISTRATION_PASSWORD_PATTERN } from '../../features/auth';
 
 type AuthSystem = 'podium' | 'forum';
 type RegistrationStep = 'email' | 'code' | 'password' | 'profile';
 type LoginPhase = 'credentials' | 'twoFactor';
 
-/** Не менее 8 символов, верхний и нижний регистр, спецсимвол (макет). */
-const REGISTRATION_PASSWORD_PATTERN =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+/** Если поле не пустое — минимальная длина (для опционального шага профиля). */
+function optionalMinLength(min: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const v = String(control.value ?? '').trim();
+    if (!v) {
+      return null;
+    }
+    return v.length < min ? { minlength: { requiredLength: min, actualLength: v.length } } : null;
+  };
+}
 
 @Component({
   selector: 'app-auth',
@@ -46,6 +63,7 @@ const REGISTRATION_PASSWORD_PATTERN =
     ButtonModule,
     EmailFieldComponent,
     PasswordFieldComponent,
+    PasswordWithConfirmFormComponent,
     PhoneFieldComponent,
     InputOtpModule,
     FormsModule,
@@ -56,9 +74,11 @@ const REGISTRATION_PASSWORD_PATTERN =
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
 })
-export class AuthComponent implements OnDestroy {
+export class AuthComponent implements OnInit, OnDestroy {
   @ViewChild('authOtpWrap', { read: ElementRef }) private authOtpWrap?: ElementRef<HTMLElement>;
+  @ViewChild('twoFactorOtpWrap', { read: ElementRef }) private twoFactorOtpWrap?: ElementRef<HTMLElement>;
 
+  /** Выбор на экране входа; после успешной аутентификации сохраняется в `localStorage` (ключ `authPreferredSystem`). */
   selectedSystem: AuthSystem = 'forum';
   loginForm!: FormGroup;
   verificationCodeForm!: FormGroup;
@@ -74,7 +94,7 @@ export class AuthComponent implements OnDestroy {
   private twoFactorTempToken: string | null = null;
   loading = false;
   isRegistration = false;
-  /** Поток регистрации: email → код (отправка через API) → пароль → профиль */
+  /** Регистрация: email → код → пароль → signup → опционально профиль */
   registrationStep: RegistrationStep = 'email';
   /** Сессия OTP с бэкенда (нужна для повторной отправки кода). */
   private registrationSessionId: string | null = null;
@@ -104,10 +124,11 @@ export class AuthComponent implements OnDestroy {
     private authService: AuthService,
     private notificationService: NotificationService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.loginForm = this.formBuilder.group({
-      email: new FormControl('', { validators: [Validators.required, Validators.email], updateOn: 'blur' }),
-      password: new FormControl('', { validators: [Validators.required, Validators.minLength(8)], updateOn: 'blur' }),
+      email: new FormControl('', { validators: [Validators.required, Validators.email] }),
+      password: new FormControl('', { validators: [Validators.required, Validators.minLength(8)] }),
       code: new FormControl(''),
       passwordConfirm: new FormControl('', { updateOn: 'blur' }),
       acceptTerms: new FormControl(false),
@@ -125,7 +146,9 @@ export class AuthComponent implements OnDestroy {
     this.verificationCodeForm
       .get('value')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => queueMicrotask(() => this.syncAuthOtpFilledCellClasses()));
+      .subscribe(() => {
+        queueMicrotask(() => this.syncAuthOtpFilledCellClasses());
+      });
 
     this.phoneCountryControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -133,16 +156,32 @@ export class AuthComponent implements OnDestroy {
         this.phoneControl.updateValueAndValidity({ emitEvent: false });
       });
 
-    this.passwordControl.valueChanges.subscribe(() => {
-      this.passwordConfirmControl.updateValueAndValidity({ emitEvent: false });
-      if (!this.isRegistration) {
-        this.invalidLogin = false;
-      }
-    });
+    this.passwordControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.passwordConfirmControl.updateValueAndValidity({ emitEvent: false });
+        if (!this.isRegistration) {
+          this.invalidLogin = false;
+        }
+      });
 
-    this.emailControl.valueChanges.subscribe(() => {
-      if (!this.isRegistration) {
-        this.invalidLogin = false;
+    this.emailControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (!this.isRegistration) {
+          this.invalidLogin = false;
+        }
+      });
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.pipe(take(1)).subscribe((params) => {
+      const reg = params['register'];
+      if (reg === '1' || reg === 'true') {
+        if (!this.isRegistration) {
+          this.switchRegistration();
+        }
+        void this.router.navigate([], { relativeTo: this.route, replaceUrl: true, queryParams: {} });
       }
     });
   }
@@ -167,10 +206,10 @@ export class AuthComponent implements OnDestroy {
         void this.requestEmail();
         break;
       case 'code':
-        this.submitCode();
+        void this.submitCode();
         break;
       case 'password':
-        this.submitPasswordStep();
+        void this.completePasswordAndSignup();
         break;
       case 'profile':
         void this.submitRegistration();
@@ -188,6 +227,11 @@ export class AuthComponent implements OnDestroy {
   }
 
   switchRegistration(): void {
+    if (this.isRegistration && this.registrationStep === 'profile' && localStorage.getItem('token')) {
+      void this.router.navigate(['/conferences']);
+      this.resetAfterSuccessfulRegistration();
+      return;
+    }
     this.isRegistration = !this.isRegistration;
     this.registrationStep = 'email';
     this.loginPhase = 'credentials';
@@ -200,7 +244,6 @@ export class AuthComponent implements OnDestroy {
     this.formSubmitted = false;
     this.clearResendCooldown();
     this.resendSecondsRemaining = 0;
-    this.verificationCodeForm.reset({ value: '' });
     this.clearRegistrationPasswordFields();
     this.clearRegistrationProfileFields();
     this.registrationSessionId = null;
@@ -262,6 +305,7 @@ export class AuthComponent implements OnDestroy {
       const token = accessTokenFromAuthResponse(data);
       if (data.status === 'authenticated' && token) {
         localStorage.setItem('token', token);
+        this.persistPreferredSystem();
         await this.authService.getCurrentUser();
         this.loginForm.reset();
         await this.router.navigate(['/conferences']);
@@ -301,6 +345,7 @@ export class AuthComponent implements OnDestroy {
       const token = accessTokenFromAuthResponse(data);
       if (data.status === 'authenticated' && token) {
         localStorage.setItem('token', token);
+        this.persistPreferredSystem();
         this.twoFactorTempToken = null;
         this.loginPhase = 'credentials';
         await this.authService.getCurrentUser();
@@ -430,50 +475,24 @@ export class AuthComponent implements OnDestroy {
     }
   }
 
-  submitPasswordStep(): void {
+  /** После паролей — создание учётной записи (signup), затем опциональный шаг профиля. */
+  async completePasswordAndSignup(): Promise<void> {
     this.passwordControl.markAsTouched();
     this.passwordConfirmControl.markAsTouched();
     this.acceptTermsControl.markAsTouched();
     if (this.passwordControl.invalid || this.passwordConfirmControl.invalid || this.acceptTermsControl.invalid) {
       return;
     }
-    this.registrationStep = 'profile';
-    this.applyRegistrationProfileValidators();
-  }
-
-  async submitRegistration(): Promise<void> {
-    this.lastNameControl.markAsTouched();
-    this.firstNameControl.markAsTouched();
-    this.phoneControl.markAsTouched();
-
-    if (this.lastNameControl.invalid || this.firstNameControl.invalid || this.phoneControl.invalid) {
+    if (!this.registrationSessionId) {
+      this.notificationService.showServerError();
       return;
     }
-    await this.registerOnServer();
-  }
 
-  /** Выход из мастера регистрации без создания учётной записи (бэкенд требует ФИО и телефон). */
-  skipRegistrationProfile(): void {
-    this.switchRegistration();
-    this.notificationService.showInfo(
-      'Регистрация не завершена',
-      'Вы можете создать аккаунт позже.',
-    );
-  }
-
-  private async registerOnServer(): Promise<void> {
     this.loading = true;
     try {
-      const email = String(this.emailControl.value ?? '').trim();
-      const password = this.passwordControl.value as string;
-      if (!this.registrationSessionId) {
-        this.notificationService.showServerError();
-        return;
-      }
-
       const signupRes = await this.httpService.signup({
         sessionId: this.registrationSessionId,
-        password,
+        password: this.passwordControl.value as string,
       });
       const token = accessTokenFromAuthResponse(signupRes);
       if (!token) {
@@ -482,35 +501,103 @@ export class AuthComponent implements OnDestroy {
       }
       localStorage.setItem('token', token);
       await this.authService.getCurrentUser();
-
-      try {
-        await this.httpService.updateUserInfo({
-          firstName: String(this.firstNameControl.value ?? '').trim(),
-          lastName: String(this.lastNameControl.value ?? '').trim(),
-          middleName: String(this.middleNameControl.value ?? '').trim(),
-          countryCode: this.phoneCountryControl.value,
-          phoneNumber: String(this.phoneControl.value ?? '').replace(/\D/g, ''),
-          organization: '',
-          academicDegree: '',
-          academicTitle: '',
-          orcId: '',
-          rincId: '',
-        });
-        await this.authService.getCurrentUser();
-        this.notificationService.showSuccess('Регистрация', 'Аккаунт создан, данные профиля сохранены.');
-      } catch {
-        this.notificationService.showWarning(
-          'Профиль',
-          'Аккаунт создан. Заполните ФИО и телефон в разделе профиля.',
-        );
-      }
-      await this.router.navigate(['/conferences']);
-      this.resetAfterSuccessfulRegistration();
+      this.registrationSessionId = null;
+      this.registrationStep = 'profile';
+      this.applyRegistrationProfileValidators();
+      this.notificationService.showSuccess(
+        'Регистрация',
+        'Аккаунт создан. При желании заполните данные ниже или нажмите «Пропустить».',
+      );
     } catch (error: unknown) {
       this.handleRegistrationError(error);
     } finally {
       this.loading = false;
     }
+  }
+
+  async submitRegistration(): Promise<void> {
+    this.formSubmitted = true;
+    this.lastNameControl.markAsTouched();
+    this.firstNameControl.markAsTouched();
+    this.phoneControl.markAsTouched();
+
+    const fn = String(this.firstNameControl.value ?? '').trim();
+    const ln = String(this.lastNameControl.value ?? '').trim();
+    const mn = String(this.middleNameControl.value ?? '').trim();
+    const phoneDigits = String(this.phoneControl.value ?? '').replace(/\D/g, '');
+
+    if ((fn && !ln) || (!fn && ln)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Профиль',
+        detail: 'Укажите и имя, и фамилию (или оставьте оба поля пустыми).',
+        life: 5000,
+      });
+      return;
+    }
+
+    if (this.firstNameControl.invalid || this.lastNameControl.invalid || this.phoneControl.invalid) {
+      return;
+    }
+
+    const hasProfileData = !!(fn || ln || mn || phoneDigits);
+    if (!hasProfileData) {
+      await this.router.navigate(['/conferences']);
+      this.resetAfterSuccessfulRegistration();
+      return;
+    }
+
+    this.loading = true;
+    try {
+      await this.httpService.updateUserInfo({
+        firstName: fn,
+        lastName: ln,
+        middleName: mn,
+        countryCode: this.phoneCountryControl.value,
+        phoneNumber: phoneDigits,
+        organization: '',
+        academicDegree: '',
+        academicTitle: '',
+        orcId: '',
+        rincId: '',
+      });
+      await this.authService.getCurrentUser();
+      this.notificationService.showSuccess('Профиль', 'Данные сохранены.');
+      await this.router.navigate(['/conferences']);
+      this.resetAfterSuccessfulRegistration();
+    } catch {
+      this.notificationService.showWarning(
+        'Профиль',
+        'Не удалось сохранить данные. Вы можете заполнить профиль позже.',
+      );
+      await this.router.navigate(['/conferences']);
+      this.resetAfterSuccessfulRegistration();
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  /** Пропуск опционального шага — пользователь уже зарегистрирован. */
+  skipRegistrationProfile(): void {
+    void this.router.navigate(['/conferences']);
+    this.resetAfterSuccessfulRegistration();
+    this.notificationService.showInfo('Профиль', 'Данные можно заполнить позже в разделе «Профиль».');
+  }
+
+  /** Кнопка «Начать работу»: пустой профиль или валидные поля. */
+  profileStepDisabled(): boolean {
+    if (this.loading) {
+      return true;
+    }
+    const fn = String(this.firstNameControl.value ?? '').trim();
+    const ln = String(this.lastNameControl.value ?? '').trim();
+    if ((fn && !ln) || (!fn && ln)) {
+      return true;
+    }
+    if (this.firstNameControl.invalid || this.lastNameControl.invalid || this.phoneControl.invalid) {
+      return true;
+    }
+    return false;
   }
 
   private resetAfterSuccessfulRegistration(): void {
@@ -566,7 +653,7 @@ export class AuthComponent implements OnDestroy {
     if (this.resendSecondsRemaining > 0 || this.loading) {
       return;
     }
-    this.requestEmail();
+    void this.requestEmail();
   }
 
   private applyRegistrationPasswordValidators(): void {
@@ -592,13 +679,10 @@ export class AuthComponent implements OnDestroy {
   }
 
   private applyRegistrationProfileValidators(): void {
-    this.lastNameControl.setValidators([Validators.required, Validators.minLength(2)]);
-    this.firstNameControl.setValidators([Validators.required, Validators.minLength(2)]);
+    this.lastNameControl.setValidators([optionalMinLength(2)]);
+    this.firstNameControl.setValidators([optionalMinLength(2)]);
     this.middleNameControl.clearValidators();
-    this.phoneControl.setValidators([
-      Validators.required,
-      nationalPhoneValidator(() => this.phoneCountryControl.value),
-    ]);
+    this.phoneControl.setValidators([nationalPhoneValidator(() => this.phoneCountryControl.value)]);
     this.lastNameControl.updateValueAndValidity();
     this.firstNameControl.updateValueAndValidity();
     this.middleNameControl.updateValueAndValidity();
@@ -650,8 +734,23 @@ export class AuthComponent implements OnDestroy {
     return this.otpServerInvalid || this.isInvalid('value');
   }
 
+  private getOtpDigits(): string {
+    return String(this.verificationCodeForm.get('value')?.value ?? '').replace(/\D/g, '');
+  }
+
+  /** Активный блок OTP: 2FA или код регистрации (в DOM только один). */
+  private getActiveOtpWrap(): HTMLElement | undefined {
+    if (this.loginPhase === 'twoFactor') {
+      return this.twoFactorOtpWrap?.nativeElement;
+    }
+    if (this.isRegistration && this.registrationStep === 'code') {
+      return this.authOtpWrap?.nativeElement;
+    }
+    return undefined;
+  }
+
   private syncAuthOtpFilledCellClasses(): void {
-    const root = this.authOtpWrap?.nativeElement;
+    const root = this.getActiveOtpWrap();
     if (!root) {
       return;
     }
@@ -660,12 +759,21 @@ export class AuthComponent implements OnDestroy {
       return;
     }
     const inputs = otpHost.querySelectorAll<HTMLInputElement>('input');
-    const raw = String(this.verificationCodeForm.get('value')?.value ?? '');
+    const raw = this.getOtpDigits();
     inputs.forEach((el, i) => {
       const ch = raw[i];
       const filled = !!ch && ch.trim() !== '';
       el.classList.toggle('auth__otp-cell--filled', filled);
     });
+  }
+
+  /** Сохраняет выбранную на экране входа систему для клиентской логики (бэкенд login принимает только email/password). */
+  private persistPreferredSystem(): void {
+    try {
+      localStorage.setItem('authPreferredSystem', this.selectedSystem);
+    } catch {
+      /* ignore quota / private mode */
+    }
   }
 
   backToEmailStep(): void {
@@ -721,21 +829,6 @@ export class AuthComponent implements OnDestroy {
     return this.loginForm.get('phoneNumber') as FormControl;
   }
 
-  showPasswordHintError(): boolean {
-    const c = this.passwordControl;
-    return !!(c.invalid && c.touched);
-  }
-
-  showPasswordConfirmError(): boolean {
-    const c = this.passwordConfirmControl;
-    return !!(c.invalid && c.touched);
-  }
-
-  showAcceptTermsError(): boolean {
-    const c = this.acceptTermsControl;
-    return !!(c.invalid && c.touched);
-  }
-
   /** Ошибки логина (клиент): после blur, без подсветки при ошибке сервера «неверный пароль». */
   showAuthEmailClientError(): boolean {
     const c = this.emailControl;
@@ -754,12 +847,25 @@ export class AuthComponent implements OnDestroy {
   authEmailErrorMessage(): string {
     const c = this.emailControl;
     if (c.hasError('required')) {
-      return 'Введите логин';
+      return 'Введите почту';
     }
     if (c.hasError('email')) {
-      return 'Введен некорректный логин: логин должен содержать символ «@», например alex_fedorov@gmail.com';
+      return 'Укажите корректную почту: нужен символ «@», например alex_fedorov@gmail.com';
     }
     return '';
+  }
+
+  onAuthFormKeydownEnter(event: Event): void {
+    const ke = event as KeyboardEvent;
+    if (ke.key !== 'Enter') {
+      return;
+    }
+    const target = ke.target as HTMLElement | null;
+    if (target?.closest('a[href], textarea')) {
+      return;
+    }
+    ke.preventDefault();
+    void this.onAuthEnter();
   }
 
   /** Ошибки пароля на входе (клиент), после blur. */

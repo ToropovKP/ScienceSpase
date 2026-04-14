@@ -11,6 +11,8 @@ import {UsersComponent} from "./pages/all-users/users.component";
 import {ProfileComponent} from "./pages/profile/profile.component";
 import {VerifyAccountComponent} from "./pages/verify-account/verify-account.component";
 import {RestorePasswordComponent} from "./pages/restore-account/restore-password.component";
+import {AuthSetPasswordComponent} from "./pages/auth/auth-set-password.component";
+import {AuthChangePasswordComponent} from "./pages/auth/auth-change-password.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {JobCreateComponent} from "./pages/one-job-create/job-create.component";
 import {AuthComponent} from "./pages/auth/auth.component";
@@ -98,6 +100,8 @@ export const appRoutes: Routes = [
     children: [
       { path: '', component: AuthComponent },
       { path: 'recover', component: AuthRecoverPasswordComponent },
+      { path: 'set-password', component: AuthSetPasswordComponent },
+      { path: 'change-password', component: AuthChangePasswordComponent },
     ]
   },
   {

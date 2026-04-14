@@ -6,7 +6,7 @@ import { User } from '../../entities/user/model/user';
 
 export interface AuthCheckResult {
   canProceed: boolean;
-  reason?: 'not_logged_in' | 'not_verified';
+  reason?: 'not_logged_in';
 }
 
 @Injectable({
@@ -24,11 +24,6 @@ export class AuthGuardService {
     if (!user) {
       this.notificationService.showLoginRequired();
       return { canProceed: false, reason: 'not_logged_in' };
-    }
-
-    if (!user.verified) {
-      this.notificationService.showAccountNotVerified();
-      return { canProceed: false, reason: 'not_verified' };
     }
 
     return { canProceed: true };

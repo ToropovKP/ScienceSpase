@@ -145,10 +145,10 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
 
   recoverEmailErrorMessage(): string {
     if (this.emailControl.hasError('required')) {
-      return 'Введите логин';
+      return 'Введите почту';
     }
     if (this.emailControl.hasError('email')) {
-      return 'Введен некорректный логин: логин должен содержать символ «@», например alex_fedorov@gmail.com';
+      return 'Укажите корректную почту: нужен символ «@», например alex_fedorov@gmail.com';
     }
     return '';
   }
@@ -235,7 +235,7 @@ export class AuthRecoverPasswordComponent implements OnDestroy {
     this.otpServerInvalid = false;
     try {
       await this.httpService.verifyRestoreCode(this.restoreSessionId, code);
-      await this.router.navigate(['/restore-password'], {
+      await this.router.navigate(['/auth/set-password'], {
         queryParams: { sessionId: this.restoreSessionId },
       });
     } catch {

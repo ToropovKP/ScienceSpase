@@ -14,5 +14,4 @@ export interface User {
   rincId: string;
   role: string;
   status: string;
-  verified: boolean;
 }
