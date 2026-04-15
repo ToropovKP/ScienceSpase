@@ -7,395 +7,478 @@
 
       <header class="auth__header">
         <h1 class="auth__title">
-          <ng-container *ngIf="!isRegistration && loginPhase === 'credentials'">Вход</ng-container>
-          <ng-container *ngIf="!isRegistration && loginPhase === 'twoFactor'">Двухфакторная аутентификация</ng-container>
-          <ng-container *ngIf="isRegistration && registrationStep === 'profile'">
+          <ng-container *ngIf="authView === 'recover' || authView === 'setPassword'">Восстановление пароля</ng-container>
+          <ng-container *ngIf="authView === 'auth' && !isRegistration && loginPhase === 'credentials'">Вход</ng-container>
+          <ng-container *ngIf="authView === 'auth' && !isRegistration && loginPhase === 'twoFactor'">Двухфакторная аутентификация</ng-container>
+          <ng-container *ngIf="authView === 'auth' && isRegistration && registrationStep === 'profile'">
             Дополните информацию<br />
             о себе
           </ng-container>
-          <ng-container *ngIf="isRegistration && registrationStep !== 'profile'">Регистрация</ng-container>
+          <ng-container *ngIf="authView === 'auth' && isRegistration && registrationStep !== 'profile'">Регистрация</ng-container>
         </h1>
 
-        <p *ngIf="!isRegistration && loginPhase === 'credentials'" class="auth__subtitle">
+        <p *ngIf="authView === 'auth' && !isRegistration && loginPhase === 'credentials'" class="auth__subtitle">
           Еще нет аккаунта?
-          <a
-            href="#"
-            class="auth__link"
-            (click)="$event.preventDefault(); switchRegistration()"
-          >Создайте аккаунт</a>
+          <a href="#" class="auth__link" (click)="$event.preventDefault(); switchRegistration()">Создайте аккаунт</a>
         </p>
 
-        <p class="auth__subtitle" *ngIf="isRegistration && registrationStep !== 'profile'">
+        <p class="auth__subtitle" *ngIf="authView === 'auth' && isRegistration && registrationStep !== 'profile'">
           Уже есть аккаунт?
-          <a
-            href="#"
-            class="auth__link"
-            (click)="$event.preventDefault(); switchRegistration()"
-          >Войдите</a>
+          <a href="#" class="auth__link" (click)="$event.preventDefault(); switchRegistration()">Войдите</a>
+        </p>
+
+        <p *ngIf="authView === 'setPassword' && setPasswordSessionId" class="auth__subtitle auth-set-password__subtitle">
+          Введите новый пароль для вашего аккаунта
         </p>
       </header>
 
-      <div class="auth__divider" role="presentation" *ngIf="!isRegistration && loginPhase === 'credentials'">
-        <span class="auth__divider-text">Выберите систему</span>
-      </div>
-
-      <div class="auth__choose" role="radiogroup" aria-label="Система входа" *ngIf="!isRegistration && loginPhase === 'credentials'">
-        <button
-          type="button"
-          class="auth__system-card"
-          [class.auth__system-card--active]="selectedSystem === 'podium'"
-          (click)="selectedSystem = 'podium'"
-          role="radio"
-          [attr.aria-checked]="selectedSystem === 'podium'"
-        >
-          <span class="auth__system-icon" aria-hidden="true">
-            <img class="auth__system-logo" src="assets/logos/logo_podium.svg" alt="" width="30" height="33" />
-          </span>
-          <span class="auth__system-text">
-            <span class="auth__system-name">Подиум</span>
-            <span class="auth__system-desc">Выступления и менеджмент конференций</span>
-          </span>
-          <span class="auth__system-radio" aria-hidden="true"></span>
-        </button>
-
-        <button
-          type="button"
-          class="auth__system-card"
-          [class.auth__system-card--active]="selectedSystem === 'forum'"
-          (click)="selectedSystem = 'forum'"
-          role="radio"
-          [attr.aria-checked]="selectedSystem === 'forum'"
-        >
-          <span class="auth__system-icon" aria-hidden="true">
-            <img class="auth__system-logo" src="assets/logos/logo_forum.svg" alt="" width="32" height="33" />
-          </span>
-          <span class="auth__system-text">
-            <span class="auth__system-name">Форум</span>
-            <span class="auth__system-desc">Хранение научных публикаций</span>
-          </span>
-          <span class="auth__system-radio" aria-hidden="true"></span>
-        </button>
-      </div>
-
-      <div class="auth__form" (focusin)="onLoginCredentialFocus()">
-        <div [formGroup]="loginForm">
-          <app-email-field
-            *ngIf="(!isRegistration && loginPhase === 'credentials') || (isRegistration && registrationStep === 'email')"
-            id="auth-login"
-            label="Почта"
-            [placeholder]="isRegistration && registrationStep === 'email' ? 'Введите почту' : 'Введите почту'"
-            [required]="true"
-            [control]="emailControl"
-            [highlightError]="!isRegistration && invalidLogin"
-          />
-
-          <p *ngIf="showAuthEmailClientError()" class="auth__field-message auth__field-message--error">
-            {{ authEmailErrorMessage() }}
-          </p>
-
-          <div class="auth__password-block" *ngIf="!isRegistration && loginPhase === 'credentials'">
-            <div class="auth__password-head">
-              <span class="auth__field-label">Пароль</span>
-              <a routerLink="/auth/recover" class="auth__link auth__link--small">Не помню пароль</a>
-            </div>
-
-            <app-password-field
-              id="auth-password"
-              inputId="auth-password-input"
-              label="Пароль"
-              [hideLabel]="true"
-              [required]="true"
-              [control]="passwordControl"
-              [feedback]="false"
-              [highlightError]="invalidLogin"
-            />
-
-            <p *ngIf="invalidLogin" class="auth__field-message auth__field-message--error">
-              Неверная почта или пароль. Попробуйте ещё раз
-            </p>
-            <p *ngIf="userBlockedLogin" class="auth__field-message auth__field-message--error">
-              Пользователь заблокирован
-            </p>
-            <p *ngIf="showAuthPasswordClientError()" class="auth__field-message auth__field-message--error">
-              {{ authPasswordErrorMessage() }}
-            </p>
-          </div>
-
-          <div *ngIf="!isRegistration && loginPhase === 'twoFactor'" class="auth__code-step" [formGroup]="verificationCodeForm">
-            <p class="auth__instruction">
-              <span class="auth__instruction-main">Введите код из приложения-аутентификатора (2FA).</span>
-            </p>
-            <div class="auth__otp" #twoFactorOtpWrap>
-              <p-inputotp
-                inputId="auth-2fa-otp"
-                formControlName="value"
-                [invalid]="isInvalid('value')"
-                [integerOnly]="true"
-                [length]="6"
-              />
-              @if (isInvalid('value') && formSubmitted) {
-                <p-message severity="error" size="small" variant="simple" styleClass="auth__otp-error">
-                  Введите 6-значный код
-                </p-message>
-              }
-            </div>
-          </div>
-
-          <!-- Регистрация: пароль и повтор (features/auth — PasswordWithConfirmForm, variant registration) -->
-          <app-password-with-confirm-form
-            *ngIf="isRegistration && registrationStep === 'password'"
-            variant="registration"
-            idPrefix="auth-reg"
-            [passwordControl]="passwordControl"
-            [confirmPasswordControl]="passwordConfirmControl"
-            [acceptTermsControl]="acceptTermsControl"
-          />
-
-          <div *ngIf="isRegistration && registrationStep === 'profile'" class="auth__profile-step">
-            <div class="auth__profile-field">
-              <label class="auth__field-label auth__field-label--block" for="auth-reg-last-name">
-                <span class="auth__field-required" aria-hidden="true">*</span>
-                Фамилия
-              </label>
-              <input
-                pInputText
-                id="auth-reg-last-name"
-                [formControl]="lastNameControl"
-                class="w-100"
-                placeholder="Иванов"
-              />
-              <p *ngIf="showProfileFieldError(lastNameControl)" class="auth__field-error">
-                <span *ngIf="lastNameControl.hasError('required')">Введите фамилию</span>
-                <span *ngIf="lastNameControl.hasError('minlength')">Минимум 2 символа</span>
-              </p>
-            </div>
-
-            <div class="auth__profile-field">
-              <label class="auth__field-label auth__field-label--block" for="auth-reg-first-name">
-                <span class="auth__field-required" aria-hidden="true">*</span>
-                Имя
-              </label>
-              <input
-                pInputText
-                id="auth-reg-first-name"
-                [formControl]="firstNameControl"
-                class="w-100"
-                placeholder="Иван"
-              />
-              <p *ngIf="showProfileFieldError(firstNameControl)" class="auth__field-error">
-                <span *ngIf="firstNameControl.hasError('required')">Введите имя</span>
-                <span *ngIf="firstNameControl.hasError('minlength')">Минимум 2 символа</span>
-              </p>
-            </div>
-
-            <div class="auth__profile-field">
-              <label class="auth__field-label auth__field-label--block" for="auth-reg-middle-name">Отчество</label>
-              <input
-                pInputText
-                id="auth-reg-middle-name"
-                [formControl]="middleNameControl"
-                class="w-100"
-                placeholder="Иванович"
-              />
-            </div>
-
-            <div class="auth__profile-field">
-              <app-phone-field
-                id="auth-reg-phone"
-                label="Контактный номер телефона"
-                placeholder="(000) 000 00 00"
-                [labelStacked]="true"
-                [control]="phoneControl"
-                [countryControl]="phoneCountryControl"
-                [showCountrySelector]="true"
-              />
-              <p *ngIf="showProfileFieldError(phoneControl)" class="auth__field-error">
-                <span *ngIf="phoneControl.hasError('required')">Введите номер телефона</span>
-                <span *ngIf="phoneControl.hasError('phoneIncomplete')">Введите номер полностью</span>
-              </p>
-            </div>
-          </div>
-
+      <ng-container *ngIf="authView === 'auth'">
+        <div class="auth__divider" role="presentation" *ngIf="!isRegistration && loginPhase === 'credentials'">
+          <span class="auth__divider-text">Выберите систему</span>
         </div>
 
-        <div *ngIf="isRegistration && registrationStep === 'code'" class="auth__code-step" [formGroup]="verificationCodeForm">
+        <div class="auth__choose" role="radiogroup" aria-label="Система входа" *ngIf="!isRegistration && loginPhase === 'credentials'">
+          <button
+            type="button"
+            class="auth__system-card"
+            [class.auth__system-card--active]="selectedSystem === 'podium'"
+            (click)="selectedSystem = 'podium'"
+            role="radio"
+            [attr.aria-checked]="selectedSystem === 'podium'"
+          >
+            <span class="auth__system-icon" aria-hidden="true">
+              <img class="auth__system-logo" src="assets/logos/logo_podium.svg" alt="" width="30" height="33" />
+            </span>
+            <span class="auth__system-text">
+              <span class="auth__system-name">Подиум</span>
+              <span class="auth__system-desc">Выступления и менеджмент конференций</span>
+            </span>
+            <span class="auth__system-radio" aria-hidden="true"></span>
+          </button>
+
+          <button
+            type="button"
+            class="auth__system-card"
+            [class.auth__system-card--active]="selectedSystem === 'forum'"
+            (click)="selectedSystem = 'forum'"
+            role="radio"
+            [attr.aria-checked]="selectedSystem === 'forum'"
+          >
+            <span class="auth__system-icon" aria-hidden="true">
+              <img class="auth__system-logo" src="assets/logos/logo_forum.svg" alt="" width="32" height="33" />
+            </span>
+            <span class="auth__system-text">
+              <span class="auth__system-name">Форум</span>
+              <span class="auth__system-desc">Хранение научных публикаций</span>
+            </span>
+            <span class="auth__system-radio" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="auth__form" (focusin)="onLoginCredentialFocus()">
+          <div [formGroup]="loginForm">
+            <app-email-field
+              *ngIf="(!isRegistration && loginPhase === 'credentials') || (isRegistration && registrationStep === 'email')"
+              id="auth-login"
+              label="Почта"
+              placeholder="Введите почту"
+              [required]="true"
+              [control]="emailControl"
+              [highlightError]="!isRegistration && invalidLogin"
+            />
+
+            <p *ngIf="showAuthEmailClientError()" class="auth__field-message auth__field-message--error">
+              {{ authEmailErrorMessage() }}
+            </p>
+
+            <div class="auth__password-block" *ngIf="!isRegistration && loginPhase === 'credentials'">
+              <div class="auth__password-head">
+                <span class="auth__field-label">Пароль</span>
+                <a href="#" class="auth__link auth__link--small" (click)="$event.preventDefault(); openRecover()">Не помню пароль</a>
+              </div>
+
+              <app-password-field
+                id="auth-password"
+                inputId="auth-password-input"
+                label="Пароль"
+                [hideLabel]="true"
+                [required]="true"
+                [control]="passwordControl"
+                [feedback]="false"
+                [highlightError]="invalidLogin"
+              />
+
+              <p *ngIf="invalidLogin" class="auth__field-message auth__field-message--error">
+                Неверная почта или пароль. Попробуйте ещё раз
+              </p>
+              <p *ngIf="userBlockedLogin" class="auth__field-message auth__field-message--error">
+                Пользователь заблокирован
+              </p>
+              <p *ngIf="showAuthPasswordClientError()" class="auth__field-message auth__field-message--error">
+                {{ authPasswordErrorMessage() }}
+              </p>
+            </div>
+
+            <div *ngIf="!isRegistration && loginPhase === 'twoFactor'" class="auth__code-step" [formGroup]="verificationCodeForm">
+              <p class="auth__instruction">
+                <span class="auth__instruction-main">Введите код из приложения-аутентификатора (2FA).</span>
+              </p>
+              <app-otp-code-input
+                [control]="verificationOtpControl"
+                [invalid]="isInvalid('value')"
+                [clientErrorVisible]="isInvalid('value') && formSubmitted"
+                clientErrorText="Введите 6-значный код"
+              />
+            </div>
+
+            <app-password-with-confirm-form
+              *ngIf="isRegistration && registrationStep === 'password'"
+              variant="registration"
+              idPrefix="auth-reg"
+              [passwordControl]="passwordControl"
+              [confirmPasswordControl]="passwordConfirmControl"
+              [acceptTermsControl]="acceptTermsControl"
+            />
+
+            <div *ngIf="isRegistration && registrationStep === 'profile'" class="auth__profile-step">
+              <div class="auth__profile-field">
+                <label class="auth__field-label auth__field-label--block" for="auth-reg-last-name">
+                  <span class="auth__field-required" aria-hidden="true">*</span>
+                  Фамилия
+                </label>
+                <input pInputText id="auth-reg-last-name" [formControl]="lastNameControl" class="w-100" placeholder="Иванов" />
+                <p *ngIf="showProfileFieldError(lastNameControl)" class="auth__field-error">
+                  <span *ngIf="lastNameControl.hasError('required')">Введите фамилию</span>
+                  <span *ngIf="lastNameControl.hasError('minlength')">Минимум 2 символа</span>
+                </p>
+              </div>
+
+              <div class="auth__profile-field">
+                <label class="auth__field-label auth__field-label--block" for="auth-reg-first-name">
+                  <span class="auth__field-required" aria-hidden="true">*</span>
+                  Имя
+                </label>
+                <input pInputText id="auth-reg-first-name" [formControl]="firstNameControl" class="w-100" placeholder="Иван" />
+                <p *ngIf="showProfileFieldError(firstNameControl)" class="auth__field-error">
+                  <span *ngIf="firstNameControl.hasError('required')">Введите имя</span>
+                  <span *ngIf="firstNameControl.hasError('minlength')">Минимум 2 символа</span>
+                </p>
+              </div>
+
+              <div class="auth__profile-field">
+                <label class="auth__field-label auth__field-label--block" for="auth-reg-middle-name">Отчество</label>
+                <input pInputText id="auth-reg-middle-name" [formControl]="middleNameControl" class="w-100" placeholder="Иванович" />
+              </div>
+
+              <div class="auth__profile-field">
+                <app-phone-field
+                  id="auth-reg-phone"
+                  label="Контактный номер телефона"
+                  placeholder="(000) 000 00 00"
+                  [labelStacked]="true"
+                  [control]="phoneControl"
+                  [countryControl]="phoneCountryControl"
+                  [showCountrySelector]="true"
+                />
+                <p *ngIf="showProfileFieldError(phoneControl)" class="auth__field-error">
+                  <span *ngIf="phoneControl.hasError('required')">Введите номер телефона</span>
+                  <span *ngIf="phoneControl.hasError('phoneIncomplete')">Введите номер полностью</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="isRegistration && registrationStep === 'code'" class="auth__code-step" [formGroup]="verificationCodeForm">
+            <p class="auth__instruction">
+              <span class="auth__instruction-main">
+                Мы отправили шестизначный код подтверждения на адрес
+                <span class="auth__instruction-email">{{ emailControl.value || 'samplemail@mail.com' }}</span>.
+              </span>
+              <span class="auth__instruction-line2">Проверьте почту и введите код</span>
+            </p>
+
+            <app-otp-code-input
+              [control]="verificationOtpControl"
+              [invalid]="otpInvalidVisual()"
+              [serverErrorVisible]="otpServerInvalid"
+              [clientErrorVisible]="isInvalid('value')"
+              clientErrorText="Введите 6-значный код"
+            />
+
+            <app-auth-resend-block
+              leadText="Не получили письмо?"
+              [waiting]="resendSecondsRemaining > 0 || loading"
+              [countdownLabel]="resendCountdownLabel"
+              (resendClick)="onResendCode($event)"
+            />
+          </div>
+        </div>
+
+        <p class="auth__tip" *ngIf="isRegistration && registrationStep === 'email'">
+          На указанный адрес придет шестизначный код подтверждения
+        </p>
+
+        <p-button
+          *ngIf="!isRegistration && loginPhase === 'credentials'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Войти"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="login()"
+          [disabled]="loginForm.invalid"
+        />
+
+        <p-button
+          *ngIf="!isRegistration && loginPhase === 'twoFactor'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Подтвердить"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="submitTwoFactor()"
+          [disabled]="verificationCodeForm.invalid"
+        />
+
+        <p-button
+          *ngIf="!isRegistration && loginPhase === 'twoFactor'"
+          styleClass="auth-btn auth-btn--outline"
+          class="auth__login-button w-100"
+          label="Назад"
+          type="button"
+          [fluid]="true"
+          [disabled]="loading"
+          (click)="backFromTwoFactor()"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep === 'email'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Запросить письмо"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="requestEmail()"
+          [disabled]="emailControl.invalid"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep === 'code'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Далее"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="submitCode()"
+          [disabled]="verificationCodeForm.invalid"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep === 'password'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Далее"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="completePasswordAndSignup()"
+          [disabled]="loading || passwordControl.invalid || passwordConfirmControl.invalid || acceptTermsControl.invalid"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep === 'profile'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Начать работу"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="submitRegistration()"
+          [disabled]="profileStepDisabled()"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep !== 'profile'"
+          styleClass="auth-btn auth-btn--outline"
+          class="auth__login-button w-100"
+          label="Отмена"
+          type="button"
+          [fluid]="true"
+          [disabled]="loading"
+          (click)="cancelRegistration()"
+        />
+
+        <p-button
+          *ngIf="isRegistration && registrationStep === 'profile'"
+          styleClass="auth-btn auth-btn--outline"
+          class="auth__login-button w-100"
+          label="Пропустить"
+          type="button"
+          [fluid]="true"
+          (click)="skipRegistrationProfile()"
+        />
+
+        <div
+          class="auth__divider"
+          role="presentation"
+          *ngIf="showSocialAuthOptions"
+        >
+          <span class="auth__divider-text">Или войдите с помощью</span>
+        </div>
+
+        <div
+          class="auth__fast-auth"
+          *ngIf="showSocialAuthOptions"
+        >
+          <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
+            <span class="auth__fast-auth-icon auth__fast-auth-icon--vk" aria-hidden="true"></span>
+            Вконтакте
+          </button>
+          <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
+            <span class="auth__fast-auth-icon auth__fast-auth-icon--yandex" aria-hidden="true"></span>
+            Яндекс ID
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="authView === 'recover'">
+        <p class="auth__recover-desc" *ngIf="recoverStep === 'login'">
+          Для восстановления пароля введите почту от вашего аккаунта. После отправки запроса на указанный адрес придёт письмо с подтверждением смены пароля.
+        </p>
+
+        <div class="auth__form" [formGroup]="recoverForm" *ngIf="recoverStep === 'login'">
+          <app-email-field
+            id="recover-login"
+            label="Почта"
+            placeholder="Введите почту"
+            [required]="true"
+            [control]="recoverEmailControl"
+          />
+          <p *ngIf="showRecoverEmailError()" class="auth__field-message auth__field-message--error">
+            {{ recoverEmailErrorMessage() }}
+          </p>
+        </div>
+
+        <app-auth-resend-block
+          *ngIf="recoverStep === 'login' && emailSent"
+          leadText="Не получили письмо?"
+          extraClass="auth__resend--recover"
+          [waiting]="resendSecondsRemaining > 0 || loading"
+          [countdownLabel]="resendCountdownLabel"
+          (resendClick)="onRecoverResendClick($event)"
+        />
+
+        <div *ngIf="recoverStep === 'code'" class="auth__code-step" [formGroup]="recoverCodeForm">
           <p class="auth__instruction">
             <span class="auth__instruction-main">
               Мы отправили шестизначный код подтверждения на адрес
-              <span class="auth__instruction-email">{{ emailControl.value || 'samplemail@mail.com' }}</span>.
+              <span class="auth__instruction-email">{{ recoverEmailControl.value || '' }}</span>.
             </span>
             <span class="auth__instruction-line2">Проверьте почту и введите код</span>
           </p>
 
-          <div class="auth__otp" #authOtpWrap>
-            <p-inputotp
-              inputId="auth-code-otp"
-              formControlName="value"
-              [invalid]="otpInvalidVisual()"
-              [integerOnly]="true"
-              [length]="6"
-            />
-            @if (otpServerInvalid) {
-              <p class="auth__otp-error-message">
-                Введен неверный код! Запросите новый или введите заново.
-              </p>
-            } @else if (isInvalid('value')) {
-              <p-message severity="error" size="small" variant="simple" styleClass="auth__otp-error">
-                Введите 6-значный код
-              </p-message>
-            }
-          </div>
+          <app-otp-code-input
+            [control]="recoverOtpControl"
+            [invalid]="recoverOtpInvalidVisual()"
+            [serverErrorVisible]="otpServerInvalid"
+            [clientErrorVisible]="isRecoverCodeInvalid('value')"
+            clientErrorText="Введите 6-значный код"
+          />
 
-          <p class="auth__resend auth__resend--stacked">
-            <span class="auth__resend-muted">Не получили письмо?</span>
-            <button
-              type="button"
-              class="auth__resend-trigger"
-              [class.auth__resend-trigger--waiting]="resendSecondsRemaining > 0 || loading"
-              (click)="onResendCode($event)"
-            >
-              @if (resendSecondsRemaining > 0) {
-                <span class="auth__resend-trigger-inner">
-                  Запросить повторно через<br />
-                  <span class="auth__resend-time">{{ resendCountdownLabel }}</span>
-                </span>
-              } @else {
-                Запросить повторно
-              }
-            </button>
-          </p>
+          <app-auth-resend-block
+            leadText="Не получили код?"
+            [waiting]="resendSecondsRemaining > 0 || loading"
+            [countdownLabel]="resendCountdownLabel"
+            (resendClick)="onRecoverResendClick($event)"
+          />
         </div>
-      </div>
 
-      <p class="auth__tip" *ngIf="isRegistration && registrationStep === 'email'">
-        На указанный адрес придет шестизначный код подтверждения
-      </p>
+        <p-button
+          *ngIf="recoverStep === 'login'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Запросить письмо"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="requestRecoverLetter()"
+          [disabled]="recoverEmailControl.invalid"
+        />
 
-      <p-button
-        *ngIf="!isRegistration && loginPhase === 'credentials'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Войти"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="login()"
-        [disabled]="loginForm.invalid"
-      />
+        <p-button
+          *ngIf="recoverStep === 'code'"
+          styleClass="auth-btn auth-btn--primary"
+          class="auth__login-button w-100"
+          label="Продолжить"
+          type="button"
+          [fluid]="true"
+          [loading]="loading"
+          (click)="submitRecoverCode()"
+          [disabled]="recoverCodeForm.invalid"
+        />
 
-      <p-button
-        *ngIf="!isRegistration && loginPhase === 'twoFactor'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Подтвердить"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="submitTwoFactor()"
-        [disabled]="verificationCodeForm.invalid"
-      />
+        <p-button
+          *ngIf="recoverStep === 'login'"
+          styleClass="auth-btn auth-btn--outline"
+          class="auth__login-button w-100"
+          label="Отмена"
+          type="button"
+          [fluid]="true"
+          (click)="cancelRecover()"
+        />
 
-      <p-button
-        *ngIf="!isRegistration && loginPhase === 'twoFactor'"
-        styleClass="auth-btn auth-btn--outline"
-        class="auth__login-button w-100 btn-login"
-        label="Назад"
-        type="button"
-        [fluid]="true"
-        [disabled]="loading"
-        (click)="backFromTwoFactor()"
-      />
+        <p-button
+          *ngIf="recoverStep === 'code'"
+          styleClass="auth-btn auth-btn--outline"
+          class="auth__login-button w-100"
+          label="Назад"
+          type="button"
+          [fluid]="true"
+          (click)="backFromRecoverCode()"
+        />
+      </ng-container>
 
-      <p-button
-        *ngIf="isRegistration && registrationStep === 'email'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Запросить письмо"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="requestEmail()"
-        [disabled]="emailControl.invalid"
-      />
+      <ng-container *ngIf="authView === 'setPassword'">
+        <p *ngIf="!setPasswordSessionId" class="auth__instruction">
+          Ссылка недействительна. Перейдите в
+          <a href="#" class="auth__link" (click)="$event.preventDefault(); openRecover()">восстановление пароля</a>
+          и пройдите проверку кода.
+        </p>
 
-      <p-button
-        *ngIf="isRegistration && registrationStep === 'code'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Далее"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="submitCode()"
-        [disabled]="verificationCodeForm.invalid"
-      />
+        <div *ngIf="setPasswordSessionId" [formGroup]="setPasswordForm" class="auth__form auth-set-password__form">
+          <app-password-with-confirm-form
+            variant="account"
+            idPrefix="auth-set"
+            [passwordControl]="setPasswordControl"
+            [confirmPasswordControl]="setPasswordConfirmControl"
+            [hostForm]="setPasswordForm"
+          />
 
-      <p-button
-        *ngIf="isRegistration && registrationStep === 'password'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Далее"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="completePasswordAndSignup()"
-        [disabled]="loading || passwordControl.invalid || passwordConfirmControl.invalid || acceptTermsControl.invalid"
-      />
+          <p-button
+            styleClass="auth-btn auth-btn--primary"
+            class="auth__login-button w-100 auth-set-password__submit"
+            label="Сохранить пароль"
+            type="button"
+            [fluid]="true"
+            [loading]="loading"
+            [disabled]="setPasswordForm.invalid"
+            (click)="submitSetPassword()"
+          />
 
-      <p-button
-        *ngIf="isRegistration && registrationStep === 'profile'"
-        styleClass="auth-btn auth-btn--primary"
-        class="auth__login-button w-100 btn-login"
-        label="Начать работу"
-        type="button"
-        [fluid]="true"
-        [loading]="loading"
-        (click)="submitRegistration()"
-        [disabled]="profileStepDisabled()"
-      />
-
-      <p-button
-        *ngIf="isRegistration && registrationStep !== 'profile'"
-        styleClass="auth-btn auth-btn--outline"
-        class="auth__login-button w-100 btn-login"
-        label="Отмена"
-        type="button"
-        [fluid]="true"
-        [disabled]="loading"
-        (click)="cancelRegistration()"
-      />
-
-      <p-button
-        *ngIf="isRegistration && registrationStep === 'profile'"
-        styleClass="auth-btn auth-btn--outline"
-        class="auth__login-button w-100 btn-login"
-        label="Пропустить"
-        type="button"
-        [fluid]="true"
-        (click)="skipRegistrationProfile()"
-      />
-
-      <div
-        class="auth__divider"
-        role="presentation"
-        *ngIf="!(isRegistration && registrationStep === 'profile') && (!isRegistration ? loginPhase === 'credentials' : true)"
-      >
-        <span class="auth__divider-text">Или войдите с помощью</span>
-      </div>
-
-      <div
-        class="auth__fast-auth"
-        *ngIf="!(isRegistration && registrationStep === 'profile') && (!isRegistration ? loginPhase === 'credentials' : true)"
-      >
-        <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
-          <span class="auth__fast-auth-icon auth__fast-auth-icon--vk" aria-hidden="true"></span>
-          Вконтакте
-        </button>
-        <button type="button" class="auth__fast-auth-item" disabled title="Скоро">
-          <span class="auth__fast-auth-icon auth__fast-auth-icon--yandex" aria-hidden="true"></span>
-          Яндекс ID
-        </button>
-      </div>
+          <p-button
+            styleClass="auth-btn auth-btn--outline"
+            class="auth__login-button w-100 auth-set-password__btn-second"
+            label="На страницу входа"
+            type="button"
+            [fluid]="true"
+            (click)="cancelRecover()"
+          />
+        </div>
+      </ng-container>
     </div>
   </div>
 

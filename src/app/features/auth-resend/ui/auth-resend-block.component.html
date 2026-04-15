@@ -1,0 +1,18 @@
+<p class="auth__resend auth__resend--stacked" [ngClass]="extraClass">
+  <span class="auth__resend-muted">{{ leadText }}</span>
+  <button
+    type="button"
+    class="auth__resend-trigger"
+    [class.auth__resend-trigger--waiting]="waiting"
+    (click)="onClick($event)"
+  >
+    @if (waiting) {
+      <span class="auth__resend-trigger-inner">
+        Запросить повторно через<br />
+        <span class="auth__resend-time">{{ countdownLabel }}</span>
+      </span>
+    } @else {
+      Запросить повторно
+    }
+  </button>
+</p>

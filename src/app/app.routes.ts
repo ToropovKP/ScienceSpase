@@ -11,12 +11,10 @@ import {UsersComponent} from "./pages/all-users/users.component";
 import {ProfileComponent} from "./pages/profile/profile.component";
 import {VerifyAccountComponent} from "./pages/verify-account/verify-account.component";
 import {RestorePasswordComponent} from "./pages/restore-account/restore-password.component";
-import {AuthSetPasswordComponent} from "./pages/auth/auth-set-password.component";
-import {AuthChangePasswordComponent} from "./pages/auth/auth-change-password.component";
+import {ChangePasswordComponent} from "./pages/change-password/change-password.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {JobCreateComponent} from "./pages/one-job-create/job-create.component";
 import {AuthComponent} from "./pages/auth/auth.component";
-import {AuthRecoverPasswordComponent} from "./pages/auth/auth-recover-password.component";
 
 const mainChildRoutes: Routes = [
   {
@@ -76,6 +74,10 @@ const mainChildRoutes: Routes = [
     component: ProfileComponent
   },
   {
+    path: 'change-password',
+    component: ChangePasswordComponent
+  },
+  {
     path: 'verify-email',
     component: VerifyAccountComponent
   },
@@ -99,9 +101,8 @@ export const appRoutes: Routes = [
     component: AuthLayoutComponent,
     children: [
       { path: '', component: AuthComponent },
-      { path: 'recover', component: AuthRecoverPasswordComponent },
-      { path: 'set-password', component: AuthSetPasswordComponent },
-      { path: 'change-password', component: AuthChangePasswordComponent },
+      { path: 'recover', component: AuthComponent },
+      { path: 'set-password', component: AuthComponent },
     ]
   },
   {

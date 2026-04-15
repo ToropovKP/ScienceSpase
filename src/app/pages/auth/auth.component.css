@@ -88,6 +88,18 @@
   font-weight: var(--typo-weight-regular);
 }
 
+.auth__recover-desc {
+  margin: 0 0 1.25rem;
+  max-width: 26rem;
+  margin-inline: auto;
+  text-align: center;
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-regular);
+  font-size: var(--typo-p18-r-size);
+  line-height: var(--typo-body-line-relaxed);
+  color: var(--auth-muted);
+}
+
 .auth__link {
   color: var(--auth-accent);
   text-decoration: none;
@@ -465,67 +477,6 @@
   line-height: var(--typo-body-line-tight);
 }
 
-.auth__resend {
-  margin: 0;
-  text-align: center;
-  font-family: var(--typo-font-body);
-  font-weight: var(--typo-weight-semibold);
-  font-size: var(--typo-p16-sb-size);
-  line-height: var(--typo-body-line-normal);
-  color: var(--auth-muted);
-  max-width: 100%;
-}
-
-.auth__resend--stacked {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-}
-
-.auth__resend-muted {
-  font-weight: var(--typo-weight-semibold);
-  font-size: inherit;
-  color: var(--auth-muted);
-}
-
-.auth__resend-trigger {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font-family: var(--typo-font-body);
-  font-weight: var(--typo-weight-semibold);
-  font-size: var(--typo-p16-sb-size);
-  line-height: var(--typo-body-line-normal);
-  color: var(--auth-blue);
-  text-align: center;
-  cursor: pointer;
-}
-
-.auth__resend-trigger:hover:not(.auth__resend-trigger--waiting) {
-  text-decoration: underline;
-}
-
-.auth__resend-trigger--waiting {
-  cursor: not-allowed;
-}
-
-.auth__resend-trigger-inner {
-  display: inline-block;
-}
-
-.auth__resend-time {
-  font-weight: var(--typo-weight-semibold);
-  font-size: inherit;
-  color: var(--auth-blue);
-}
-
-.auth__resend-action {
-  font-weight: var(--typo-weight-semibold);
-  font-size: inherit;
-}
-
 /* Кнопки макета: основная заливка, вторичная обводка */
 .auth ::ng-deep .auth-btn.auth-btn--primary.p-button {
   border-radius: var(--auth-radius);
@@ -760,6 +711,27 @@
   line-height: var(--typo-body-line-normal);
   color: var(--auth-muted);
   white-space: nowrap;
+}
+
+.auth-set-password__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.auth-set-password__subtitle {
+  margin-top: 0.5rem;
+  max-width: 22rem;
+}
+
+.auth-set-password__form > .auth-set-password__submit.auth__login-button {
+  margin-top: 24px;
+}
+
+.auth-set-password__form > .auth-set-password__btn-second.auth__login-button {
+  margin-top: 24px;
 }
 
 .auth__fast-auth {

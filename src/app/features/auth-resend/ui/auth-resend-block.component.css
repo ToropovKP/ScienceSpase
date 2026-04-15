@@ -1,0 +1,61 @@
+.auth__resend {
+  margin: 0;
+  text-align: center;
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p16-sb-size);
+  line-height: var(--typo-body-line-normal);
+  color: var(--auth-muted);
+  max-width: 100%;
+}
+
+.auth__resend--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.auth__resend-muted {
+  font-weight: var(--typo-weight-semibold);
+  font-size: inherit;
+  color: var(--auth-muted);
+}
+
+.auth__resend-trigger {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--typo-font-body);
+  font-weight: var(--typo-weight-semibold);
+  font-size: var(--typo-p16-sb-size);
+  line-height: var(--typo-body-line-normal);
+  color: var(--auth-blue);
+  text-align: center;
+  cursor: pointer;
+}
+
+.auth__resend-trigger:hover:not(.auth__resend-trigger--waiting) {
+  text-decoration: underline;
+}
+
+.auth__resend-trigger--waiting {
+  cursor: not-allowed;
+}
+
+.auth__resend-trigger-inner {
+  display: inline-block;
+}
+
+.auth__resend-time {
+  font-weight: var(--typo-weight-semibold);
+  font-size: inherit;
+  color: var(--auth-blue);
+}
+
+.auth__resend--recover {
+  margin-top: 1rem;
+  text-align: left;
+  max-width: 100%;
+}

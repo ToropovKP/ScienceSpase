@@ -1,0 +1,17 @@
+<div class="auth__otp" #otpWrap>
+  <p-inputotp
+    [formControl]="control"
+    [invalid]="invalid"
+    [integerOnly]="true"
+    [length]="length"
+  />
+  @if (serverErrorVisible) {
+    <p class="auth__otp-error-message">
+      {{ serverErrorText }}
+    </p>
+  } @else if (clientErrorVisible) {
+    <p-message severity="error" size="small" variant="simple" styleClass="auth__otp-error">
+      {{ clientErrorText }}
+    </p-message>
+  }
+</div>
