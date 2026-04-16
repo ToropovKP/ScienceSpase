@@ -11,7 +11,6 @@ import {UsersComponent} from "./pages/all-users/users.component";
 import {ProfileComponent} from "./pages/profile/profile.component";
 import {VerifyAccountComponent} from "./pages/verify-account/verify-account.component";
 import {RestorePasswordComponent} from "./pages/restore-account/restore-password.component";
-import {ChangePasswordComponent} from "./pages/change-password/change-password.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {JobCreateComponent} from "./pages/one-job-create/job-create.component";
 import {AuthComponent} from "./pages/auth/auth.component";
@@ -72,10 +71,6 @@ const mainChildRoutes: Routes = [
   {
     path: 'profile/:id',
     component: ProfileComponent
-  },
-  {
-    path: 'change-password',
-    component: ChangePasswordComponent
   },
   {
     path: 'verify-email',

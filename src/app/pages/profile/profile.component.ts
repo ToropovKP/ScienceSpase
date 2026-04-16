@@ -1,6 +1,6 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ReactiveFormsModule} from "@angular/forms";
-import {ActivatedRoute, NavigationStart, Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
 import {map, Subject, takeUntil} from "rxjs";
 import {User} from "../../entities/user/model/user";
 import {HttpService} from "../../shared/services/http.service";
@@ -17,7 +17,7 @@ import {ManageUserAccessActionsComponent} from "../../features/manage-user-acces
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
-  imports: [ReactiveFormsModule, CommonModule, ConfirmPopupModule, ToastModule, RouterLink, EditProfileFormComponent, ManageUserAccessActionsComponent],
+  imports: [ReactiveFormsModule, CommonModule, ConfirmPopupModule, ToastModule, EditProfileFormComponent, ManageUserAccessActionsComponent],
   providers: [ConfirmationService, MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
