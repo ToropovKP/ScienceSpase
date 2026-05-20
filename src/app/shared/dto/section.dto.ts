@@ -1,4 +1,4 @@
-import {Section} from "../../entities/conference/model/section";
+import {Section} from "../../entities/podium/conference/model/section";
 import {UserBaseDto} from "./user.base.dto";
 
 export class SectionDto {

@@ -1,6 +1,7 @@
 export class ReviewDto {
   private reviews!: Record<string, number>;
   private text!: string;
+  private requestRevision!: boolean;
 
   constructor() {
   }
@@ -19,5 +20,13 @@ export class ReviewDto {
 
   setText(value: string) {
     this.text = value;
+  }
+
+  isRequestRevision(): boolean {
+    return this.requestRevision;
+  }
+
+  setRequestRevision(value: boolean) {
+    this.requestRevision = value;
   }
 }

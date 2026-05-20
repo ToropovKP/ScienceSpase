@@ -1,0 +1,20 @@
+<section class="profile-page">
+  <div class="profile-page__container">
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <p-confirm-popup />
+
+    <div *ngIf="profileUser">
+      <app-edit-profile-form
+        [currentUser]="currentUser"
+        [profileUser]="profileUser"
+        [profileUserId]="profileUserId"
+        (dirtyChange)="onProfileDirtyChange($event)"
+      />
+
+      <app-manage-user-access-actions
+        *ngIf="isAdmin() && !showButtonsToChange()"
+        [profileUser]="profileUser"
+      />
+    </div>
+  </div>
+</section>

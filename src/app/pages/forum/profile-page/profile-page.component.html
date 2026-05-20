@@ -1,0 +1,69 @@
+<section class="forum-profile-page">
+  <div class="forum-profile-page__header">
+    <div>
+      <h1>Мои публикации</h1>
+      <p>Управляйте активными публикациями, избранным и корзиной.</p>
+    </div>
+    <a routerLink="/forum/add-publication" class="forum-profile-page__add-btn">Добавить публикацию</a>
+  </div>
+
+  <div class="forum-profile-page__tabs">
+    <button type="button" [class.is-active]="activeTab === 'active'" (click)="switchTab('active')">
+      Активные
+    </button>
+    <button type="button" [class.is-active]="activeTab === 'favorites'" (click)="switchTab('favorites')">
+      Избранное
+    </button>
+    <button type="button" [class.is-active]="activeTab === 'basket'" (click)="switchTab('basket')">
+      Корзина
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="forum-profile-page__state">Загрузка публикаций...</div>
+  <div *ngIf="!loading && error" class="forum-profile-page__state forum-profile-page__state--error">{{ error }}</div>
+  <div *ngIf="!loading && !error && publications.length === 0" class="forum-profile-page__state">
+    Публикаций в выбранном разделе пока нет.
+  </div>
+
+  <div *ngIf="!loading && !error && publications.length > 0" class="forum-profile-page__list">
+    <article *ngFor="let publication of publications" class="forum-profile-page__card">
+      <div class="forum-profile-page__card-head">
+        <div>
+          <h2>{{ publication.title }}</h2>
+          <p>{{ getAuthorsString(publication.authors) }}</p>
+        </div>
+        <div class="forum-profile-page__badges">
+          <span *ngIf="publication.favorite" class="badge badge--favorite">Избранное</span>
+          <span *ngIf="publication.basket" class="badge badge--basket">В корзине</span>
+        </div>
+      </div>
+
+      <p *ngIf="publication.abstractText" class="forum-profile-page__abstract">
+        {{ publication.abstractText }}
+      </p>
+
+      <div class="forum-profile-page__meta">
+        <span *ngIf="publication.publicationDate">Дата: {{ publication.publicationDate | date: 'dd.MM.yyyy' }}</span>
+        <span *ngIf="publication.deletionDate">Удалится: {{ publication.deletionDate | date: 'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="forum-profile-page__actions">
+        <button type="button" (click)="toggleFavorite(publication)">
+          {{ publication.favorite ? 'Убрать из избранного' : 'В избранное' }}
+        </button>
+
+        <button *ngIf="!publication.basket" type="button" (click)="moveToTrash(publication)">
+          В корзину
+        </button>
+
+        <button *ngIf="publication.basket" type="button" (click)="restore(publication)">
+          Восстановить
+        </button>
+
+        <button *ngIf="publication.basket" type="button" class="danger" (click)="deletePermanently(publication)">
+          Удалить навсегда
+        </button>
+      </div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,142 @@
+.forum-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.forum-profile-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.forum-profile-page__header h1 {
+  margin: 0 0 0.25rem;
+}
+
+.forum-profile-page__header p {
+  margin: 0;
+  color: #667085;
+}
+
+.forum-profile-page__add-btn,
+.forum-profile-page__tabs button,
+.forum-profile-page__actions button {
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+.forum-profile-page__add-btn {
+  text-decoration: none;
+  color: #111827;
+}
+
+.forum-profile-page__tabs {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.forum-profile-page__tabs button.is-active {
+  border-color: #4886ff;
+  background: #f5f8ff;
+}
+
+.forum-profile-page__state {
+  border: 1px dashed #d0d5dd;
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: #667085;
+}
+
+.forum-profile-page__state--error {
+  color: #b42318;
+  border-color: #fecdca;
+}
+
+.forum-profile-page__list {
+  display: grid;
+  gap: 1rem;
+}
+
+.forum-profile-page__card {
+  border: 1px solid #eaecf0;
+  border-radius: 20px;
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.forum-profile-page__card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.forum-profile-page__card-head h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.forum-profile-page__card-head p {
+  margin: 0;
+  color: #667085;
+}
+
+.forum-profile-page__badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.badge--favorite {
+  background: #fff1f3;
+  color: #c01048;
+}
+
+.badge--basket {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.forum-profile-page__abstract {
+  margin: 1rem 0;
+  color: #344054;
+}
+
+.forum-profile-page__meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #667085;
+  font-size: 0.9rem;
+}
+
+.forum-profile-page__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.forum-profile-page__actions .danger {
+  border-color: #fda29b;
+  color: #b42318;
+}
+
+@media (max-width: 768px) {
+  .forum-profile-page__header,
+  .forum-profile-page__card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

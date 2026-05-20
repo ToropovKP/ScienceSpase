@@ -1,0 +1,147 @@
+.header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 2px 0 #1b324626;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-content__title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.status-badge--active {
+  color: #16a36d;
+  background-color: #c9ffe7;
+}
+
+.status-badge--closed {
+  color: #d25656;
+  background-color: #fde9e9;
+}
+
+.status-badge--hold {
+  color: #a87408;
+  background-color: #fff3d9;
+}
+
+.conference-title {
+  margin: 0;
+  color: #303849;
+  font-family: 'Roboto', sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.desktop-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-action {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px !important;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-add {
+  background: #4886ff;
+  color: white;
+  border: 1px solid #4886ff;
+}
+
+.btn-neutral {
+  background: #ffffff;
+  color: #5b6677;
+  border: 1px solid #d3dbe5;
+}
+
+.btn-edit {
+  background: #ffffff;
+  color: #4886ff;
+  border: 1px solid #4886ff;
+}
+
+.btn-action:hover {
+  background: #f5f8ff;
+}
+
+.btn-add:hover {
+  background-color: #3c78eb;
+  border-color: #3c78eb;
+}
+
+.mobile-warning {
+  display: none;
+  margin: 0;
+  border-radius: 8px;
+  border: 1px solid #f1d08f;
+  background: #fff8e6;
+  color: #795100;
+  padding: 10px 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+@media (max-width: 992px) {
+  .desktop-actions {
+    display: none;
+  }
+
+  .mobile-warning {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 16px;
+  }
+
+  .conference-title {
+    font-size: 24px;
+  }
+}

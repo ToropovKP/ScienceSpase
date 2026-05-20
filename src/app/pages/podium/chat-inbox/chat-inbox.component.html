@@ -1,0 +1,141 @@
+<section id="container__main">
+  <div class="container">
+    <app-toast-container />
+    <div class="main">
+      <app-loading-spinner *ngIf="loadingTree" message="Загрузка чатов..." />
+
+      <div *ngIf="!loadingTree" class="chat-workspace">
+        <aside class="chat-workspace__sidebar">
+          <div class="chat-panel chat-panel--flat">
+            <div class="chat-panel__header">
+              <span class="chat-panel__heading-label">Конференции</span>
+            </div>
+
+            <div class="chat-panel__body chat-panel__body--sidebar">
+              <div *ngIf="unreadTree.length === 0" class="chat-panel__empty">
+                Нет доступных конференций.
+              </div>
+
+              <div *ngFor="let conference of unreadTree" class="chat-tree">
+                <button
+                  type="button"
+                  class="chat-tree__conference-button"
+                  [class.is-expanded]="isConferenceExpanded(conference.conferenceId)"
+                  (click)="toggleConference(conference.conferenceId)"
+                >
+                  <span class="chat-tree__conference-main">
+                    <span class="chat-tree__conference-icon">
+                      <i class="bi bi-lightning-charge-fill"></i>
+                    </span>
+                    <span class="chat-tree__conference-title">{{ conference.title }}</span>
+                  </span>
+
+                  <span class="chat-tree__conference-meta">
+                    <span *ngIf="conference.unreadCount > 0" class="chat-tree__badge">
+                      {{ conference.unreadCount }}
+                    </span>
+                    <i
+                      class="bi"
+                      [class.bi-chevron-up]="isConferenceExpanded(conference.conferenceId)"
+                      [class.bi-chevron-down]="!isConferenceExpanded(conference.conferenceId)"
+                    ></i>
+                  </span>
+                </button>
+
+                <div *ngIf="isConferenceExpanded(conference.conferenceId)" class="chat-tree__sections">
+                  <button
+                    *ngFor="let section of conference.sections"
+                    type="button"
+                    class="chat-tree__section"
+                    [class.is-active]="isSectionSelected(conference.conferenceId, section.sectionId)"
+                    (click)="selectSection(conference.conferenceId, section)"
+                  >
+                    <span class="chat-tree__section-title">{{ section.title }}</span>
+                    <span *ngIf="section.unreadCount > 0" class="chat-tree__count">
+                      {{ section.unreadCount }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="chat-workspace__dialogs">
+          <div class="chat-panel chat-panel--flat">
+            <div class="chat-panel__body chat-panel__body--dialogs">
+              <label class="chat-search">
+                <input
+                  type="text"
+                  [(ngModel)]="searchQuery"
+                  placeholder="Поиск"
+                  aria-label="Поиск по чатам"
+                />
+                <i class="bi bi-search"></i>
+              </label>
+
+              <app-loading-spinner *ngIf="loadingJobs" size="sm" />
+
+              <div *ngIf="!loadingJobs && filteredJobPreviews.length === 0" class="chat-panel__empty">
+                В выбранной секции нет доступных чатов.
+              </div>
+
+              <button
+                *ngFor="let preview of filteredJobPreviews"
+                type="button"
+                class="chat-dialog"
+                [class.is-active]="isChatSelected(preview.jobId)"
+                (click)="selectChat(preview)"
+              >
+                <div class="chat-dialog__inner">
+                  <div class="chat-dialog__indicator" aria-hidden="true">
+                    <span class="chat-dialog__indicator-dot"></span>
+                  </div>
+                  <div class="chat-dialog__content">
+                    <div class="chat-dialog__head">
+                      <div class="chat-dialog__head-text">
+                        <div class="chat-dialog__title">{{ preview.title }}</div>
+                      </div>
+                      <div class="chat-dialog__time" *ngIf="preview.lastMessageDateTime">
+                        {{ preview.lastMessageDateTime | date: 'HH:mm' }}
+                      </div>
+                    </div>
+                    <div class="chat-dialog__foot">
+                      <div class="chat-dialog__preview">
+                        <ng-container *ngIf="preview.lastMessageSenderName">
+                          {{ preview.lastMessageSenderName }}:
+                        </ng-container>
+                        {{ preview.lastMessage || 'Сообщений пока нет' }}
+                      </div>
+                      <span *ngIf="preview.unreadCount > 0" class="chat-dialog__unread" aria-label="Непрочитанных">
+                        {{ preview.unreadCount }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="chat-workspace__conversation">
+          <div class="chat-panel chat-panel--conversation">
+            <ng-container *ngIf="selectedJobPreview && currentUser; else emptyConversation">
+              <app-chat-conversation-panel
+                class="chat-conversation"
+                [jobId]="selectedJobPreview.jobId + ''"
+                [currentUser]="currentUser"
+              />
+            </ng-container>
+
+            <ng-template #emptyConversation>
+              <div class="chat-panel__empty chat-panel__empty--conversation">
+                Выберите чат, чтобы открыть переписку.
+              </div>
+            </ng-template>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>

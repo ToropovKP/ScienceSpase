@@ -1,0 +1,82 @@
+<div class="conference-block conference-block--tags">
+  <div class="conference-block__title-row">
+    <h2 class="conference-block__title">Критерии оценки</h2>
+    <label class="criteria-toggle">
+      <input
+        type="checkbox"
+        [checked]="isEnabled"
+        [disabled]="!canManageTags"
+        (change)="toggleEnabled($any($event.target).checked)"
+      />
+      <span class="criteria-toggle__slider"></span>
+    </label>
+  </div>
+
+  <div *ngIf="loadingTags" class="text-center py-4">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <div *ngIf="!loadingTags && isEnabled" [formGroup]="form" class="criteria-content">
+    <div formArrayName="tags">
+      <div *ngFor="let tag of tags.controls; let i = index" [formGroupName]="i" class="mb-3">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="ui-base-field">
+              <label class="ui-base-field__label">Название критерия</label>
+              <input
+                type="text"
+                class="form-control ui-base-field__input"
+                formControlName="name"
+                placeholder="Введите название критерия"
+                [readonly]="!canManageTags"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="ui-base-field">
+              <label class="ui-base-field__label">Метод оценивания</label>
+              <select class="form-select ui-base-field__select ui-base-field__select--placeholder" formControlName="method">
+                <option [ngValue]="''">Выберите метод оценивания</option>
+                <option value="expert">Экспертная оценка</option>
+                <option value="scoring">Балльная шкала</option>
+                <option value="peer-review">Рецензирование</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="ui-base-field">
+              <label class="ui-base-field__label">Описание</label>
+              <textarea
+                class="form-control ui-base-field__textarea"
+                formControlName="description"
+                rows="4"
+                placeholder="Описание метода оценки"
+                [readonly]="!canManageTags"
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-12 d-flex justify-content-end" *ngIf="tags.length > 1">
+            <button
+              type="button"
+              class="btn btn-link criteria-remove"
+              [disabled]="!canManageTags"
+              (click)="removeTag(i)"
+            >
+              Удалить критерий
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <button
+          type="button"
+          class="btn btn-link criteria-add"
+          [disabled]="!canManageTags"
+          (click)="addTag()"
+        >
+          + Добавить критерий
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

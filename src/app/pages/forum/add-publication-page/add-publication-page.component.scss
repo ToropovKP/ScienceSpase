@@ -1,0 +1,19 @@
+.add-publication-page {
+    padding: var(--space-6) var(--space-4);
+    min-height: 100vh;
+    background-color: var(--color-bg-main);
+
+    &__container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 var(--container-pad);
+    }
+
+    &__title {
+        font-size: var(--text-3xl);
+        font-weight: 700;
+        margin-bottom: var(--space-8);
+        color: var(--color-text);
+    }
+}
+

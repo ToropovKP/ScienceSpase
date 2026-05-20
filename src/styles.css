@@ -212,3 +212,370 @@ select:not(.form-select):not(.form-control) {
   color: #b2d3ff;
   text-decoration: none;
 }
+
+/*
+  Базовые стили form-полей (v1): label + dropdown.
+  Размерность контейнеров оставляем через Bootstrap-сетку.
+*/
+.ui-base-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ui-base-field__label {
+  margin: 0;
+  color: #303849;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+.ui-base-field__select.form-select {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid #9dadc34d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  padding-right: 32px;
+  background-color: #ffffff;
+  color: #303849;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 19px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4' fill='none'%3E%3Cpath d='M0 0H8L4 4L0 0Z' fill='%23657388'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 8px 4px;
+}
+
+.ui-base-field__select.form-select:focus {
+  border-color: #9dadc3;
+  box-shadow: none;
+}
+
+.ui-base-field__select--placeholder.form-select {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-base-field__dropdown-toggle.btn {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid #9dadc34d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  padding-right: 32px;
+  background-color: #ffffff;
+  color: #657388;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 19px;
+  position: relative;
+}
+
+.ui-base-field__dropdown-toggle.btn::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 4px;
+  transform: translateY(-50%);
+  border: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4' fill='none'%3E%3Cpath d='M0 0H8L4 4L0 0Z' fill='%23657388'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 8px 4px;
+}
+
+.ui-base-field__dropdown-toggle.btn:focus,
+.ui-base-field__dropdown-toggle.btn:hover {
+  border-color: #9dadc3;
+  box-shadow: none;
+}
+
+.ui-base-field__dropdown-toggle.btn:disabled {
+  opacity: 1;
+  background-color: #ffffff;
+  color: #97a6ba;
+  border-color: #9dadc34d;
+}
+
+.ui-base-field__dropdown-menu.dropdown-menu {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+}
+
+.ui-base-field__dropdown-empty {
+  color: #657388;
+  font-size: 14px;
+}
+
+/*
+  Универсальная таблица ввода параметров (header + строки).
+*/
+.ui-input-table {
+  width: 100%;
+}
+
+.ui-input-table__head {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: #4886ff;
+  border-radius: 16px 16px 0 0;
+  color: #ffffff;
+}
+
+.ui-input-table__head-cell {
+  padding: 16px 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ui-input-table__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid #e8edf3;
+}
+
+.ui-input-table__cell {
+  padding: 0;
+}
+
+.ui-input-table__input.form-control {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 16px 8px;
+  color: #303849;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.ui-input-table__input.form-control::placeholder {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-input-table__date.form-control {
+  padding-right: 8px;
+}
+
+.ui-input-table__date.form-control::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0) saturate(100%) invert(20%) sepia(12%) saturate(1078%) hue-rotate(182deg) brightness(94%)
+    contrast(90%);
+}
+
+.ui-input-table__date--empty.form-control,
+.ui-input-table__date--empty.form-control::-webkit-datetime-edit {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-base-field__date.form-control {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid #9dadc34d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  padding-right: 12px;
+  background-color: #ffffff;
+  color: #303849;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 19px;
+}
+
+.ui-base-field__date.form-control:focus {
+  border-color: #9dadc3;
+  box-shadow: none;
+}
+
+.ui-base-field__date.form-control:disabled,
+.ui-base-field__date.form-control[readonly] {
+  background-color: #ffffff;
+}
+
+.ui-base-field__date.form-control::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0) saturate(100%) invert(20%) sepia(12%) saturate(1078%) hue-rotate(182deg) brightness(94%)
+    contrast(90%);
+}
+
+.ui-base-field__date--empty.form-control,
+.ui-base-field__date--empty.form-control::-webkit-datetime-edit {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-base-field__input.form-control {
+  width: 100%;
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid #9dadc34d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  color: #303849;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 19px;
+}
+
+.ui-base-field__input.form-control::placeholder {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-base-field__input.form-control:focus {
+  border-color: #9dadc3;
+  box-shadow: none;
+}
+
+.ui-base-field__textarea.form-control {
+  width: 100%;
+  border: 1px solid #9dadc34d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  color: #303849;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 19px;
+  resize: vertical;
+}
+
+.ui-base-field__textarea.form-control::placeholder {
+  color: #657388;
+  font-style: italic;
+}
+
+.ui-base-field__textarea.form-control:focus {
+  border-color: #9dadc3;
+  box-shadow: none;
+}
+
+/*
+  В невалидном состоянии оставляем только красную рамку,
+  без bootstrap-иконки восклицания внутри поля.
+*/
+.ui-base-field__input.form-control.is-invalid,
+.ui-base-field__date.form-control.is-invalid,
+.ui-base-field__textarea.form-control.is-invalid,
+.ui-input-table__input.form-control.is-invalid {
+  background-image: none !important;
+  padding-right: 12px;
+}
+
+.ui-base-field__select.form-select.is-invalid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4' fill='none'%3E%3Cpath d='M0 0H8L4 4L0 0Z' fill='%23657388'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 8px 4px;
+}
+
+/*
+  Global status chip (publication states)
+  Use: .ui-status-chip + one modifier (.ui-status-chip--*)
+*/
+.ui-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.ui-status-chip__icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.ui-status-chip__icon img,
+.ui-status-chip__icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.ui-status-chip__text {
+  display: inline-block;
+}
+
+.ui-status-chip--pending-review {
+  color: #ffaf24;
+  background-color: #ffe7be;
+}
+
+.ui-status-chip--needs-revision {
+  color: #e23232;
+  background-color: #ffeaea;
+}
+
+.ui-status-chip--reviewed {
+  color: #4886ff;
+  background-color: #eaf1ff;
+}
+
+.ui-status-chip--reviewed .ui-status-chip__icon i,
+.ui-status-chip--approved .ui-status-chip__icon i {
+  font-size: 11px;
+}
+
+.ui-status-chip--submitted {
+  color: #6c737d;
+  background-color: #9dadc34d;
+}
+
+.ui-status-chip--approved {
+  color: #3cc88b;
+  background-color: #c9ffe7;
+}
+
+.ui-status-chip--rejected {
+  color: #ffffff;
+  background-color: #303849;
+}

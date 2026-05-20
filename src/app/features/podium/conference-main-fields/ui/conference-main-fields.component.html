@@ -1,0 +1,213 @@
+<div class="conference-block" [formGroup]="formGroup">
+  <h2 class="conference-block__title">Общая информация</h2>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-organization">
+          Место проведения
+          <span class="text-danger">*</span>
+        </label>
+        <input id="conference-organization"
+               type="text"
+               class="form-control ui-base-field__input"
+               formControlName="organization"
+               [class.is-invalid]="!!formGroup.get('organization')?.invalid && showValidation"
+               [readonly]="!canEdit"
+               [maxlength]="100"
+               placeholder="Выберите организацию" />
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-date-start">
+          Дата начала конференции <span class="text-danger">*</span>
+        </label>
+        <input
+          id="conference-date-start"
+          type="date"
+          class="form-control ui-base-field__date"
+          [class.ui-base-field__date--empty]="!formGroup.get('date_start')?.value"
+          formControlName="date_start"
+          [min]="minDate | date: 'yyyy-MM-dd'"
+          [max]="maxDate | date: 'yyyy-MM-dd'"
+          [class.is-invalid]="!!formGroup.get('date_start')?.invalid && showValidation"
+          [readonly]="!canEdit"
+        />
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-date-end">
+          Дата окончания конференции <span class="text-danger">*</span>
+        </label>
+        <input
+          id="conference-date-end"
+          type="date"
+          class="form-control ui-base-field__date"
+          [class.ui-base-field__date--empty]="!formGroup.get('date_end')?.value"
+          formControlName="date_end"
+          [min]="minDate | date: 'yyyy-MM-dd'"
+          [max]="maxDate | date: 'yyyy-MM-dd'"
+          [class.is-invalid]="!!formGroup.get('date_end')?.invalid && showValidation"
+          [readonly]="!canEdit"
+        />
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-admin">
+          Администратор
+        </label>
+        <div class="dropdown">
+          <button
+            id="conference-admin"
+            class="btn ui-base-field__dropdown-toggle w-100 text-start text-truncate"
+            type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            [disabled]="!canEdit"
+          >
+            {{ getSelectedAdminsLabel() }}
+          </button>
+          <ul class="dropdown-menu ui-base-field__dropdown-menu p-3 w-100">
+            <li *ngFor="let admin of admins" class="mb-2">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [id]="'main-admin-' + admin.id"
+                  [checked]="isAdminSelected(admin.id)"
+                  (change)="onAdminToggle(admin.id, $event)"
+                />
+                <label class="form-check-label" [for]="'main-admin-' + admin.id">
+                  {{ admin.firstName }} {{ admin.lastName }}
+                </label>
+              </div>
+            </li>
+            <li *ngIf="admins.length === 0" class="ui-base-field__dropdown-empty">
+              Нет доступных администраторов
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-reviewers">
+          Рецензенты
+        </label>
+        <div class="dropdown">
+          <button
+            id="conference-reviewers"
+            class="btn ui-base-field__dropdown-toggle w-100 text-start text-truncate"
+            type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            [disabled]="!canEdit"
+          >
+            {{ getSelectedReviewersLabel() }}
+          </button>
+          <ul class="dropdown-menu ui-base-field__dropdown-menu p-3 w-100">
+            <li *ngFor="let reviewer of reviewers" class="mb-2">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [id]="'main-reviewer-' + reviewer.id"
+                  [checked]="isReviewerSelected(reviewer.id)"
+                  (change)="onReviewerToggle(reviewer.id, $event)"
+                />
+                <label class="form-check-label" [for]="'main-reviewer-' + reviewer.id">
+                  {{ reviewer.firstName }} {{ reviewer.lastName }}
+                </label>
+              </div>
+            </li>
+            <li *ngIf="reviewers.length === 0" class="ui-base-field__dropdown-empty">
+              Нет доступных рецензентов
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-recipients">
+          Получают уведомления
+        </label>
+        <div class="dropdown">
+          <button
+            id="conference-recipients"
+            class="btn ui-base-field__dropdown-toggle w-100 text-start text-truncate"
+            type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            [disabled]="!canEdit"
+          >
+            {{ getSelectedRecipientsLabel() }}
+          </button>
+          <ul class="dropdown-menu ui-base-field__dropdown-menu p-3 w-100">
+            <li *ngFor="let recipient of recipients" class="mb-2">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [id]="'main-recipient-' + recipient.id"
+                  [checked]="isRecipientSelected(recipient.id)"
+                  (change)="onRecipientToggle(recipient.id, $event)"
+                />
+                <label class="form-check-label" [for]="'main-recipient-' + recipient.id">
+                  {{ recipient.firstName }} {{ recipient.lastName }}
+                </label>
+              </div>
+            </li>
+            <li *ngIf="recipients.length === 0" class="ui-base-field__dropdown-empty">
+              Нет доступных пользователей
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-name">
+          Название конференции
+          <span class="text-danger">*</span>
+        </label>
+        <input
+          id="conference-name"
+          type="text"
+          class="form-control ui-base-field__input"
+          formControlName="confName"
+          [class.is-invalid]="!!formGroup.get('confName')?.invalid && showValidation"
+          [readonly]="!canEdit"
+          [maxlength]="100"
+          placeholder="Введите название конференции"
+        />
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="ui-base-field">
+        <label class="ui-base-field__label" for="conference-description">
+          Описание <span class="text-danger">*</span>
+        </label>
+        <textarea
+          id="conference-description"
+          class="form-control ui-base-field__textarea"
+          rows="4"
+          formControlName="description"
+          [class.is-invalid]="!!formGroup.get('description')?.invalid && showValidation"
+          [readonly]="!canEdit"
+          [maxlength]="2000"
+          placeholder="Введите текст описания"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<!-- <app-forum-onboarding></app-forum-onboarding> -->
+
+<app-forum-filter-bar
+    (viewModeChange)="onViewModeChange($event)"
+    (searchChange)="onSearchChange($event)"
+    (authorFilterChange)="onAuthorFilterChange($event)"
+    (yearFilterChange)="onYearFilterChange($event)"
+></app-forum-filter-bar>
+
+<app-forum-publication-cards-grid
+    [viewMode]="viewMode"
+    [searchQuery]="searchQuery"
+    [authorFilter]="authorFilter"
+    [yearFilter]="yearFilter"
+></app-forum-publication-cards-grid>

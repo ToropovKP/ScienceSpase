@@ -1,0 +1,28 @@
+<section class="conference-page">
+  <div class="conference-page__container">
+    <app-toast-container />
+    <div class="conference-page__content">
+      <app-conference-dashboard-stats></app-conference-dashboard-stats>
+
+      <app-conference-list-page-header
+        title="Все конференции"
+        [showCreateButton]="isAdmin()"
+        createButtonLabel="+ Добавить конференцию"
+        (create)="createConference()"
+      />
+
+      <app-loading-spinner *ngIf="loadingConference" message="Загрузка конференций..." />
+
+      <app-empty-state *ngIf="!loadingConference && !filteredConferences.length"
+                       title="Нет доступных конференций"
+                       iconClass="bi bi-calendar-x fs-1 text-secondary" />
+
+      <app-conference-catalog-grid
+        *ngIf="!loadingConference && filteredConferences.length"
+        [conferences]="filteredConferences"
+        (openConference)="openConf($event)"
+        (editConference)="editConf($event)"
+      />
+    </div>
+  </div>
+</section>

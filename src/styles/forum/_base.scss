@@ -1,0 +1,30 @@
+/* Base app styles — scoped to .forum-layout */
+
+.forum-layout {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+
+  .container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-pad);
+  }
+
+  .surface {
+    background: var(--color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  code, pre { font-family: var(--font-mono); }
+}

@@ -1,0 +1,59 @@
+<div class="header-container">
+  <div class="header-content">
+    <div>
+      <div *ngIf="statusLabel" class="badge text-bg-secondary mb-2">{{ statusLabel }}</div>
+      <h1 class="job-title">{{ title }}</h1>
+    </div>
+
+    <div class="desktop-actions">
+      <button
+        *ngIf="showApprove"
+        class="btn btn-action btn-add"
+        type="button"
+        (click)="onApprove()"
+        pTooltip="Одобрить работу"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-check-lg"></i>
+      </button>
+
+      <button
+        *ngIf="showReject"
+        class="btn btn-action btn-danger"
+        type="button"
+        (click)="onReject()"
+        pTooltip="Отклонить работу"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <button
+        *ngIf="isOwner && allowEdit"
+        class="btn btn-action btn-edit"
+        type="button"
+        (click)="onEdit()"
+        pTooltip="Редактировать работу"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </button>
+
+      <button
+        *ngIf="isOwner && allowEdit"
+        class="btn btn-action btn-danger"
+        type="button"
+        (click)="onDelete($event)"
+        pTooltip="Удалить работу"
+        tooltipPosition="bottom"
+      >
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isOwner" class="mobile-warning alert alert-warning mt-3">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Редактирование доступно только с компьютера.
+  </div>
+</div>

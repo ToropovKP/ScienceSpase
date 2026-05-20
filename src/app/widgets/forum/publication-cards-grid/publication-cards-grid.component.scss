@@ -1,0 +1,29 @@
+.publication-cards-grid {
+    padding: var(--space-6) var(--space-4);
+
+    &__loading,
+    &__error,
+    &__empty {
+        text-align: center;
+        padding: var(--space-8);
+        color: var(--color-text-muted);
+        font-size: var(--text-lg);
+    }
+
+    &__error {
+        color: var(--color-danger);
+    }
+
+    &__container {
+        display: grid;
+        gap: var(--space-4);
+
+        &--grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        &--list {
+            grid-template-columns: 1fr;
+        }
+    }
+}

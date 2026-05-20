@@ -26,6 +26,14 @@ export const userRoleMap: Record<string, string> = {
   'REVIEWER': 'Рецензент',
 }
 
+export const jobStatusMap: Record<string, string> = {
+  'PENDING_REVIEW': 'На модерации',
+  'APPROVED': 'Одобрена',
+  'REJECTED': 'Отклонена',
+  'UNDER_REVISION': 'На доработке',
+  'READY_FOR_PUBLICATION': 'Готова к публикации',
+}
+
 export const orcidPattern = {
   'S': {pattern: new RegExp('^$|[a-zA-Z0-9]')}
 };

@@ -1,0 +1,16 @@
+<section class="conference-sections">
+  <div class="conference-sections__header">
+    <h5 class="conference-sections__title"><i class="bi bi-columns-gap"></i>Секции</h5>
+  </div>
+  <div class="conference-sections__body">
+    <div class="conference-sections__list">
+      <div *ngFor="let section of sections" class="conference-sections__item">
+        <h6 class="conference-sections__item-title">{{ section.title }}</h6>
+        <p class="conference-sections__item-meta">
+          Руководитель:
+          {{ section.leaders.length > 0 ? getLeadersString(section.leaders) : 'Не назначен' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

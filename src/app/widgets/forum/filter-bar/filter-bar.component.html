@@ -1,0 +1,137 @@
+<div class="filter">
+    <div class="filter__wrapper"> 
+        <div class="filter__top">
+            <h1 class="filter__top-title">
+                Все статьи
+            </h1>
+            <button class="filter__top-addBtn" routerLink="/add-publication">
+                Добавить статью
+            </button>
+        </div>
+        <div class="filter__menu">
+            <div class="filter__menu-search">
+                <input 
+                    class="filter__search-input"
+                    type="text" 
+                    placeholder="Поиск..."
+                    [(ngModel)]="searchQuery"
+                    (keyup.enter)="onSearch()"
+                    (input)="onSearchInput()"
+                />
+                <button class="filter__search-btn" (click)="onSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="filter__menu-sortBy">
+                <span class="filter__sort-label">Показывать сначала:</span>
+                <select class="filter__sort-select">
+                    <option value="newest">Новые</option>
+                    <option value="oldest">Старые</option>
+                    <option value="popular">Популярные</option>
+                    <option value="title">По названию</option>
+                </select>
+            </div>
+            <div class="filter__menu-gridType">
+                <button 
+                    class="filter__view-btn" 
+                    [class.filter__view-btn--active]="viewMode === 'list'"
+                    (click)="onViewModeChange('list')"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+                        <line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6" stroke="currentColor" stroke-width="2"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button 
+                    class="filter__view-btn" 
+                    [class.filter__view-btn--active]="viewMode === 'grid'"
+                    (click)="onViewModeChange('grid')"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="filter__menu-filterBtn-container">
+                <button class="filter__menu-filterBtn" (click)="toggleFilters()" [class.filter__menu-filterBtn--active]="showFilters">
+                    <span>Настроить фильтр</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="filter__popup" *ngIf="showFilters">
+                    <div class="filter__popup-content">
+                        <div class="filter__filter-group">
+                            <label class="filter__filter-label">Автор</label>
+                            <div class="filter__dropdown-container">
+                                <input 
+                                    class="filter__filter-input"
+                                    type="text" 
+                                    placeholder="Выберите или введите автора..."
+                                    [(ngModel)]="authorFilter"
+                                    (input)="onAuthorInput()"
+                                    (focus)="showAuthorDropdown = true; showYearDropdown = false"
+                                />
+                                <div class="filter__dropdown" *ngIf="showAuthorDropdown && filteredAuthors.length > 0">
+                                    <div 
+                                        class="filter__dropdown-item"
+                                        *ngFor="let author of filteredAuthors"
+                                        (click)="onAuthorSelect(author)"
+                                    >
+                                        {{ author }}
+                                    </div>
+                                </div>
+                                <div class="filter__dropdown filter__dropdown--empty" *ngIf="showAuthorDropdown && filteredAuthors.length === 0 && authorFilter.trim()">
+                                    <div class="filter__dropdown-item filter__dropdown-item--disabled">
+                                        Автор не найден
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter__filter-group">
+                            <label class="filter__filter-label">Год публикации</label>
+                            <div class="filter__dropdown-container">
+                                <input 
+                                    class="filter__filter-input"
+                                    type="number" 
+                                    placeholder="Выберите или введите год..."
+                                    [(ngModel)]="yearFilter"
+                                    (input)="onYearInput()"
+                                    (focus)="showYearDropdown = true; showAuthorDropdown = false"
+                                    min="1900"
+                                    max="2100"
+                                />
+                                <div class="filter__dropdown" *ngIf="showYearDropdown && filteredYears.length > 0">
+                                    <div 
+                                        class="filter__dropdown-item"
+                                        *ngFor="let year of filteredYears"
+                                        (click)="onYearSelect(year)"
+                                    >
+                                        {{ year }}
+                                    </div>
+                                </div>
+                                <div class="filter__dropdown filter__dropdown--empty" *ngIf="showYearDropdown && filteredYears.length === 0 && yearFilter">
+                                    <div class="filter__dropdown-item filter__dropdown-item--disabled">
+                                        Год не найден
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="filter__filter-clear" (click)="clearFilters()">
+                            Очистить фильтры
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

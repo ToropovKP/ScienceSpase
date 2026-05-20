@@ -15,4 +15,14 @@ export class DateService {
   public static formatDateTime(date: Date): string {
     return format(date, 'd MMM y HH:mm:ss', {locale: ru});
   }
+
+  /** Для разделителя в чате: «1 апреля» */
+  public static formatChatDateSeparator(date: Date): string {
+    return format(date, 'd MMMM', {locale: ru});
+  }
+
+  /** Время в пузыре сообщения */
+  public static formatChatMessageTime(date: Date): string {
+    return format(date, 'HH:mm', {locale: ru});
+  }
 }

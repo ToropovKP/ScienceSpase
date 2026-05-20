@@ -1,5 +1,5 @@
-import {UserBase} from "../../entities/user/model/user.base";
-import {User} from "../../entities/user/model/user";
+import {UserBase} from "../../entities/shared/user/model/user.base";
+import {User} from "../../entities/shared/user/model/user";
 
 export class UserBaseDto {
 

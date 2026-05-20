@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
-import {User} from "../../entities/user/model/user";
+import {User} from "../../entities/shared/user/model/user";
 import {BehaviorSubject, distinctUntilChanged, map, Observable} from "rxjs";
 import {HttpService} from "./http.service";
+import {AuthSessionService} from "./auth-session.service";
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -12,17 +13,24 @@ export class AuthService {
   private userRole: string = 'MEMBER';
   private userPermissions: string[] = [];
 
-  constructor(private httpService: HttpService) {
+  constructor(
+    private httpService: HttpService,
+    private authSessionService: AuthSessionService,
+  ) {
   }
 
   async getCurrentUser(): Promise<User | null> {
+    if (!this.authSessionService.hasAccessToken()) {
+      this.clearData();
+      return null;
+    }
     try {
       const user = await this.httpService.getCurrentUser();
       this.currentUserSubject.next(user);
       this.setUserInfo(user);
       return user;
     } catch (error) {
-      this.clearData();
+      this.clearSessionAndData();
       throw error;
     }
   }
@@ -41,6 +49,11 @@ export class AuthService {
     this.currentUserSubject.next(null);
     this.userRole = 'MEMBER';
     this.userPermissions = [];
+  }
+
+  clearSessionAndData(): void {
+    this.authSessionService.clearSession();
+    this.clearData();
   }
 
   private setUserInfo(user: User): void {

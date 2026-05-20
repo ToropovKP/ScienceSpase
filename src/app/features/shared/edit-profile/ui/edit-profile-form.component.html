@@ -1,0 +1,339 @@
+<section class="profile">
+  <h1 class="profile__title">{{ title() }}</h1>
+
+  <!-- Алерт о незаполненных обязательных полях (только в режиме просмотра) -->
+  <div class="profile__alert" *ngIf="!isEditMode() && hasMissingRequiredFields()">
+    <span class="profile__alert-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="#F2A933"/>
+        <path d="M12 7v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="16.5" r="1.2" fill="#fff"/>
+      </svg>
+    </span>
+    <p class="profile__alert-text">
+      В вашем Профиле не заполнены поля, необходимые для подачи статьи на конференцию.
+      Пожалуйста, заполните поля ФИО и номер телефона, перейдя в режим редактирования.
+    </p>
+  </div>
+
+  <div class="profile__layout">
+    <!-- Левая карточка: аватар + имя + email -->
+    <aside class="profile__sidebar">
+      <div class="profile__avatar-wrap">
+        <span
+          class="profile__avatar"
+          [style.background-color]="avatarPalette().bg"
+          [style.color]="avatarPalette().fg"
+        >{{ initials() || '·' }}</span>
+        <button
+          *ngIf="isEditMode()"
+          type="button"
+          class="profile__avatar-add"
+          aria-label="Загрузить фото"
+          title="Загрузка фото скоро будет доступна"
+          disabled
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M7 1.5v11M1.5 7h11" stroke="#4886ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="profile__sidebar-name">
+        {{ fullNameDisplay() || 'Имя не указано' }}
+      </div>
+      <div class="profile__sidebar-email">{{ profileUser.email }}</div>
+    </aside>
+
+    <!-- Правая карточка: данные / форма -->
+    <div class="profile__card" [class.is-edit]="isEditMode()">
+      <form [formGroup]="formProfile" class="profile__form" (ngSubmit)="saveProfile()">
+        <!-- ===== Общее ===== -->
+        <section class="profile__section">
+          <h2 class="profile__section-title">Общее</h2>
+          <div class="profile__grid">
+            <!-- ФИО -->
+            <div class="profile__field">
+              <label class="profile__label" for="profile-fullname">ФИО</label>
+              <ng-container *ngIf="isEditMode(); else fullNameView">
+                <input
+                  id="profile-fullname"
+                  type="text"
+                  class="profile__input"
+                  formControlName="fullName"
+                  placeholder="Фамилия Имя Отчество"
+                  [maxlength]="120"
+                />
+              </ng-container>
+              <ng-template #fullNameView>
+                <div class="profile__value" [class.is-empty]="!fullNameDisplay()">
+                  {{ fullNameDisplay() || 'ФИО не указано' }}
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Пол (заглушка, в разработке) -->
+            <div class="profile__field">
+              <label class="profile__label">Пол</label>
+              <div class="profile__value is-empty profile__value--stub" title="Раздел в разработке">
+                Пол не выбран
+              </div>
+            </div>
+
+            <!-- Дата рождения (заглушка) -->
+            <div class="profile__field">
+              <label class="profile__label">Дата рождения</label>
+              <div class="profile__value is-empty profile__value--stub" title="Раздел в разработке">
+                <ng-container *ngIf="isEditMode(); else birthView">дд / мм / гг</ng-container>
+                <ng-template #birthView>Дата рождения не выбрана</ng-template>
+              </div>
+            </div>
+
+            <!-- Город (заглушка) -->
+            <div class="profile__field">
+              <label class="profile__label">Город</label>
+              <div class="profile__value is-empty profile__value--stub" title="Раздел в разработке">
+                Город не выбран
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Образование ===== -->
+        <section class="profile__section">
+          <h2 class="profile__section-title">Образование</h2>
+          <div class="profile__grid">
+            <!-- Организация -->
+            <div class="profile__field">
+              <label class="profile__label" for="profile-org">Организация</label>
+              <ng-container *ngIf="isEditMode(); else orgView">
+                <input
+                  id="profile-org"
+                  type="text"
+                  class="profile__input"
+                  formControlName="organization"
+                  placeholder="Организация не выбрана"
+                  [maxlength]="100"
+                />
+              </ng-container>
+              <ng-template #orgView>
+                <div class="profile__value" [class.is-empty]="!profileUser.organization">
+                  {{ profileUser.organization || 'Организация не выбрана' }}
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Академическое звание -->
+            <div class="profile__field">
+              <label class="profile__label" for="profile-title">Академическое звание</label>
+              <ng-container *ngIf="isEditMode(); else titleView">
+                <input
+                  id="profile-title"
+                  type="text"
+                  class="profile__input"
+                  formControlName="academicTitle"
+                  placeholder="Без звания"
+                  [maxlength]="100"
+                />
+              </ng-container>
+              <ng-template #titleView>
+                <div class="profile__value" [class.is-empty]="!profileUser.academicTitle">
+                  {{ profileUser.academicTitle || 'Без звания' }}
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Направление (заглушка) -->
+            <div class="profile__field">
+              <label class="profile__label">Направление</label>
+              <div class="profile__value is-empty profile__value--stub" title="Раздел в разработке">
+                Направление не выбрано
+              </div>
+            </div>
+
+            <!-- Учёная степень -->
+            <div class="profile__field">
+              <label class="profile__label" for="profile-degree">Учёная степень</label>
+              <ng-container *ngIf="isEditMode(); else degreeView">
+                <input
+                  id="profile-degree"
+                  type="text"
+                  class="profile__input"
+                  formControlName="academicDegree"
+                  placeholder="Без учёной степени"
+                  [maxlength]="100"
+                />
+              </ng-container>
+              <ng-template #degreeView>
+                <div class="profile__value" [class.is-empty]="!profileUser.academicDegree">
+                  {{ profileUser.academicDegree || 'Без учёной степени' }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Контактная информация ===== -->
+        <section class="profile__section">
+          <h2 class="profile__section-title">Контактная информация</h2>
+          <div class="profile__grid">
+            <!-- Телефон -->
+            <div class="profile__field">
+              <label class="profile__label" for="profile-phone-input">Номер телефона</label>
+              <ng-container *ngIf="isEditMode(); else phoneView">
+                <app-phone-field
+                  id="profile-phone"
+                  label=""
+                  [control]="phoneControl"
+                  [countryControl]="phoneCountryControl"
+                  [readonly]="phoneLocked"
+                  [showCountrySelector]="!phoneLocked"
+                  labelClass="profile__hidden-label"
+                  inputClass="profile__phone-input"
+                />
+                <small class="profile__hint" *ngIf="phoneLocked">
+                  Номер сохранён; изменить его можно только через поддержку
+                </small>
+                <small class="profile__hint" *ngIf="!phoneLocked">
+                  Номер можно указать один раз при сохранении профиля
+                </small>
+              </ng-container>
+              <ng-template #phoneView>
+                <div class="profile__value" [class.is-empty]="!phoneDisplay()">
+                  {{ phoneDisplay() || 'Номер не указан' }}
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Email -->
+            <div class="profile__field">
+              <label class="profile__label">Почта</label>
+              <ng-container *ngIf="isEditMode(); else emailView">
+                <input
+                  type="text"
+                  class="profile__input is-readonly"
+                  formControlName="email"
+                  readonly
+                />
+                <small class="profile__hint">Для изменения почты обратитесь в поддержку</small>
+              </ng-container>
+              <ng-template #emailView>
+                <div class="profile__value" [class.is-empty]="!profileUser.email">
+                  {{ profileUser.email || 'Почта не указана' }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Идентификаторы автора ===== -->
+        <section class="profile__section">
+          <h2 class="profile__section-title">Идентификаторы</h2>
+          <div class="profile__grid">
+            <div class="profile__field">
+              <label class="profile__label" for="profile-orcid">
+                ORCID
+                <button
+                  type="button"
+                  class="profile__hint-btn"
+                  (click)="op.show($event)"
+                  aria-label="Подсказка ORCID"
+                >
+                  <i class="bi bi-info-circle"></i>
+                </button>
+                <p-popover #op styleClass="fixed-width-popover" [style]="{ maxWidth: '400px', width: '100%' }">
+                  <div class="popover-content">
+                    <div class="popover-header"><h5 class="popover-title">Что такое ORCID?</h5></div>
+                    <div class="popover-body">
+                      <p class="popover-text">
+                        ORCID (Open Researcher and Contributor ID) — уникальный идентификатор исследователя.
+                        Формат: 16 символов, например <code>0000-0000-0000-0000</code>.
+                      </p>
+                    </div>
+                  </div>
+                </p-popover>
+              </label>
+              <ng-container *ngIf="isEditMode(); else orcidView">
+                <input
+                  id="profile-orcid"
+                  type="text"
+                  class="profile__input is-uppercase"
+                  formControlName="orcId"
+                  mask="SSSS-SSSS-SSSS-SSSS"
+                  placeholder="0000-0000-0000-0000"
+                  [patterns]="customOrcidPattern"
+                  [showMaskTyped]="true"
+                />
+              </ng-container>
+              <ng-template #orcidView>
+                <div class="profile__value" [class.is-empty]="!profileUser.orcId">
+                  {{ profileUser.orcId || 'ORCID не указан' }}
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="profile__field">
+              <label class="profile__label" for="profile-rinc">
+                РИНЦ ID (Author ID)
+                <button
+                  type="button"
+                  class="profile__hint-btn"
+                  (click)="opRinc.show($event)"
+                  aria-label="Подсказка РИНЦ"
+                >
+                  <i class="bi bi-info-circle"></i>
+                </button>
+                <p-popover #opRinc styleClass="fixed-width-popover" [style]="{ maxWidth: '400px', width: '100%' }">
+                  <div class="popover-content">
+                    <div class="popover-header"><h5 class="popover-title">Что такое РИНЦ ID?</h5></div>
+                    <div class="popover-body">
+                      <p class="popover-text">
+                        РИНЦ ID (AuthorID) — уникальный идентификатор автора в Российском индексе научного цитирования.
+                      </p>
+                    </div>
+                  </div>
+                </p-popover>
+              </label>
+              <ng-container *ngIf="isEditMode(); else rincView">
+                <input
+                  id="profile-rinc"
+                  type="text"
+                  class="profile__input"
+                  formControlName="rincId"
+                  appNumbersOnly
+                  [maxLength]="20"
+                  placeholder="0000000"
+                />
+              </ng-container>
+              <ng-template #rincView>
+                <div class="profile__value" [class.is-empty]="!profileUser.rincId">
+                  {{ profileUser.rincId || 'РИНЦ ID не указан' }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Кнопки управления ===== -->
+        <div class="profile__actions" *ngIf="canEditProfile">
+          <ng-container *ngIf="!isEditMode(); else editActions">
+            <button type="button" class="profile__btn profile__btn--primary" (click)="enterEditMode()">
+              Редактировать
+            </button>
+          </ng-container>
+          <ng-template #editActions>
+            <button type="button" class="profile__btn profile__btn--ghost" (click)="cancelProfile()">
+              Отмена
+            </button>
+            <button
+              type="submit"
+              class="profile__btn profile__btn--primary"
+              [disabled]="formProfile.invalid || !formProfile.dirty"
+            >
+              Сохранить
+            </button>
+          </ng-template>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

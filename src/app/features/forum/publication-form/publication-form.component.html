@@ -1,0 +1,454 @@
+<form [formGroup]="publicationForm" (ngSubmit)="onSubmit()" class="publication-form">
+    <!-- Основная информация -->
+    <div class="publication-form__section">
+        <h2 class="publication-form__section-title">Основная информация</h2>
+        
+        <div class="publication-form__field">
+            <label class="publication-form__label" for="publicationKind">
+                Тип публикации <span class="required">*</span>
+            </label>
+            <select
+                class="publication-form__select"
+                id="publicationKind"
+                formControlName="publicationKind"
+            >
+                <option value="">Выберите тип</option>
+                <option *ngFor="let type of publicationKinds" [value]="type.value">
+                    {{ type.label }}
+                </option>
+            </select>
+        </div>
+
+        <div class="publication-form__field">
+            <label class="publication-form__label" for="title">
+                Название <span class="required">*</span>
+            </label>
+            <input 
+                class="publication-form__input" 
+                id="title" 
+                type="text" 
+                formControlName="title"
+                placeholder="Введите название публикации"
+            />
+        </div>
+
+        <div class="publication-form__field">
+            <label class="publication-form__label" for="abstractText">Аннотация</label>
+            <textarea 
+                class="publication-form__textarea" 
+                id="abstractText" 
+                formControlName="abstractText"
+                rows="5"
+                placeholder="Введите аннотацию"
+            ></textarea>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label" for="publicationDate">Дата публикации</label>
+                <input 
+                    class="publication-form__input" 
+                    id="publicationDate" 
+                    type="date" 
+                    formControlName="publicationDate"
+                />
+            </div>
+
+            <div class="publication-form__field">
+                <label class="publication-form__label" for="language">Язык</label>
+                <input 
+                    class="publication-form__input" 
+                    id="language" 
+                    type="text" 
+                    formControlName="language"
+                    placeholder="ru, en и т.д."
+                />
+            </div>
+        </div>
+
+        <div class="publication-form__field">
+            <label class="publication-form__label" for="keywords">Ключевые слова</label>
+            <input 
+                class="publication-form__input" 
+                id="keywords" 
+                type="text" 
+                formControlName="keywords"
+                placeholder="Введите ключевые слова через запятую"
+            />
+        </div>
+    </div>
+
+    <!-- Авторы -->
+    <div class="publication-form__section">
+        <div class="publication-form__section-header">
+            <h2 class="publication-form__section-title">Авторы</h2>
+            <button 
+                type="button" 
+                class="publication-form__add-btn"
+                (click)="addAuthor()"
+            >
+                + Добавить автора
+            </button>
+        </div>
+
+        <div formArrayName="authors" class="publication-form__array">
+            <div 
+                *ngFor="let author of authors.controls; let i = index" 
+                [formGroupName]="i"
+                class="publication-form__array-item"
+            >
+                <div class="publication-form__array-header">
+                    <h3 class="publication-form__array-title">Автор {{ i + 1 }}</h3>
+                    <button 
+                        type="button" 
+                        class="publication-form__remove-btn"
+                        (click)="removeAuthor(i)"
+                    >
+                        Удалить
+                    </button>
+                </div>
+
+                <div class="publication-form__row">
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Фамилия <span class="required">*</span></label>
+                        <input
+                            class="publication-form__input"
+                            type="text"
+                            formControlName="lastName"
+                        />
+                    </div>
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Имя <span class="required">*</span></label>
+                        <input
+                            class="publication-form__input"
+                            type="text"
+                            formControlName="firstName"
+                        />
+                    </div>
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Отчество</label>
+                        <input
+                            class="publication-form__input"
+                            type="text"
+                            formControlName="middleName"
+                        />
+                    </div>
+                </div>
+
+                <div class="publication-form__row">
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Аффилиация</label>
+                        <input 
+                            class="publication-form__input" 
+                            type="text" 
+                            formControlName="affiliation"
+                        />
+                    </div>
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Роль</label>
+                        <input 
+                            class="publication-form__input" 
+                            type="text" 
+                            formControlName="role"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="authors.length === 0" class="publication-form__empty">
+                Авторы не добавлены
+            </div>
+        </div>
+    </div>
+
+    <!-- Коды классификации -->
+    <div class="publication-form__section">
+        <div class="publication-form__section-header">
+            <h2 class="publication-form__section-title">Коды классификации</h2>
+            <button 
+                type="button" 
+                class="publication-form__add-btn"
+                (click)="addCode()"
+            >
+                + Добавить код
+            </button>
+        </div>
+
+        <div formArrayName="codes" class="publication-form__array">
+            <div 
+                *ngFor="let code of codes.controls; let i = index" 
+                [formGroupName]="i"
+                class="publication-form__array-item"
+            >
+                <div class="publication-form__array-header">
+                    <h3 class="publication-form__array-title">Код {{ i + 1 }}</h3>
+                    <button 
+                        type="button" 
+                        class="publication-form__remove-btn"
+                        (click)="removeCode(i)"
+                    >
+                        Удалить
+                    </button>
+                </div>
+
+                <div class="publication-form__row">
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Тип кода <span class="required">*</span></label>
+                        <input 
+                            class="publication-form__input" 
+                            type="text" 
+                            formControlName="codeType"
+                            placeholder="УДК, ББК и т.д."
+                        />
+                    </div>
+                    <div class="publication-form__field">
+                        <label class="publication-form__label">Значение <span class="required">*</span></label>
+                        <input 
+                            class="publication-form__input" 
+                            type="text" 
+                            formControlName="codeValue"
+                        />
+                    </div>
+                </div>
+                <div class="publication-form__field">
+                    <label class="publication-form__label">Описание</label>
+                    <input 
+                        class="publication-form__input" 
+                        type="text" 
+                        formControlName="description"
+                    />
+                </div>
+            </div>
+
+            <div *ngIf="codes.length === 0" class="publication-form__empty">
+                Коды не добавлены
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для патента -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'PATENT'" formGroupName="patent">
+        <h2 class="publication-form__section-title">Информация о патенте</h2>
+        
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Номер патента</label>
+                <input class="publication-form__input" type="text" formControlName="patentNumber" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Номер заявки</label>
+                <input class="publication-form__input" type="text" formControlName="applicationNumber" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Дата подачи заявки</label>
+                <input class="publication-form__input" type="date" formControlName="applicationDate" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Владельцы патента</label>
+                <input class="publication-form__input" type="text" formControlName="patentOwners" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для книги -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'BOOK'" formGroupName="book">
+        <h2 class="publication-form__section-title">Информация о книге</h2>
+        
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Издательство</label>
+                <input class="publication-form__input" type="text" formControlName="publisher" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Место издания</label>
+                <input class="publication-form__input" type="text" formControlName="publisherPlace" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Год издания</label>
+                <input class="publication-form__input" type="text" formControlName="publicationYear" maxlength="4" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">ISBN</label>
+                <input class="publication-form__input" type="text" formControlName="isbn" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Том</label>
+                <input class="publication-form__input" type="text" formControlName="volume" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Страницы</label>
+                <input class="publication-form__input" type="text" formControlName="pages" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для статьи в журнале -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'JOURNAL_ARTICLE'" formGroupName="journalArticle">
+        <h2 class="publication-form__section-title">Информация о статье</h2>
+        
+        <div class="publication-form__field">
+            <label class="publication-form__label">Название журнала</label>
+            <input class="publication-form__input" type="text" formControlName="journalName" />
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Том</label>
+                <input class="publication-form__input" type="text" formControlName="volume" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Номер</label>
+                <input class="publication-form__input" type="text" formControlName="issue" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Страницы</label>
+                <input class="publication-form__input" type="text" formControlName="pages" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">DOI</label>
+                <input class="publication-form__input" type="text" formControlName="doi" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">ISSN</label>
+                <input class="publication-form__input" type="text" formControlName="issn" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для конференции -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'CONFERENCE'" formGroupName="conference">
+        <h2 class="publication-form__section-title">Информация о конференции</h2>
+        
+        <div class="publication-form__field">
+            <label class="publication-form__label">Название конференции</label>
+            <input class="publication-form__input" type="text" formControlName="conferenceName" />
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Дата конференции</label>
+                <input class="publication-form__input" type="date" formControlName="conferenceDate" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Место проведения</label>
+                <input class="publication-form__input" type="text" formControlName="location" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Организатор</label>
+                <input class="publication-form__input" type="text" formControlName="organizer" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Страницы</label>
+                <input class="publication-form__input" type="text" formControlName="pages" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для архива -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'ARCHIVE'" formGroupName="archive">
+        <h2 class="publication-form__section-title">Информация об архиве</h2>
+        
+        <div class="publication-form__field">
+            <label class="publication-form__label">Название архива</label>
+            <input class="publication-form__input" type="text" formControlName="archiveName" />
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Дата архивации</label>
+                <input class="publication-form__input" type="date" formControlName="archiveDate" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Местоположение архива</label>
+                <input class="publication-form__input" type="text" formControlName="archiveLocation" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для диссертации -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'DISSERTATION'" formGroupName="dissertation">
+        <h2 class="publication-form__section-title">Информация о диссертации</h2>
+        
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Ученая степень</label>
+                <input class="publication-form__input" type="text" formControlName="academicDegree" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Специальность</label>
+                <input class="publication-form__input" type="text" formControlName="speciality" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Дата защиты</label>
+                <input class="publication-form__input" type="date" formControlName="defenseDate" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Учреждение</label>
+                <input class="publication-form__input" type="text" formControlName="institution" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Специфичные поля для ПО -->
+    <div class="publication-form__section" *ngIf="getSelectedKind() === 'SOFTWARE'" formGroupName="software">
+        <h2 class="publication-form__section-title">Информация о программном обеспечении</h2>
+        
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Язык программирования</label>
+                <input class="publication-form__input" type="text" formControlName="programLanguage" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Операционная система</label>
+                <input class="publication-form__input" type="text" formControlName="operatingSystem" />
+            </div>
+        </div>
+
+        <div class="publication-form__row">
+            <div class="publication-form__field">
+                <label class="publication-form__label">Версия БД</label>
+                <input class="publication-form__input" type="text" formControlName="databaseVersion" />
+            </div>
+            <div class="publication-form__field">
+                <label class="publication-form__label">Тип ПО</label>
+                <input class="publication-form__input" type="text" formControlName="softwareType" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="publication-form__actions">
+        <button 
+            type="button" 
+            class="publication-form__btn publication-form__btn--secondary"
+        >
+            Отмена
+        </button>
+        <button 
+            type="submit" 
+            class="publication-form__btn publication-form__btn--primary"
+            [disabled]="!publicationForm.valid"
+        >
+            Сохранить публикацию
+        </button>
+    </div>
+</form>
+

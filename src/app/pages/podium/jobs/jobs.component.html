@@ -1,0 +1,57 @@
+<section id="container__main">
+  <div class="jobs-page__container">
+    <app-toast-container />
+    <div class="jobs-page__content">
+      <app-loading-spinner *ngIf="loadingJobs && loadingConference" message="Загрузка..." />
+
+      <div *ngIf="!loadingJobs && !loadingConference" class="jobs-state-nav-bar">
+        <nav class="jobs-state-nav" aria-label="Навигация по состояниям публикаций">
+          <button
+            *ngFor="let tab of publicationTabs"
+            type="button"
+            class="jobs-state-nav__item"
+            [class.jobs-state-nav__item--active]="isPublicationTabActive(tab.key)"
+            (click)="selectPublicationTab(tab.key)"
+          >
+            {{ tab.label }}
+          </button>
+        </nav>
+        <button type="button" class="btn jobs-add-button" (click)="addJob()">
+          + Добавить публикацию
+        </button>
+      </div>
+
+      <app-podium-search-line
+        *ngIf="!loadingJobs && !loadingConference"
+        [searchQuery]="searchQuery"
+        [bordered]="false"
+        searchPlaceholder="Название публикации или конференции"
+        (searchChange)="onSearchChange($event)"
+      ></app-podium-search-line>
+
+      <app-loading-spinner *ngIf="loadingJobs && !loadingConference" message="Загрузка статей..." />
+
+      <app-empty-state
+        *ngIf="!loadingJobs && !filteredJobs.length"
+        [title]="searchQuery ? 'По вашему запросу публикации не найдены' : 'Нет добавленных статей'"
+        iconClass="bi bi-file-earmark-x fs-1 text-secondary">
+        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 justify-content-center mt-4">
+          <button class="btn btn-primary px-4" (click)="addJob()">
+            Добавить работу
+          </button>
+        </div>
+      </app-empty-state>
+
+      <app-job-catalog-grid
+        *ngIf="!loadingJobs && filteredJobs.length"
+        [jobs]="filteredJobs"
+        [currentUserId]="currentUser.id"
+        [isAdminView]="isAdmin()"
+        (openJob)="openJob($event)"
+        (editJob)="editJob($event)"
+        (reviewJob)="reviewJob($event)"
+        (deleteJob)="deleteJob($event)"
+      />
+    </div>
+  </div>
+</section>

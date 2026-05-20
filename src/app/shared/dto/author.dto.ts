@@ -1,4 +1,4 @@
-import {Author} from "../../entities/author/model/author";
+import {Author} from "../../entities/podium/author/model/author";
 
 export class AuthorDto {
 

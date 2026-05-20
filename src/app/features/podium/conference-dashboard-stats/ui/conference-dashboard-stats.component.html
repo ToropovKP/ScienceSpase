@@ -1,0 +1,11 @@
+<section class="conference-dashboard-stats">
+  <article class="conference-dashboard-stats__card" *ngFor="let card of cards">
+    <div class="conference-dashboard-stats__content">
+      <p class="conference-dashboard-stats__counter">{{ card.value }}</p>
+      <p class="conference-dashboard-stats__label">{{ card.label }}</p>
+    </div>
+    <span class="conference-dashboard-stats__icon-box">
+      <img [src]="card.iconPath" [alt]="card.iconAlt" />
+    </span>
+  </article>
+</section>

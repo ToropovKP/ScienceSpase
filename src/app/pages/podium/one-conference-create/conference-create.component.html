@@ -1,0 +1,59 @@
+<section class="conference-page">
+  <div class="conference-page__container">
+    <p-toast [breakpoints]="{ '768px': { width: '90%', right: '0', left: '20px' } }" preventOpenDuplicates="true" />
+    <form [formGroup]="formCreateConference">
+      <div class="conference-page__header">
+        <h1 class="conference-page__title">
+          {{ currentConference ? 'Редактирование конференции' : 'Новая конференция' }}
+        </h1>
+      </div>
+
+      <div class="conference-page__panel">
+        <app-conference-main-fields
+          [formGroup]="formCreateConference"
+          [showValidation]="submitAttempted"
+          [minDate]="minDate"
+          [maxDate]="maxDate"
+          [canEdit]="isMasterModeratorOfThisConference()"
+          [admins]="admins || []"
+          [reviewers]="reviewers || []"
+          [recipients]="recipientOptions"
+          [selectedReviewerIds]="selectedReviewerIds"
+          [selectedRecipientIds]="selectedRecipientIds"
+          (adminSelectionChange)="updateAdmin()"
+          (reviewersSelectionChange)="updateSelectedReviewers($event)"
+          (recipientsSelectionChange)="updateSelectedRecipients($event)"
+        />
+
+        <app-conference-sections-manager
+          [sections]="sections"
+          [loadingSections]="loadingSections"
+          [canManageSections]="isMasterModeratorOfThisConference()"
+          [isLeaderSection]="isLeaderSection.bind(this)"
+          [createSection]="createSection.bind(this)"
+          [currentUserId]="currentUser.id"
+        />
+
+        <app-conference-tags-manager
+          [tags]="tags"
+          [loadingTags]="loadingTags"
+          [canManageTags]="isMasterModeratorOfThisConference()"
+        />
+
+        <div class="conference-page__actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="toPage('/podium/conferences')">
+            Отмена
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="submitConference()"
+          >
+            {{ currentConferenceId ? 'Сохранить изменения' : 'Создать конференцию' }}
+          </button>
+        </div>
+      </div>
+    </form>
+ </div>
+</section>
+

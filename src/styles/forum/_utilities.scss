@@ -1,0 +1,56 @@
+/* Utility classes — scoped to .forum-layout */
+
+.forum-layout {
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .center { display: grid; place-items: center; }
+
+  .flex { display: flex; }
+  .inline-flex { display: inline-flex; }
+  .items-center { align-items: center; }
+  .justify-center { justify-content: center; }
+  .gap-2 { gap: var(--space-2); }
+  .gap-4 { gap: var(--space-4); }
+  .gap-6 { gap: var(--space-6); }
+
+  .mt-4 { margin-top: var(--space-4); }
+  .mb-4 { margin-bottom: var(--space-4); }
+  .py-4 { padding-block: var(--space-4); }
+  .px-4 { padding-inline: var(--space-4); }
+
+  .rounded { border-radius: var(--border-radius-md); }
+  .shadow { box-shadow: var(--shadow-md); }
+  .border { border: 1px solid var(--border-color); }
+
+  .text-muted { color: var(--color-text-muted); }
+  .text-center { text-align: center; }
+
+  .bg-surface { background: var(--color-surface); }
+  .bg-elevated { background: var(--color-elevated); }
+  .bg-primary { background: var(--color-primary); color: var(--color-primary-contrast); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding-inline: var(--space-4);
+    border-radius: var(--border-radius-md);
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+    border: 1px solid color-mix(in oklab, var(--color-primary), black 20%);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn:hover { filter: brightness(1.05); }
+  .btn:active { transform: translateY(1px); }
+}

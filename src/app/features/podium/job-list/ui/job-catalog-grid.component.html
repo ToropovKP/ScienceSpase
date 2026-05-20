@@ -1,0 +1,61 @@
+<div class="article-grid">
+  <article class="article-card" *ngFor="let job of jobs">
+    <div class="article-card__body">
+      <h3 class="article-card__title">{{ job.title }}</h3>
+
+      <div class="article-card__status-row">
+        <span class="ui-status-chip article-status" [ngClass]="getStatusChipClass(job)">
+          <span class="ui-status-chip__icon" aria-hidden="true">
+            <i class="bi" [ngClass]="getStatusChipIcon(job)"></i>
+          </span>
+          <span class="ui-status-chip__text">{{ getStatusChipLabel(job) }}</span>
+        </span>
+        <span class="article-card__uploaded">{{ formatUploadedDate(job.dateTime) }}</span>
+      </div>
+
+      <p class="article-card__description" *ngIf="job.description">
+        {{ job.description }}
+      </p>
+
+      <div class="article-card__tags" *ngIf="getJobTags(job).length">
+        <span class="article-card__tag" *ngFor="let tag of getJobTags(job)">
+          {{ tag }}
+        </span>
+      </div>
+
+      <div class="article-card__authors-line">
+        <img src="/assets/icons/Users.svg" alt="" aria-hidden="true" />
+        <span>{{ getAuthorsLine(job) }}</span>
+      </div>
+    </div>
+
+    <div class="article-card__actions">
+      <button type="button" class="article-card__delete-button" (click)="onDelete(job.id)">
+        <img src="/assets/icons/Deleted.svg" alt="" aria-hidden="true" />
+        <span>Удалить</span>
+      </button>
+
+      <div class="article-card__actions-right">
+        <button
+          *ngIf="!isAdminView"
+          type="button"
+          class="btn article-card__button article-card__button--ghost"
+          (click)="onEdit(job.id)"
+        >
+          Редактировать
+        </button>
+        <button
+          *ngIf="isAdminView"
+          type="button"
+          class="btn article-card__button article-card__button--ghost"
+          (click)="onReview(job.id)"
+        >
+          Проверить
+        </button>
+        <button type="button" class="btn article-card__button article-card__button--primary" (click)="onOpen(job.id)">
+          Открыть
+        </button>
+      </div>
+    </div>
+  </article>
+</div>

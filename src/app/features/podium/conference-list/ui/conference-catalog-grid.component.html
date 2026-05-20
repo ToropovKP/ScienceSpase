@@ -1,0 +1,64 @@
+<div class="conference-grid">
+  <article
+    class="conference-card"
+    *ngFor="let conf of conferences"
+    role="button"
+    tabindex="0"
+    (click)="onOpen(conf.id)"
+    (keydown.enter)="onOpen(conf.id)"
+    (keydown.space)="onOpen(conf.id)"
+  >
+    <div class="conference-card__body">
+      <span
+        class="conference-card__status"
+        [ngClass]="{
+          'conference-card__status--active': conf.status === 'ACTIVE',
+          'conference-card__status--closed': conf.status === 'CLOSED',
+          'conference-card__status--hold': conf.status === 'ON_HOLD'
+        }"
+      >
+        {{ conferenceStatusMap[conf.status] }}
+      </span>
+
+      <h3 class="conference-card__title">{{ conf.title }}</h3>
+
+      <div class="conference-card__meta">
+        <span class="conference-card__meta-item">
+          <img src="/assets/icons/Calendar.svg" alt="" aria-hidden="true" />
+          {{ DateService.formatDate(conf.startDate) }} - {{ DateService.formatDate(conf.endDate) }}
+        </span>
+        <span class="conference-card__meta-item">
+          <img src="/assets/icons/location_on.svg" alt="" aria-hidden="true" />
+          {{ conf.organization }}
+        </span>
+        <span class="conference-card__meta-item">
+          <img src="/assets/icons/Users.svg" alt="" aria-hidden="true" />
+          {{ conf.sections.length || 0 }} секций
+        </span>
+      </div>
+
+      <p class="conference-card__description" *ngIf="conf.description">
+        {{ conf.description }}
+      </p>
+    </div>
+
+    <div class="conference-card__actions">
+      <button type="button" class="conference-card__delete-button" (click)="$event.stopPropagation()">
+        <img src="/assets/icons/Deleted.svg" alt="" aria-hidden="true" />
+        <span>Удалить</span>
+      </button>
+      <div class="conference-card__actions-right">
+        <button
+          type="button"
+          class="btn btn-outline-primary conference-card__button conference-card__button--ghost"
+          (click)="$event.stopPropagation(); onEdit(conf.id)"
+        >
+          Редактировать
+        </button>
+        <button type="button" class="btn btn-primary conference-card__button" (click)="$event.stopPropagation(); onOpen(conf.id)">
+          Приостановить
+        </button>
+      </div>
+    </div>
+  </article>
+</div>

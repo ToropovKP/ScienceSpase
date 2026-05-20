@@ -1,0 +1,75 @@
+<div class="header-container">
+  <div class="header-content">
+    <div class="header-content__title-wrap">
+      <span
+        class="status-badge"
+        [ngClass]="{
+          'status-badge--active': status === 'ACTIVE',
+          'status-badge--closed': status === 'CLOSED',
+          'status-badge--hold': status === 'ON_HOLD'
+        }"
+      >
+        {{ statusLabel }}
+      </span>
+
+      <h1 class="conference-title">{{ title }}</h1>
+    </div>
+
+    <div class="desktop-actions">
+      <button
+        *ngIf="showRegister"
+        class="btn btn-action btn-add"
+        type="button"
+        (click)="register.emit()"
+      >
+        <i class="bi bi-person-plus"></i> Регистрация
+      </button>
+
+      <button
+        *ngIf="showUnregister"
+        class="btn btn-action btn-neutral"
+        type="button"
+        (click)="unregister.emit()"
+      >
+        <i class="bi bi-person-dash"></i> Отменить регистрацию
+      </button>
+
+      <button
+        *ngIf="showAddJob"
+        class="btn btn-action btn-add"
+        type="button"
+        (click)="addJob.emit()"
+      >
+        <i class="bi bi-plus-lg"></i> Добавить работу
+      </button>
+
+      <button
+        *ngIf="showMyWorks"
+        class="btn btn-action btn-neutral"
+        type="button"
+        (click)="myWorks.emit()"
+      >
+        <i class="bi bi-files"></i> Мои работы
+      </button>
+
+      <button
+        *ngIf="showEditConference"
+        class="btn btn-action btn-edit"
+        type="button"
+        (click)="editConference.emit()"
+      >
+        <i class="bi bi-pencil-square"></i> Редактировать
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isModeratorOfConference" class="mobile-warning">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Редактирование доступно только с компьютера. Для управления конференцией воспользуйтесь десктопной версией сайта.
+  </div>
+
+  <div *ngIf="!isModeratorOfConference" class="mobile-warning">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Добавление работ доступно только с компьютера. Воспользуйтесь десктопной версией сайта.
+  </div>
+</div>

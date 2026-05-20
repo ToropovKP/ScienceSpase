@@ -1,0 +1,13 @@
+<div class="conference-list-header">
+  <div class="conference-list-header__top">
+    <h1 class="page-title">{{ title }}</h1>
+    <button
+      *ngIf="showCreateButton"
+      type="button"
+      class="btn btn-primary conference-list-header__create-button"
+      (click)="create.emit()"
+    >
+      <span>{{ createButtonLabel }}</span>
+    </button>
+  </div>
+</div>

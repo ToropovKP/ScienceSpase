@@ -1,0 +1,34 @@
+<div class="publication-cards-grid">
+    <div *ngIf="loading" class="publication-cards-grid__loading">
+        Загрузка публикаций...
+    </div>
+    
+    <div *ngIf="error" class="publication-cards-grid__error">
+        {{ error }}
+    </div>
+
+    <div *ngIf="!loading && !error && publications.length === 0" class="publication-cards-grid__empty">
+        Публикации не найдены
+    </div>
+
+    <div 
+        *ngIf="!loading && !error && publications.length > 0"
+        class="publication-cards-grid__container"
+        [class.publication-cards-grid__container--list]="viewMode === 'list'"
+        [class.publication-cards-grid__container--grid]="viewMode === 'grid'"
+    >
+        <ng-container *ngIf="viewMode === 'grid'">
+            <app-forum-card-m
+                *ngFor="let publication of publications"
+                [publication]="publication"
+            ></app-forum-card-m>
+        </ng-container>
+
+        <ng-container *ngIf="viewMode === 'list'">
+            <app-forum-card-l
+                *ngFor="let publication of publications"
+                [publication]="publication"
+            ></app-forum-card-l>
+        </ng-container>
+    </div>
+</div>

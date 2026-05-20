@@ -1,0 +1,26 @@
+/* Typography scale — scoped to .forum-layout */
+
+.forum-layout {
+  h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: var(--leading-tight); }
+
+  h1 { font-size: clamp(2rem, 1.2rem + 3vw, 3rem); }
+  h2 { font-size: clamp(1.75rem, 1.1rem + 2.5vw, 2.5rem); }
+  h3 { font-size: clamp(1.5rem, 1rem + 2vw, 2rem); }
+  h4 { font-size: clamp(1.25rem, 0.9rem + 1.5vw, 1.5rem); }
+  h5 { font-size: clamp(1.125rem, 0.85rem + 1vw, 1.25rem); }
+  h6 { font-size: var(--text-md); }
+
+  p { font-size: var(--text-md); line-height: var(--leading-loose); }
+
+  a { color: var(--color-primary); text-underline-offset: 2px; }
+  a:hover { text-decoration: underline; }
+
+  small { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+  mark {
+    background: color-mix(in oklab, var(--color-primary), transparent 80%);
+    color: inherit;
+    padding: 0 .2em;
+    border-radius: 4px;
+  }
+}

@@ -1,0 +1,91 @@
+<div class="chat-page-thread">
+  <div #chatContainer class="chat-page-thread__messages">
+    <ng-container *ngFor="let comment of comments; let i = index; trackBy: trackCommentById">
+      <div *ngIf="showDateSeparatorBefore(comment, i)" class="chat-page-thread__date-separator" role="separator">
+        <span>{{ dateSeparatorLabel(comment) }}</span>
+      </div>
+
+      <div *ngIf="!isOwnComment(comment)" class="chat-page-thread__row chat-page-thread__row--other">
+        <div class="chat-page-thread__avatar chat-page-thread__avatar--other" aria-hidden="true">
+          {{ avatarInitials(comment) }}
+        </div>
+        <div class="chat-page-thread__meta-col chat-page-thread__meta-col--other">
+          <div class="chat-page-thread__sender-name">{{ displayName(comment) }}</div>
+          <div class="chat-page-thread__bubble chat-page-thread__bubble--other">
+            <div class="chat-page-thread__bubble-text" [innerHTML]="comment.message | linkify"></div>
+            <time
+              class="chat-page-thread__bubble-time chat-page-thread__bubble-time--other"
+              [attr.datetime]="commentToDate(comment).toISOString()"
+            >
+              {{ messageTimeLabel(comment) }}
+            </time>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isOwnComment(comment)" class="chat-page-thread__row chat-page-thread__row--mine">
+        <div class="chat-page-thread__meta-col chat-page-thread__meta-col--mine">
+          <div class="chat-page-thread__sender-name chat-page-thread__sender-name--mine">{{ displayName(comment) }}</div>
+          <div class="chat-page-thread__bubble chat-page-thread__bubble--mine">
+            <div class="chat-page-thread__bubble-text" [innerHTML]="comment.message | linkify: true"></div>
+            <time
+              class="chat-page-thread__bubble-time chat-page-thread__bubble-time--mine"
+              [attr.datetime]="commentToDate(comment).toISOString()"
+            >
+              {{ messageTimeLabel(comment) }}
+            </time>
+          </div>
+        </div>
+        <div class="chat-page-thread__avatar chat-page-thread__avatar--mine" aria-hidden="true">
+          {{ avatarInitials(comment) }}
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="chat-page-thread__composer">
+    <form [formGroup]="formComment" class="chat-page-thread__composer-form">
+      <input
+        #fileInput
+        type="file"
+        class="visually-hidden"
+        multiple
+        (change)="onFilesSelected($event)"
+        aria-hidden="true"
+        tabindex="-1"
+      />
+      <button
+        type="button"
+        class="chat-page-thread__composer-btn chat-page-thread__composer-btn--attach"
+        (click)="openAttachmentPicker()"
+        [disabled]="attachmentUploading || !activeJobId"
+        aria-label="Прикрепить файл"
+        title="Прикрепить файл"
+      >
+        <i class="bi bi-paperclip" aria-hidden="true"></i>
+      </button>
+      <textarea
+        #messageInput
+        class="chat-page-thread__textarea"
+        formControlName="message"
+        placeholder="Введите сообщение"
+        (keydown.enter)="handleEnterKey($event)"
+        rows="1"
+        style="resize: none; overflow-y: auto"
+        (input)="adjustTextareaHeight($event)"
+      ></textarea>
+      <button
+        type="button"
+        class="chat-page-thread__composer-btn chat-page-thread__composer-btn--send"
+        (click)="createComment()"
+        [disabled]="
+          attachmentUploading || !formComment.get('message')?.value?.trim() || formComment.invalid
+        "
+        aria-label="Отправить"
+        title="Отправить"
+      >
+        <i class="bi bi-send-fill" aria-hidden="true"></i>
+      </button>
+    </form>
+  </div>
+</div>

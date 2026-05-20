@@ -1,0 +1,42 @@
+<div class="conference-block conference-block--sections">
+  <h2 class="conference-block__title">Секции</h2>
+  <div *ngIf="loadingSections" class="text-center py-4">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <div *ngIf="!loadingSections" [formGroup]="form">
+    <div class="ui-input-table">
+      <div class="ui-input-table__head">
+        <div *ngFor="let column of sectionTableColumns" class="ui-input-table__head-cell">
+          {{ column.title }}
+        </div>
+      </div>
+      <div formArrayName="sections">
+        <div
+          *ngFor="let section of sections.controls; let i = index"
+          [formGroupName]="i"
+          class="ui-input-table__row"
+        >
+          <div class="ui-input-table__cell" *ngFor="let column of sectionTableColumns">
+            <input
+              [type]="column.type"
+              class="form-control ui-input-table__input"
+              [class.ui-input-table__date]="column.type === 'date'"
+              [class.ui-input-table__date--empty]="column.type === 'date' && !section.get(column.controlName)?.value"
+              [formControlName]="column.controlName"
+              [placeholder]="column.placeholder"
+              [readonly]="!canManageSections"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sections-actions">
+      <button type="button" class="btn btn-link sections-actions__add" [disabled]="!canManageSections" (click)="addSection()">
+        <span class="sections-actions__add-icon" aria-hidden="true">+</span>
+        <span>Добавить секцию</span>
+      </button>
+    </div>
+  </div>
+</div>

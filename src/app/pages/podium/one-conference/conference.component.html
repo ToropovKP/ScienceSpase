@@ -1,0 +1,113 @@
+<section class="conference-view-page">
+  <div class="conference-view-page__container">
+    <app-toast-container />
+    <div class="conference-view-page__content">
+      <app-loading-spinner *ngIf="loadingConference" message="Загрузка конференции..." />
+
+      <div *ngIf="!loadingConference" class="conference-view-page__blocks">
+        <button type="button" class="conference-view-page__back-link" (click)="toPage('/podium/conferences')">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+          <span>Вернуться к списку конференций</span>
+        </button>
+
+        <section class="conference-overview">
+          <span class="conference-overview__status">
+            {{ conferenceStatusMap[currentConference.status] }}
+          </span>
+          <h1 class="conference-overview__title">{{ currentConference.title }}</h1>
+
+          <div class="conference-overview__facts">
+            <article class="conference-fact-card">
+              <span class="conference-fact-card__icon-box">
+                <img src="/assets/icons/Calendar_blue.svg" alt="" aria-hidden="true" />
+              </span>
+              <div class="conference-fact-card__content">
+                <p class="conference-fact-card__label">Дата конференции</p>
+                <p class="conference-fact-card__value">
+                  {{ DateService.formatDate(currentConference.startDate) }} - {{ DateService.formatDate(currentConference.endDate) }}
+                </p>
+              </div>
+            </article>
+
+            <article class="conference-fact-card">
+              <span class="conference-fact-card__icon-box">
+                <img src="/assets/icons/location_blue.svg" alt="" aria-hidden="true" />
+              </span>
+              <div class="conference-fact-card__content">
+                <p class="conference-fact-card__label">Место проведения</p>
+                <p class="conference-fact-card__value">{{ currentConference.organization }}</p>
+              </div>
+            </article>
+
+            <article class="conference-fact-card">
+              <span class="conference-fact-card__icon-box">
+                <img src="/assets/icons/Users_blue.svg" alt="" aria-hidden="true" />
+              </span>
+              <div class="conference-fact-card__content">
+                <p class="conference-fact-card__label">Участники</p>
+                <p class="conference-fact-card__value">{{ getParticipantsLabel() }}</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="conference-overview__team">
+            <div class="conference-overview__team-left">
+              <span class="conference-overview__team-avatar">{{ getTeamInitials() }}</span>
+              <div>
+                <p class="conference-overview__team-label">Команда</p>
+                <p class="conference-overview__team-name">{{ getTeamPreview() }}</p>
+              </div>
+            </div>
+            <button type="button" class="btn conference-overview__team-button">
+              Посмотреть
+            </button>
+          </div>
+
+          <div class="conference-overview__description-block">
+            <h2 class="conference-overview__section-title conference-overview__section-title--description">Описание</h2>
+            <p class="conference-overview__description">{{ currentConference.description }}</p>
+
+            <h2 class="conference-overview__section-title conference-overview__section-title--sections">Доступные секции</h2>
+
+            <div class="conference-sections-table__wrap">
+              <table class="conference-sections-table">
+                <thead>
+                <tr>
+                  <th>Секция</th>
+                  <th>Руководитель</th>
+                  <th>Рецензент</th>
+                  <th>Дата проведения</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let section of sections">
+                  <td>{{ section.title }}</td>
+                  <td>{{ getUsersShort(section.leaders) }}</td>
+                  <td>{{ getUsersShort(section.reviewers) }}</td>
+                  <td>—</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div *ngIf="isAdmin()" class="conference-admin-actions">
+              <button type="button" class="conference-admin-actions__delete">
+                <img src="/assets/icons/Deleted.svg" alt="" aria-hidden="true" />
+                <span>Удалить</span>
+              </button>
+
+              <div class="conference-admin-actions__right">
+                <button type="button" class="btn conference-admin-actions__btn conference-admin-actions__btn--ghost" (click)="editConference()">
+                  Редактировать
+                </button>
+                <button type="button" class="btn conference-admin-actions__btn conference-admin-actions__btn--primary">
+                  Приостановить
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+<div class="card-l" *ngIf="publication">
+    <div class="card-l__header">
+        <div class="card-l__meta">
+            <span class="card-l__type">{{ getKindLabel(publication.publicationKind) }}</span>
+            <span class="card-l__year" *ngIf="publication.publicationDate">
+                {{ getYear(publication.publicationDate) }}
+            </span>
+        </div>
+    </div>
+    <div class="card-l__content">
+        <h3 class="card-l__title">{{ publication.title }}</h3>
+        <p class="card-l__authors">{{ getAuthorsString(publication.authors) }}</p>
+        <p class="card-l__abstract" *ngIf="publication.abstractText">
+            {{ publication.abstractText }}
+        </p>
+        <div class="card-l__footer">
+            <span class="card-l__keywords" *ngIf="publication.keywords">
+                {{ publication.keywords }}
+            </span>
+        </div>
+    </div>
+</div>

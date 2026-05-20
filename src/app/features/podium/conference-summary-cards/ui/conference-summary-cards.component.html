@@ -1,0 +1,48 @@
+<div class="conference-summary">
+  <div class="conference-summary__card">
+    <h5 class="conference-summary__label">
+      <i class="bi bi-building"></i>
+      Организация
+    </h5>
+    <p class="conference-summary__value">{{ organization }}</p>
+  </div>
+
+  <div class="conference-summary__card">
+    <h5 class="conference-summary__label">
+      <i class="bi bi-calendar-range"></i>
+      Даты проведения
+    </h5>
+    <p class="conference-summary__value">
+      {{ DateService.formatDate(startDate) }} — {{ DateService.formatDate(endDate) }}
+    </p>
+  </div>
+
+  <div *ngIf="showParticipantsColumn" class="conference-summary__card">
+    <h5 class="conference-summary__label">
+      <i class="bi bi-people"></i>
+      Участники
+    </h5>
+    <p class="conference-summary__value">
+      <span *ngIf="showParticipantsCount">
+        {{ countUsers }}
+        <ng-container *ngIf="countUsersWithJob !== null">, с работой: {{ countUsersWithJob }}</ng-container>
+      </span>
+      <a
+        *ngIf="showParticipantsLink && participantsLinkVariant === 'participants'"
+        href="#"
+        class="conference-summary__link"
+        (click)="onParticipantsClick(); $event.preventDefault()"
+      >
+        Список участников <i class="bi bi-arrow-right"></i>
+      </a>
+      <a
+        *ngIf="showParticipantsLink && participantsLinkVariant === 'downloadAll'"
+        href="#"
+        class="conference-summary__link"
+        (click)="onDownloadAllClick(); $event.preventDefault()"
+      >
+        <i class="bi bi-download"></i> Скачать все
+      </a>
+    </p>
+  </div>
+</div>

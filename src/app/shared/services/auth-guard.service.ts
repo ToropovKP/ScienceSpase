@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
-import { User } from '../../entities/user/model/user';
+import { User } from '../../entities/shared/user/model/user';
 
 export interface AuthCheckResult {
   canProceed: boolean;

@@ -109,6 +109,36 @@ export function buildFullPhoneDigits(countryId: PhoneCountryId, nationalDigits: 
   return c.dialPrefix + nationalDigits.replace(/\D/g, '');
 }
 
+/** Форматирует национальный номер по маске страны: 9991234567 → (999) 123-4567 */
+function formatNationalByMask(countryId: PhoneCountryId, nationalDigits: string): string {
+  const { mask } = getPhoneCountry(countryId);
+  const digits = nationalDigits.replace(/\D/g, '');
+  let i = 0;
+  let out = '';
+  for (const ch of mask) {
+    if (ch === '0') {
+      if (i >= digits.length) break;
+      out += digits[i++];
+    } else {
+      if (i >= digits.length) break;
+      out += ch;
+    }
+  }
+  return out + (i < digits.length ? digits.slice(i) : '');
+}
+
+/** Готовая строка для отображения номера телефона: «+7 (999) 123-4567». Возвращает пустую строку, если номера нет. */
+export function formatPhoneForDisplay(params: {
+  countryCode?: PhoneCountryId | null;
+  phoneNumber?: string | null;
+  phone?: string | null;
+}): string {
+  const { countryId, national } = parseUserPhone(params);
+  if (!national) return '';
+  const country = getPhoneCountry(countryId);
+  return `${country.prefix}${formatNationalByMask(countryId, national)}`.trim();
+}
+
 export function nationalPhoneValidator(getCountry: () => PhoneCountryId | undefined): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const countryId = getCountry();

@@ -1,5 +1,5 @@
-import {User} from "../../entities/user/model/user";
-import {UserBase} from "../../entities/user/model/user.base";
+import {User} from "../../entities/shared/user/model/user";
+import {UserBase} from "../../entities/shared/user/model/user.base";
 
 /**
  * Вычисляет полное имя пользователя из имени, фамилии и отчества

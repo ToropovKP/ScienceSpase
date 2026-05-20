@@ -1,0 +1,182 @@
+<header class="app-header">
+  <app-toast-container />
+
+  <div class="app-header__inner">
+    <!-- Логотип + переключатель системы -->
+    <div class="app-header__brand">
+      <a class="app-header__logo" [routerLink]="['/']" [attr.aria-label]="systemTitle()">
+        <img
+          class="app-header__logo-img"
+          [src]="currentSystem() === 'forum'
+            ? 'assets/pictures/header/logo_forum_header.svg'
+            : 'assets/pictures/header/logo_podium_header.svg'"
+          [alt]="systemTitle()"
+        />
+      </a>
+
+      <button
+        type="button"
+        class="app-header__system-toggle"
+        (click)="toggleSystem()"
+        [attr.aria-label]="'Переключить систему. Сейчас: ' + systemTitle()"
+        title="Переключить систему"
+      >
+        <img src="assets/pictures/header/system-switch.svg" alt="" aria-hidden="true" />
+      </button>
+    </div>
+
+    <!-- Центр: навигация текущей системы -->
+    <nav class="app-header__nav" aria-label="Основная навигация">
+      <ul class="app-header__nav-list">
+        <li *ngFor="let item of navItems()" class="app-header__nav-item">
+          <ng-container *ngIf="!item.disabled; else disabledItem">
+            <a
+              class="app-header__nav-link"
+              [routerLink]="[item.link]"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.link === '/' }"
+            >
+              {{ item.label }}
+            </a>
+          </ng-container>
+          <ng-template #disabledItem>
+            <span
+              class="app-header__nav-link is-disabled"
+              [attr.aria-disabled]="true"
+              [title]="'Раздел в разработке'"
+            >
+              {{ item.label }}
+            </span>
+          </ng-template>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Право: уведомления + личный кабинет -->
+    <div class="app-header__right">
+      <ng-container *ngIf="isLogged(); else guestActions">
+        <div class="app-header__notifications" [class.is-open]="isNotificationsOpen()">
+          <button
+            type="button"
+            class="app-header__icon-btn"
+            aria-label="Уведомления"
+            (click)="toggleNotificationsMenu()"
+          >
+            <img src="assets/pictures/header/notification.svg" alt="" aria-hidden="true" />
+            <span *ngIf="unreadNotifications() > 0" class="app-header__notifications-badge">
+              {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+            </span>
+          </button>
+
+          <div class="app-header__notifications-menu" *ngIf="isNotificationsOpen()">
+            <div class="app-header__notifications-header">
+              <span>Уведомления</span>
+              <button
+                *ngIf="unreadNotifications() > 0"
+                type="button"
+                class="app-header__notifications-action"
+                (click)="markAllNotificationsRead()"
+              >
+                Прочитать всё
+              </button>
+            </div>
+
+            <div *ngIf="notificationsLoading()" class="app-header__notifications-empty">
+              Загрузка уведомлений...
+            </div>
+
+            <div *ngIf="!notificationsLoading() && notifications().length === 0" class="app-header__notifications-empty">
+              Новых уведомлений нет.
+            </div>
+
+            <button
+              *ngFor="let notification of notifications()"
+              type="button"
+              class="app-header__notification-item"
+              [class.is-unread]="!notification.readAt"
+              (click)="openNotification(notification)"
+            >
+              <div class="app-header__notification-title">{{ notification.title }}</div>
+              <div class="app-header__notification-body">{{ notification.body }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="app-header__user" [class.is-open]="isUserMenuOpen()">
+          <button
+            type="button"
+            class="app-header__user-btn"
+            (click)="toggleUserMenu()"
+            [attr.aria-expanded]="isUserMenuOpen()"
+            aria-haspopup="menu"
+          >
+            <span
+              class="app-header__avatar"
+              [style.background-color]="avatarPalette().bg"
+              [style.color]="avatarPalette().fg"
+              aria-hidden="true"
+            >{{ initials() || '·' }}</span>
+            <span class="app-header__user-name" [title]="fullName()">{{ fullName() }}</span>
+            <svg class="app-header__caret" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div class="app-header__user-menu" *ngIf="isUserMenuOpen()" role="menu">
+            <button type="button" class="app-header__menu-item" role="menuitem" (click)="goTo('/podium/profile')">
+              Профиль
+            </button>
+            <div class="app-header__menu-divider"></div>
+            <button type="button" class="app-header__menu-item is-danger" role="menuitem" (click)="logout()">
+              Выход
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #guestActions>
+        <a routerLink="/auth" class="app-header__btn app-header__btn--ghost">Вход</a>
+        <a routerLink="/auth" [queryParams]="{ register: '1' }" class="app-header__btn app-header__btn--primary">
+          Регистрация
+        </a>
+      </ng-template>
+
+      <!-- Бургер для мобильной навигации -->
+      <button
+        type="button"
+        class="app-header__burger"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen()"
+        aria-label="Меню навигации"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Мобильное выпадение -->
+  <div class="app-header__mobile" [class.is-open]="isMobileMenuOpen()">
+    <ul class="app-header__mobile-list">
+      <li *ngFor="let item of navItems()">
+        <ng-container *ngIf="!item.disabled; else disabledMobile">
+          <a
+            class="app-header__mobile-link"
+            [routerLink]="[item.link]"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.link === '/' }"
+            (click)="closeMobileMenu()"
+          >
+            {{ item.label }}
+          </a>
+        </ng-container>
+        <ng-template #disabledMobile>
+          <span class="app-header__mobile-link is-disabled" [attr.aria-disabled]="true">
+            {{ item.label }}
+          </span>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+</header>

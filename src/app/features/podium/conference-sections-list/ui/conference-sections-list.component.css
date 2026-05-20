@@ -1,0 +1,65 @@
+.conference-sections {
+  border: 1px solid #dde3ea;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px 0 #1b324626;
+  overflow: hidden;
+}
+
+.conference-sections__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.conference-sections__title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #303849;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.conference-sections__title i {
+  color: #8d9bad;
+}
+
+.conference-sections__body {
+  padding: 0;
+}
+
+.conference-sections__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.conference-sections__item {
+  padding: 14px 20px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.conference-sections__item:last-child {
+  border-bottom: none;
+}
+
+.conference-sections__item-title {
+  margin: 0 0 8px;
+  color: #303849;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.conference-sections__item-meta {
+  margin: 0;
+  color: #6c737d;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  word-break: break-word;
+}

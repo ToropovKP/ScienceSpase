@@ -1,0 +1,27 @@
+<div class="podium-search-line" [class.podium-search-line--borderless]="!bordered">
+  <div class="podium-search-line__left">
+    <img class="podium-search-line__icon" src="/assets/icons/Search.svg" alt="" aria-hidden="true" />
+    <input
+      type="text"
+      class="podium-search-line__input"
+      [value]="searchQuery"
+      [placeholder]="searchPlaceholder"
+      (input)="onSearch(($any($event.target)).value)"
+    />
+  </div>
+
+  <ng-container *ngIf="showFilterControls">
+    <div class="podium-search-line__divider" aria-hidden="true"></div>
+
+    <div class="podium-search-line__right">
+      <button type="button" class="podium-search-line__control podium-search-line__control--filter">
+        <img src="/assets/icons/Filter.svg" alt="" aria-hidden="true" />
+        <span>Фильтры</span>
+      </button>
+      <button type="button" class="podium-search-line__control podium-search-line__control--sort">
+        <img src="/assets/icons/system switch.svg" alt="" aria-hidden="true" />
+        <span>Сначала новые</span>
+      </button>
+    </div>
+  </ng-container>
+</div>
